@@ -1,1 +1,174 @@
-<p>carrito works!</p>
+<div class="min-h-screen bg-[#f5ede1] px-5 md:px-10 py-8 md:py-10">
+
+  <div class="max-w-7xl mx-auto">
+
+    <h1 class="text-2xl md:text-3xl font-bold text-[#2f1b12] mb-8 md:mb-10">
+      Carrito de compra
+    </h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12">
+
+      <!-- Productos -->
+      <section class="space-y-5 md:space-y-8">
+
+        @for(item of items(); track item.id) {
+
+          <div class="bg-[#fff8ec] p-4 flex flex-col md:flex-row gap-5 rounded-sm">
+
+            <!-- Imagen -->
+            <div class="w-full md:w-40 h-40 md:h-48 bg-[#e7dccb] flex items-center justify-center">
+
+              <span class="text-6xl text-[#8b7355]">
+                ▧
+              </span>
+
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 flex flex-col justify-center">
+
+              <h3 class="font-bold text-[#2f1b12] text-lg">
+                {{ item.nombre }}
+              </h3>
+
+              <p class="text-sm text-[#4b2e1f] mt-1">
+                Modelo / Variante
+              </p>
+
+              <p class="text-sm text-[#4b2e1f]">
+                Talla: {{ item.talla }}
+              </p>
+
+              <p class="text-sm text-[#4b2e1f]">
+                Código: {{ item.id }}
+              </p>
+
+              <!-- Controles -->
+              <div class="flex items-center justify-between mt-5">
+
+                <div class="flex items-center bg-[#8a542f] text-white">
+
+                  <button
+                    (click)="remove(item.id, item.talla)"
+                    class="px-3 py-2"
+                  >
+                    🗑
+                  </button>
+
+                  <button
+                    (click)="decrease(item.id, item.talla)"
+                    class="px-3 py-2"
+                  >
+                    -
+                  </button>
+
+                  <span class="px-5 py-2 border-x border-white/30">
+                    {{ item.cantidad }}
+                  </span>
+
+                  <button
+                    (click)="increase(item.id, item.talla)"
+                    class="px-3 py-2 text-lg"
+                  >
+                    +
+                  </button>
+
+                </div>
+
+                <p class="font-bold text-[#2f1b12] text-lg">
+                  ${{ item.precio * item.cantidad }} MXN
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        }
+
+        <!-- Envío -->
+        <div class="text-[#2f1b12] text-sm pt-2">
+
+          <p>
+            Llega el lun 20 de abr
+          </p>
+
+          <p class="mt-2">
+            Envío gratuito
+          </p>
+
+        </div>
+
+      </section>
+
+      <!-- Resumen -->
+      <aside class="bg-[#fff8ec] p-6 h-fit rounded-sm">
+
+        <h2 class="font-bold text-[#2f1b12] text-xl mb-6">
+          Resumen del pedido
+        </h2>
+
+        <div class="space-y-4 text-[#2f1b12] text-sm">
+
+          @for(item of items(); track item.id) {
+
+            <div class="flex justify-between gap-6">
+
+              <span>
+                {{ item.nombre }}
+              </span>
+
+              <span class="font-bold">
+                ${{ item.precio * item.cantidad }}
+              </span>
+
+            </div>
+
+          }
+
+        </div>
+
+        <!-- Total -->
+        <div class="border-t-2 border-[#2f1b12] mt-8 pt-5">
+
+          <div class="flex justify-between text-lg text-[#2f1b12]">
+
+            <span>
+              Total
+            </span>
+
+            <span class="font-bold">
+              ${{ subtotal() }} MXN
+            </span>
+
+          </div>
+
+        </div>
+
+        <!-- Botones -->
+        <div class="mt-10 space-y-4">
+
+          <a
+            routerLink="/checkout"
+            class="block text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 font-medium transition"
+          >
+            Comprar como invitado
+          </a>
+
+          <a
+            routerLink="/login"
+            class="block text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 font-medium transition"
+          >
+            Comprar como miembro
+          </a>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+  </div>
+
+</div>
