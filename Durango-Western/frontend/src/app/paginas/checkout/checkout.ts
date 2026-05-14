@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-checkout',
@@ -7,5 +9,13 @@ import { Component } from '@angular/core';
   styleUrl: './checkout.css'
 })
 export class Checkout {
-  items = Array(2).fill({});
+
+  private cartService = inject(CartService);
+
+  items = this.cartService.cartItems;
+
+  subtotal(): number {
+    return this.cartService.getSubtotal();
+  }
+
 }
