@@ -1,1 +1,157 @@
-<p>detalle-producto works!</p>
+<div class="min-h-screen bg-[#f5ede1] px-4 md:px-8 py-8">
+
+  <div class="max-w-7xl mx-auto">
+
+    <div class="grid grid-cols-1 lg:grid-cols-[120px_1fr_420px] gap-6 mb-14">
+
+      <!-- Mini imágenes -->
+      <div class="hidden lg:flex flex-col gap-4">
+
+        <div class="aspect-square bg-[#e7dccb] flex items-center justify-center">
+          <span class="text-4xl text-[#8b7355]">▧</span>
+        </div>
+
+        <div class="aspect-square bg-[#e7dccb] flex items-center justify-center">
+          <span class="text-4xl text-[#8b7355]">▧</span>
+        </div>
+
+        <div class="aspect-square bg-[#e7dccb] flex items-center justify-center">
+          <span class="text-4xl text-[#8b7355]">▧</span>
+        </div>
+
+      </div>
+
+      <!-- Imagen principal -->
+      <div class="bg-[#fff8ec] aspect-square flex items-center justify-center">
+
+        <span class="text-8xl text-[#8b7355]">
+          ▧
+        </span>
+
+      </div>
+
+      <!-- Información -->
+      <div class="bg-[#f5ede1] p-4">
+
+        <h1 class="text-2xl font-bold text-[#2f1b12] mb-2">
+          Producto próximamente
+        </h1>
+
+        <p class="text-xl font-bold text-[#2f1b12] mb-8">
+          $0.00 MXN
+        </p>
+
+        <!-- Tallas -->
+        <div class="mb-6">
+
+          <h3 class="text-[#2f1b12] font-semibold mb-3">
+            Talla:
+          </h3>
+
+          <div class="grid grid-cols-4 gap-2">
+
+            @for(talla of tallas; track talla) {
+
+              <button
+                (click)="selectedSize = talla"
+                class="border border-[#cbb89d] py-2 text-sm hover:bg-[#4b2e1f] hover:text-white"
+                [class.bg-\[\#4b2e1f\]]="selectedSize === talla"
+                [class.text-white]="selectedSize === talla"
+              >
+                {{ talla }}
+              </button>
+
+            }
+
+          </div>
+
+        </div>
+
+        <!-- Botón carrito -->
+        <button
+          (click)="addToCart()"
+          class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white py-3 font-semibold mb-4"
+        >
+          AGREGAR AL CARRITO
+        </button>
+
+        <!-- Información -->
+        <div class="border-t border-[#cbb89d]">
+
+          <button class="w-full flex justify-between items-center py-4 text-[#2f1b12]">
+
+            <span>
+              Conoce todo sobre métodos de pago
+            </span>
+
+            <span>
+              +
+            </span>
+
+          </button>
+
+          <button class="w-full flex justify-between items-center py-4 border-t border-[#cbb89d] text-[#2f1b12]">
+
+            <span>
+              Envíos y devoluciones
+            </span>
+
+            <span>
+              +
+            </span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Productos relacionados -->
+    <section>
+
+      <h2 class="text-center text-2xl text-[#2f1b12] mb-8">
+        Productos Relacionados
+      </h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+        @for(producto of relacionados; track $index) {
+
+          <div class="bg-[#fff8ec] p-3">
+
+            <div class="aspect-square bg-[#e7dccb] flex items-center justify-center mb-3">
+
+              <span class="text-5xl text-[#8b7355]">
+                ▧
+              </span>
+
+            </div>
+
+            <h3 class="text-sm font-semibold text-[#2f1b12] mb-2">
+              Producto relacionado
+            </h3>
+
+            <p class="font-bold text-[#2f1b12] mb-3">
+              $0.00 MXN
+            </p>
+
+            <button
+  (click)="addToCart()"
+  class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white py-3 font-semibold mb-4"
+>
+  AGREGAR AL CARRITO
+</button>
+
+          </div>
+
+        }
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>

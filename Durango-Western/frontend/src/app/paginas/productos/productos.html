@@ -1,1 +1,200 @@
-<p>productos works!</p>
+<div class="min-h-screen bg-[#f5ede1] px-4 md:px-8 py-8">
+
+  <div class="max-w-7xl mx-auto">
+
+    <h1 class="text-center text-3xl font-bold text-[#2f1b12] mb-6">
+      {{ tituloCategoria }}
+    </h1>
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+
+      <p class="text-sm text-[#4b2e1f]">
+        Inicio / {{ tituloCategoria }}
+      </p>
+
+      <select class="bg-white border border-[#cbb89d] px-4 py-2 text-sm text-[#2f1b12]">
+        <option>Ordenar por</option>
+        <option>Más vendidos</option>
+        <option>Precio menor a mayor</option>
+        <option>Precio mayor a menor</option>
+        <option>Más recientes</option>
+      </select>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
+
+      <aside class="bg-[#fff8ec] p-5 h-fit">
+
+        <h2 class="text-[#2f1b12] font-bold mb-5">
+          Filtros
+        </h2>
+
+        <div class="mb-6">
+
+          <h3 class="text-[#4b2e1f] font-semibold mb-3">
+            Categoría
+          </h3>
+
+          <div class="space-y-2 text-sm text-[#2f1b12]">
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              Botas
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              Sombreros
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              Camisas
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              Pantalones
+            </label>
+
+          </div>
+
+        </div>
+
+        <div class="mb-6">
+
+          <h3 class="text-[#4b2e1f] font-semibold mb-3">
+            Género
+          </h3>
+
+          <div class="space-y-2 text-sm text-[#2f1b12]">
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              Caballero
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              Dama
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              Niños
+            </label>
+
+          </div>
+
+        </div>
+
+        <div class="mb-6">
+
+          <h3 class="text-[#4b2e1f] font-semibold mb-3">
+            Talla
+          </h3>
+
+          <div class="grid grid-cols-3 gap-2 text-sm">
+
+            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
+              25
+            </button>
+
+            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
+              26
+            </button>
+
+            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
+              27
+            </button>
+
+            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
+              28
+            </button>
+
+            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
+              29
+            </button>
+
+            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
+              30
+            </button>
+
+          </div>
+
+        </div>
+
+        <div>
+
+          <h3 class="text-[#4b2e1f] font-semibold mb-3">
+            Precio
+          </h3>
+
+          <div class="space-y-2 text-sm text-[#2f1b12]">
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              $0 - $1,000
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              $1,000 - $2,500
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox">
+              $2,500+
+            </label>
+
+          </div>
+
+        </div>
+
+      </aside>
+
+      <section>
+
+        <p class="text-sm text-[#4b2e1f] mb-6">
+          12 productos encontrados
+        </p>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+
+          @for(product of products; track $index) {
+
+            <a
+              routerLink="/detalle-producto/producto-demo"
+              class="block bg-[#fff8ec] p-3 shadow-sm hover:shadow-lg transition"
+            >
+
+              <div class="aspect-square bg-[#e7dccb] flex items-center justify-center mb-3">
+                <span class="text-5xl text-[#8b7355]">▧</span>
+              </div>
+
+              <h3 class="text-[#2f1b12] text-sm font-semibold mb-2">
+                Producto próximamente
+              </h3>
+
+              <p class="text-[#2f1b12] font-bold mb-3">
+                $0.00 MXN
+              </p>
+
+              <button class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2">
+                Agregar al carrito
+              </button>
+
+            </a>
+
+          }
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
+
+</div>

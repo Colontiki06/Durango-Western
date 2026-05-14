@@ -18,6 +18,13 @@ export const routes: Routes = [
   },
 
   {
+    path: 'productos/:categoria',
+    loadComponent: () =>
+      import('./paginas/productos/productos')
+        .then(m => m.Productos)
+  },
+
+  {
     path: 'detalle-producto/:slug',
     loadComponent: () =>
       import('./paginas/detalle-producto/detalle-producto')
@@ -33,6 +40,7 @@ export const routes: Routes = [
 
   {
     path: 'checkout',
+    // canActivate: [authGuard],
     loadComponent: () =>
       import('./paginas/checkout/checkout')
         .then(m => m.Checkout)
@@ -56,4 +64,5 @@ export const routes: Routes = [
     path: '**',
     redirectTo: ''
   }
+
 ];
