@@ -59,6 +59,24 @@ export const routes: Routes = [
       import('./paginas/registro/registro')
         .then(m => m.Registro)
   },
+  {
+  path: 'nosotros',
+  loadComponent: () =>
+    import('./paginas/nosotros/nosotros')
+      .then(m => m.Nosotros)
+},
+{
+  path: 'contacto',
+  loadComponent: () =>
+    import('./paginas/contacto/contacto')
+      .then(m => m.Contacto)
+},
+{
+  path: 'encontrar-tienda',
+  loadComponent: () =>
+    import('./paginas/encontrar-tienda/encontrar-tienda')
+      .then(m => m.EncontrarTienda)
+},
 
   {
     path: '**',
