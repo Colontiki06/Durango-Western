@@ -1,0 +1,44 @@
+<div class="min-h-screen bg-[#f5ede1] flex items-center justify-center px-5">
+
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
+
+    <div class="bg-[#4b2e1f] rounded-full py-6 px-8 mb-8">
+      <h1 class="text-[#d6a15d] text-2xl font-bold tracking-widest">
+        DURANGO WESTERN
+      </h1>
+    </div>
+
+    <h2 class="text-3xl font-bold text-[#2f1b12] mb-2">
+      Administrador
+    </h2>
+
+    <p class="text-[#8a542f] mb-8">
+      Inicia sesión para acceder al panel.
+    </p>
+
+    <div class="space-y-5 text-left">
+
+      <input
+        type="email"
+        placeholder="Correo administrador"
+        class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      >
+
+      <input
+        type="password"
+        placeholder="Contraseña"
+        class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      >
+
+      <button
+        (click)="login()"
+        class="w-full bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-3 rounded-xl font-semibold transition"
+      >
+        Iniciar sesión
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,204 @@
+<div class="p-8">
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+
+    <div>
+
+      <h1 class="text-4xl font-bold text-[#2f1b12]">
+        Pedido #DW-0001
+      </h1>
+
+      <p class="text-[#8a542f] mt-2">
+        Detalles completos del pedido y estado de compra.
+      </p>
+
+    </div>
+
+    <a
+      routerLink="/admin/pedidos"
+      class="border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-6 py-3 rounded-xl font-semibold transition text-center"
+    >
+      Volver
+    </a>
+
+  </div>
+
+  <!-- Grid -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+    <!-- Información pedido -->
+    <section class="xl:col-span-2 bg-white rounded-2xl shadow-md p-8">
+
+      <h2 class="text-2xl font-bold text-[#2f1b12] mb-8">
+        Productos
+      </h2>
+
+      <!-- Producto -->
+      <div class="flex flex-col md:flex-row md:items-center gap-6 pb-6 border-b border-[#eadcc7] mb-6">
+
+        <div class="w-28 h-28 bg-[#f5ede1] rounded-xl flex items-center justify-center text-5xl">
+          🥾
+        </div>
+
+        <div class="flex-1">
+
+          <h3 class="text-xl font-bold text-[#2f1b12]">
+            Bota Durango Clásica
+          </h3>
+
+          <p class="text-[#8a542f] mt-2">
+            Talla: 26
+          </p>
+
+          <p class="text-[#8a542f]">
+            Cantidad: 1
+          </p>
+
+        </div>
+
+        <div class="text-right">
+
+          <p class="text-xl font-bold text-[#2f1b12]">
+            $3,299 MXN
+          </p>
+
+        </div>
+
+      </div>
+
+      <!-- Resumen -->
+      <div class="space-y-4">
+
+        <div class="flex justify-between text-[#2f1b12]">
+          <span>Subtotal</span>
+          <span>$3,299 MXN</span>
+        </div>
+
+        <div class="flex justify-between text-[#2f1b12]">
+          <span>Envío</span>
+          <span>Gratis</span>
+        </div>
+
+        <div class="flex justify-between text-2xl font-bold text-[#2f1b12] pt-4 border-t border-[#eadcc7]">
+          <span>Total</span>
+          <span>$3,299 MXN</span>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Sidebar info -->
+    <aside class="space-y-8">
+
+      <!-- Cliente -->
+      <section class="bg-white rounded-2xl shadow-md p-8">
+
+        <h2 class="text-2xl font-bold text-[#2f1b12] mb-6">
+          Cliente
+        </h2>
+
+        <div class="space-y-4 text-[#4b2e1f]">
+
+          <div>
+            <p class="text-sm text-[#8a542f]">
+              Nombre
+            </p>
+
+            <h3 class="font-semibold">
+              Juan Pérez
+            </h3>
+          </div>
+
+          <div>
+            <p class="text-sm text-[#8a542f]">
+              Correo
+            </p>
+
+            <h3 class="font-semibold">
+              juan@email.com
+            </h3>
+          </div>
+
+          <div>
+            <p class="text-sm text-[#8a542f]">
+              Teléfono
+            </p>
+
+            <h3 class="font-semibold">
+              +52 618 000 0000
+            </h3>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- Estado -->
+      <section class="bg-white rounded-2xl shadow-md p-8">
+
+        <h2 class="text-2xl font-bold text-[#2f1b12] mb-6">
+          Estado del pedido
+        </h2>
+
+        <div class="space-y-5">
+
+          <div>
+
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Estado
+            </label>
+
+            <select
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+              <option>Pendiente</option>
+              <option selected>Enviado</option>
+              <option>Completado</option>
+              <option>Cancelado</option>
+            </select>
+
+          </div>
+
+          <div>
+
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Método de pago
+            </label>
+
+            <input
+              value="Tarjeta"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 bg-[#f5ede1]"
+              readonly
+            >
+
+          </div>
+
+          <div>
+
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Dirección de envío
+            </label>
+
+            <textarea
+              rows="4"
+              class="w-full border border-[#d8c5aa] rounded-lg p-4 bg-[#f5ede1] resize-none"
+              readonly
+            >Durango, México</textarea>
+
+          </div>
+
+          <button class="w-full bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-3 rounded-xl font-semibold transition">
+            Actualizar pedido
+          </button>
+
+        </div>
+
+      </section>
+
+    </aside>
+
+  </div>
+
+</div>
