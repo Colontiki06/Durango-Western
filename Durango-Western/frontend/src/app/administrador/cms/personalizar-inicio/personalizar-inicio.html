@@ -1,0 +1,228 @@
+<div class="p-5 md:p-8 bg-[#f5ede1] min-h-screen">
+
+  <!-- Header -->
+  <div class="mb-10">
+
+    <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+      Personalizar inicio
+    </h1>
+
+    <p class="text-[#8a542f] mt-2">
+      Modifica banners, categorías y contenido visual de la página principal.
+    </p>
+
+  </div>
+
+  <!-- Banner principal -->
+  <!-- Carrusel principal -->
+<section class="bg-white rounded-2xl shadow-md p-6 mb-8">
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+
+    <div>
+      <h2 class="text-2xl font-bold text-[#2f1b12]">
+        Carrusel principal
+      </h2>
+
+      <p class="text-[#8a542f] mt-1">
+        Administra las imágenes y textos que aparecen en el carrusel de inicio.
+      </p>
+    </div>
+
+    <button
+      class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-5 py-3 rounded-xl font-semibold transition"
+    >
+      + Agregar banner
+    </button>
+
+  </div>
+
+  <div class="space-y-8">
+
+    @for(banner of banners; track $index) {
+
+      <div class="border border-[#eadcc7] rounded-2xl overflow-hidden">
+
+        <!-- Preview -->
+        <div class="relative h-[260px]">
+
+          <img
+            [src]="banner.imagen"
+            class="w-full h-full object-cover"
+          >
+
+          <div class="absolute inset-0 bg-black/40 flex flex-col justify-center px-8">
+
+            <p class="text-[#d6a15d] text-sm md:text-lg mb-2 tracking-widest">
+              {{ banner.textoSuperior }}
+            </p>
+
+            <h2 class="text-white text-3xl md:text-5xl font-bold max-w-[600px]">
+              {{ banner.titulo }}
+            </h2>
+
+            <p class="text-white/90 mt-3">
+              {{ banner.descripcion }}
+            </p>
+
+          </div>
+
+        </div>
+
+        <!-- Formulario banner -->
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+          <div>
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Texto superior
+            </label>
+
+            <input
+              type="text"
+              [value]="banner.textoSuperior"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+          </div>
+
+          <div>
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Título principal
+            </label>
+
+            <input
+              type="text"
+              [value]="banner.titulo"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+          </div>
+
+          <div>
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Descripción / temporada
+            </label>
+
+            <input
+              type="text"
+              [value]="banner.descripcion"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+          </div>
+
+          <div>
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Cambiar imagen
+            </label>
+
+            <input
+              type="file"
+              class="w-full border border-[#d8c5aa] rounded-lg p-3 bg-white"
+            >
+          </div>
+
+          <div class="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4 border-t border-[#eadcc7]">
+
+            <label class="flex items-center gap-3 text-[#2f1b12] font-semibold">
+              <input
+                type="checkbox"
+                [checked]="banner.activo"
+                class="w-5 h-5"
+              >
+              Banner activo
+            </label>
+
+            <div class="flex gap-3">
+
+              <button class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-5 py-2 rounded-lg font-semibold transition">
+                Guardar
+              </button>
+
+              <button class="bg-red-100 text-red-700 hover:bg-red-600 hover:text-white px-5 py-2 rounded-lg font-semibold transition">
+                Eliminar
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+
+</section>
+
+  <!-- Categorías -->
+  <section class="bg-white rounded-2xl shadow-md p-6">
+
+    <div class="flex items-center justify-between mb-8">
+
+      <div>
+
+        <h2 class="text-2xl font-bold text-[#2f1b12]">
+          Categorías destacadas
+        </h2>
+
+        <p class="text-[#8a542f] mt-1">
+          Administra las categorías visibles en la Home.
+        </p>
+
+      </div>
+
+      <button
+        class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-5 py-3 rounded-xl font-semibold transition"
+      >
+        Guardar categorías
+      </button>
+
+    </div>
+
+   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+      @for(categoria of categorias; track $index) {
+
+        <div class="border border-[#eadcc7] rounded-2xl overflow-hidden">
+
+          <div class="h-[220px] bg-[#f5ede1]">
+
+            <img
+              [src]="categoria.imagen"
+              class="w-full h-full object-cover"
+            >
+
+          </div>
+
+          <div class="p-5">
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Nombre categoría
+            </label>
+
+            <input
+              type="text"
+              [value]="categoria.nombre"
+              class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] mb-4"
+            >
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Cambiar imagen
+            </label>
+
+            <input
+              type="file"
+              class="w-full border border-[#d8c5aa] rounded-lg p-3 bg-white"
+            >
+
+          </div>
+
+        </div>
+
+      }
+
+    </div>
+
+  </section>
+
+</div>

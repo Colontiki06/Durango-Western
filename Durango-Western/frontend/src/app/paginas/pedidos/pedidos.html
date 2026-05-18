@@ -1,1 +1,122 @@
-<p>pedidos works!</p>
+<section class="bg-[#f5ede1] min-h-screen px-5 md:px-16 py-10">
+
+  <div class="mb-10">
+    <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+      Mis pedidos
+    </h1>
+
+    <p class="text-[#8a542f] mt-2">
+      Consulta el estado de tus compras y tu historial de pedidos.
+    </p>
+  </div>
+
+  <div class="space-y-6">
+
+    @for(pedido of pedidos; track pedido.id) {
+
+      <article class="bg-white rounded-2xl shadow-md p-5 md:p-8">
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+          <div>
+            <h2 class="text-2xl font-bold text-[#2f1b12]">
+              Pedido #{{ pedido.id }}
+            </h2>
+
+            <p class="text-[#8a542f]">
+              Fecha: {{ pedido.fecha }}
+            </p>
+          </div>
+
+        
+
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[180px_1fr_220px] gap-8 items-center">
+
+          <div class="bg-[#f5ede1] rounded-xl overflow-hidden h-[220px] lg:h-[180px]">
+            <img
+              [src]="pedido.imagen"
+              [alt]="pedido.producto"
+              class="w-full h-full object-contain"
+            >
+          </div>
+
+          <div>
+
+            <h3 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-3">
+              {{ pedido.producto }}
+            </h3>
+
+            <p class="text-[#3b2418]">
+              <strong>Talla:</strong> {{ pedido.talla }}
+            </p>
+
+            <p class="text-[#3b2418]">
+              <strong>Total:</strong> ${{ pedido.total }} MXN
+            </p>
+
+            <div class="mt-6 flex flex-col md:flex-row md:items-center gap-3">
+
+              <div class="flex items-center gap-2 text-[#4b2e1f] font-semibold">
+                <span class="w-3 h-3 rounded-full bg-[#8a542f]"></span>
+                Pedido realizado
+              </div>
+
+              <div class="hidden md:block w-10 h-[2px] bg-[#8a542f]"></div>
+
+              <div class="flex items-center gap-2 text-[#4b2e1f] font-semibold">
+                <span class="w-3 h-3 rounded-full bg-[#8a542f]"></span>
+                Enviado
+              </div>
+
+              <div class="hidden md:block w-10 h-[2px] bg-[#8a542f]"></div>
+
+              <div class="flex items-center gap-2 text-[#4b2e1f] font-semibold">
+                <span class="w-3 h-3 rounded-full bg-[#8a542f]"></span>
+                En camino
+              </div>
+
+              <div class="hidden md:block w-10 h-[2px]"
+                [class.bg-[#8a542f]]="pedido.estado === 'Entregado'"
+                [class.bg-[#d8c5aa]]="pedido.estado !== 'Entregado'"
+              ></div>
+
+              <div
+                class="flex items-center gap-2 font-semibold"
+                [class.text-[#4b2e1f]]="pedido.estado === 'Entregado'"
+                [class.text-[#9a8a78]]="pedido.estado !== 'Entregado'"
+              >
+                <span
+                  class="w-3 h-3 rounded-full"
+                  [class.bg-[#8a542f]]="pedido.estado === 'Entregado'"
+                  [class.bg-[#d8c5aa]]="pedido.estado !== 'Entregado'"
+                ></span>
+                Entregado
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="flex flex-col gap-3">
+
+            <button class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-3 rounded-xl font-bold transition">
+              Ver detalle
+            </button>
+
+            <button class="bg-[#f5ede1] hover:bg-[#eadcc7] text-[#4b2e1f] py-3 rounded-xl font-bold transition">
+              Rastrear pedido
+            </button>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    }
+
+  </div>
+
+</section>

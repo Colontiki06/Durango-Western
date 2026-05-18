@@ -2,11 +2,17 @@
   Envíos gratis en compras mínimas de $4,000
 </div>
 
+<!-- NAVBAR -->
 <nav class="navbar">
+
   <div class="navbar-container">
 
-    <!-- LOGO CENTRADO -->
-    <a routerLink="/" class="logo-link" aria-label="Durango Western inicio">
+    <!-- LOGO -->
+    <a
+      routerLink="/"
+      class="logo-link"
+      aria-label="Durango Western inicio"
+    >
       <img
         src="/img/logo-durango.png"
         alt="Durango Western"
@@ -14,13 +20,15 @@
       />
     </a>
 
-    <!-- ICONOS DERECHA -->
+    <!-- ICONOS -->
     <div class="navbar-icons">
-      <!-- BUSCAR -->
+
+      <!-- BUSCADOR -->
       <button
         type="button"
         class="icon-button"
         aria-label="Buscar"
+        (click)="toggleSearch()"
       >
         <img
           src="/icons/lupa.svg"
@@ -41,13 +49,14 @@
         />
       </button>
 
-      <!-- CARRITO / BOLSA -->
+      <!-- CARRITO -->
       <button
         type="button"
         class="icon-button cart-button"
         routerLink="/carrito"
         aria-label="Carrito"
       >
+
         <img
           src="/icons/bolso.svg"
           alt="Carrito"
@@ -59,13 +68,44 @@
         >
           {{ cartCount }}
         </span>
+
       </button>
+
     </div>
 
   </div>
+
 </nav>
 
+<!-- BUSCADOR DESPLEGABLE -->
+@if(searchOpen) {
+
+  <div class="search-dropdown">
+
+    <div class="search-container">
+
+      <input
+        type="text"
+        placeholder="Buscar botas, sombreros, camisas..."
+        class="search-input"
+      >
+
+      <button
+        type="button"
+        class="search-btn"
+      >
+        Buscar
+      </button>
+
+    </div>
+
+  </div>
+
+}
+
+<!-- MENÚ -->
 <div class="menu-bar">
+
   <a routerLink="/productos/botas-caballero">
     Caballero
   </a>
@@ -81,4 +121,5 @@
   <a routerLink="/productos/ofertas">
     Ofertas
   </a>
+
 </div>
