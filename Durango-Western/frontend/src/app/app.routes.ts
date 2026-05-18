@@ -160,7 +160,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./administrador/configuracion/configuracion')
             .then(m => m.Configuracion)
-      }
+      },
+      {
+      path: 'personalizar-inicio',
+      loadComponent: () =>
+      import('./administrador/cms/personalizar-inicio/personalizar-inicio')
+      .then(m => m.PersonalizarInicio)
+  },
     ]
   },
 
