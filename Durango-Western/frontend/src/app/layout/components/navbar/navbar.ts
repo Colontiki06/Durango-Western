@@ -1,10 +1,35 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+
+import { Auth } from '../../../core/services/auth';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink],
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
-export class Navbar {}
+export class Navbar {
+  cartCount = 0;
+
+  constructor(
+    private router: Router,
+    private auth: Auth,
+    private cartService: CartService
+  ) {
+    this.cartService.cartItems$.subscribe(() => {
+      this.cartCount = this.cartService.getTotalItems();
+    });
+  }
+
+  goToUserArea(): void {
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['/perfil']);
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+}

@@ -1,1 +1,240 @@
-<p>perfil works!</p>
+<section class="min-h-screen bg-[#f3e3cc] px-6 py-10">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- HEADER -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-[#2b1a10]">
+        Perfil
+      </h1>
+
+      <button
+        (click)="showEditProfileModal = true"
+        class="bg-[#5b2d16] text-white px-4 py-2 rounded hover:bg-[#3d1f10] transition"
+      >
+        Editar perfil
+      </button>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="bg-white border border-[#8b7a68] p-6 rounded mb-6">
+      <p class="mb-3">
+        <span class="font-bold">Nombre:</span>
+        {{ customer.fullName || 'Sin nombre registrado' }}
+      </p>
+
+      <p>
+        <span class="font-bold">Correo:</span>
+        {{ customer.email || 'Sin correo registrado' }}
+      </p>
+    </div>
+
+    <!-- DIRECCIONES -->
+    <div class="bg-white border border-[#8b7a68] p-6 rounded">
+
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="font-bold text-lg">
+          Direcciones
+        </h2>
+
+        <button
+          (click)="showAddAddressModal = true"
+          class="bg-[#5b2d16] text-white px-4 py-2 rounded hover:bg-[#3d1f10] transition"
+        >
+          Agregar dirección
+        </button>
+      </div>
+
+      <div
+        *ngIf="customer.addresses.length === 0"
+        class="text-gray-500"
+      >
+        No hay direcciones registradas.
+      </div>
+
+      <div
+        *ngFor="let address of customer.addresses"
+        class="border border-gray-200 rounded p-4 mb-4"
+      >
+        <p class="mb-4">
+          {{ address.street }},
+          {{ address.city }},
+          {{ address.state }},
+          CP {{ address.zipCode }}
+        </p>
+
+        <div class="flex gap-3">
+          <button
+            (click)="openEditAddress(address)"
+            class="bg-yellow-600 text-white px-3 py-2 rounded hover:bg-yellow-700 transition"
+          >
+            Editar
+          </button>
+
+          <button
+            (click)="deleteAddress(address.id)"
+            class="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 transition"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL EDITAR PERFIL -->
+<div
+  *ngIf="showEditProfileModal"
+  class="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
+>
+  <div class="bg-white p-6 rounded w-full max-w-md">
+
+    <h2 class="text-xl font-bold mb-4">
+      Editar perfil
+    </h2>
+
+    <input
+      [(ngModel)]="customer.fullName"
+      type="text"
+      placeholder="Nombre"
+      class="w-full border p-3 mb-4 rounded"
+    />
+
+    <input
+      [(ngModel)]="customer.email"
+      type="email"
+      placeholder="Correo"
+      class="w-full border p-3 mb-6 rounded"
+    />
+
+    <div class="flex justify-end gap-3">
+      <button
+        (click)="showEditProfileModal = false"
+        class="border px-4 py-2 rounded"
+      >
+        Cancelar
+      </button>
+
+      <button
+        (click)="showEditProfileModal = false"
+        class="bg-[#5b2d16] text-white px-4 py-2 rounded"
+      >
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGREGAR DIRECCION -->
+<div
+  *ngIf="showAddAddressModal"
+  class="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
+>
+  <div class="bg-white p-6 rounded w-full max-w-md">
+
+    <h2 class="text-xl font-bold mb-4">
+      Agregar dirección
+    </h2>
+
+    <input
+      [(ngModel)]="newAddress.street"
+      type="text"
+      placeholder="Calle y número"
+      class="w-full border p-3 mb-3 rounded"
+    />
+
+    <input
+      [(ngModel)]="newAddress.city"
+      type="text"
+      placeholder="Ciudad"
+      class="w-full border p-3 mb-3 rounded"
+    />
+
+    <input
+      [(ngModel)]="newAddress.state"
+      type="text"
+      placeholder="Estado"
+      class="w-full border p-3 mb-3 rounded"
+    />
+
+    <input
+      [(ngModel)]="newAddress.zipCode"
+      type="text"
+      placeholder="Código postal"
+      class="w-full border p-3 mb-6 rounded"
+    />
+
+    <div class="flex justify-end gap-3">
+      <button
+        (click)="showAddAddressModal = false"
+        class="border px-4 py-2 rounded"
+      >
+        Cancelar
+      </button>
+
+      <button
+        (click)="addAddress()"
+        class="bg-[#5b2d16] text-white px-4 py-2 rounded"
+      >
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR DIRECCION -->
+<div
+  *ngIf="showEditAddressModal"
+  class="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
+>
+  <div class="bg-white p-6 rounded w-full max-w-md">
+
+    <h2 class="text-xl font-bold mb-4">
+      Editar dirección
+    </h2>
+
+    <input
+      [(ngModel)]="editAddressData.street"
+      type="text"
+      placeholder="Calle y número"
+      class="w-full border p-3 mb-3 rounded"
+    />
+
+    <input
+      [(ngModel)]="editAddressData.city"
+      type="text"
+      placeholder="Ciudad"
+      class="w-full border p-3 mb-3 rounded"
+    />
+
+    <input
+      [(ngModel)]="editAddressData.state"
+      type="text"
+      placeholder="Estado"
+      class="w-full border p-3 mb-3 rounded"
+    />
+
+    <input
+      [(ngModel)]="editAddressData.zipCode"
+      type="text"
+      placeholder="Código postal"
+      class="w-full border p-3 mb-6 rounded"
+    />
+
+    <div class="flex justify-end gap-3">
+      <button
+        (click)="showEditAddressModal = false"
+        class="border px-4 py-2 rounded"
+      >
+        Cancelar
+      </button>
+
+      <button
+        (click)="saveEditedAddress()"
+        class="bg-[#5b2d16] text-white px-4 py-2 rounded"
+      >
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+</div>
