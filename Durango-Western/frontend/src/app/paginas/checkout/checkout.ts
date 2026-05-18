@@ -1,21 +1,27 @@
-import { Component, inject } from '@angular/core';
-
+import { Component } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-checkout',
-  imports: [],
+  standalone: true,
+  imports: [CurrencyPipe, RouterLink],
   templateUrl: './checkout.html',
   styleUrl: './checkout.css'
 })
 export class Checkout {
+  constructor(private cartService: CartService) {}
 
-  private cartService = inject(CartService);
-
-  items = this.cartService.cartItems;
+  items() {
+    return this.cartService.cartItems;
+  }
 
   subtotal(): number {
     return this.cartService.getSubtotal();
   }
 
+  getSubtotal(): number {
+    return this.cartService.getSubtotal();
+  }
 }

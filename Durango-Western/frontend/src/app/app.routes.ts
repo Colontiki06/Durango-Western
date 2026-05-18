@@ -77,10 +77,21 @@ export const routes: Routes = [
     import('./paginas/encontrar-tienda/encontrar-tienda')
       .then(m => m.EncontrarTienda)
 },
+ {
+  path: 'perfil',
+  loadComponent: () =>
+    import('./paginas/perfil/perfil').then(m => m.Perfil),
+},
+{
+  path: 'pedidos',
+  loadComponent: () =>
+    import('./paginas/pedidos/pedidos').then(m => m.Pedidos),
+},
 
   {
     path: '**',
     redirectTo: ''
   }
 
+  
 ];
