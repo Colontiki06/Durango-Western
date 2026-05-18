@@ -1,1 +1,66 @@
-<p>registro works!</p>
+<section class="min-h-screen bg-[#f3e3cc] flex justify-center px-4 py-10">
+  <div class="w-full max-w-md bg-[#f3e3cc]">
+
+    <div class="bg-[#5b2d16] py-8 px-6 text-center">
+      <h1 class="text-white text-2xl font-bold">
+        Crear cuenta
+      </h1>
+
+      <p class="text-[#f3e3cc] text-sm mt-2">
+        Regístrate en Durango Western
+      </p>
+    </div>
+
+    <div class="px-8 py-10 bg-[#f3e3cc]">
+      <p class="text-center text-sm text-[#2b1a10] mb-8">
+        Crea tu cuenta para guardar direcciones, consultar pedidos y comprar más rápido.
+      </p>
+
+      <div class="space-y-4">
+        <input
+          [(ngModel)]="fullName"
+          type="text"
+          placeholder="Nombre completo"
+          class="w-full border border-[#7b6b5b] bg-white px-4 py-2 outline-none focus:border-[#5b2d16]"
+        />
+
+        <input
+          [(ngModel)]="email"
+          type="email"
+          placeholder="Correo electrónico"
+          class="w-full border border-[#7b6b5b] bg-white px-4 py-2 outline-none focus:border-[#5b2d16]"
+        />
+
+        <input
+          [(ngModel)]="password"
+          type="password"
+          placeholder="Contraseña"
+          class="w-full border border-[#7b6b5b] bg-white px-4 py-2 outline-none focus:border-[#5b2d16]"
+        />
+
+        <input
+          [(ngModel)]="confirmPassword"
+          type="password"
+          placeholder="Confirmar contraseña"
+          class="w-full border border-[#7b6b5b] bg-white px-4 py-2 outline-none focus:border-[#5b2d16]"
+        />
+
+        <button
+          type="button"
+          (click)="register()"
+          class="w-full bg-[#8b542f] text-white py-3 text-sm hover:bg-[#6f4022] transition"
+        >
+          CREAR CUENTA
+        </button>
+
+        <button
+          type="button"
+          routerLink="/login"
+          class="w-full border border-[#8b542f] text-[#5b2d16] py-3 text-sm hover:bg-[#ead4bd] transition"
+        >
+          YA TENGO CUENTA
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

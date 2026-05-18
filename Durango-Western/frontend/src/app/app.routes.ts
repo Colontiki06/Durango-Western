@@ -81,6 +81,20 @@ export const routes: Routes = [
   },
 
   {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./paginas/perfil/perfil')
+        .then(m => m.Perfil)
+  },
+
+  {
+    path: 'pedidos',
+    loadComponent: () =>
+      import('./paginas/pedidos/pedidos')
+        .then(m => m.Pedidos)
+  },
+
+  {
     path: 'confirmacion-compra',
     loadComponent: () =>
       import('./paginas/confirmacion-compra/confirmacion-compra')

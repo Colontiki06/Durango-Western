@@ -1,51 +1,84 @@
 <div class="top-bar">
-  Envío gratis en compras mayores de $4,000
+  Envíos gratis en compras mínimas de $4,000
 </div>
 
 <nav class="navbar">
-
   <div class="navbar-container">
 
-    <a routerLink="/" class="logo">
-      DURANGO WESTERN
+    <!-- LOGO CENTRADO -->
+    <a routerLink="/" class="logo-link" aria-label="Durango Western inicio">
+      <img
+        src="/img/logo-durango.png"
+        alt="Durango Western"
+        class="logo-img"
+      />
     </a>
 
+    <!-- ICONOS DERECHA -->
     <div class="navbar-icons">
-
-      <button class="icon-button">
-        🔍
+      <!-- BUSCAR -->
+      <button
+        type="button"
+        class="icon-button"
+        aria-label="Buscar"
+      >
+        <img
+          src="/icons/lupa.svg"
+          alt="Buscar"
+        />
       </button>
 
-      <button class="icon-button">
-        👤
+      <!-- USUARIO -->
+      <button
+        type="button"
+        class="icon-button"
+        (click)="goToUserArea()"
+        aria-label="Área de usuario"
+      >
+        <img
+          src="/icons/usuario.svg"
+          alt="Usuario"
+        />
       </button>
 
-      <button class="icon-button">
-        🛒
-      </button>
+      <!-- CARRITO / BOLSA -->
+      <button
+        type="button"
+        class="icon-button cart-button"
+        routerLink="/carrito"
+        aria-label="Carrito"
+      >
+        <img
+          src="/icons/bolso.svg"
+          alt="Carrito"
+        />
 
+        <span
+          *ngIf="cartCount > 0"
+          class="cart-badge"
+        >
+          {{ cartCount }}
+        </span>
+      </button>
     </div>
 
   </div>
-
 </nav>
 
 <div class="menu-bar">
-
-  <a routerLink="/productos">
+  <a routerLink="/productos/botas-caballero">
     Caballero
   </a>
 
-  <a routerLink="/productos">
+  <a routerLink="/productos/dama">
     Dama
   </a>
 
-  <a routerLink="/productos">
+  <a routerLink="/productos/ninos">
     Niños
   </a>
 
-  <a routerLink="/productos">
+  <a routerLink="/productos/ofertas">
     Ofertas
   </a>
-
 </div>

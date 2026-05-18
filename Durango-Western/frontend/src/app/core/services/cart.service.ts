@@ -1,88 +1,69 @@
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 export interface CartItem {
-  id: string;
+  id: string | number;
   nombre: string;
   precio: number;
-  talla: string;
   cantidad: number;
+  talla?: string;
   imagen?: string;
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
-  private readonly CART_KEY = 'dw_cart';
+  private readonly storageKey = 'durango_cart';
 
-  private platformId = inject(PLATFORM_ID);
+  private cartItemsSubject = new BehaviorSubject<CartItem[]>(
+    this.loadCartFromStorage()
+  );
 
-  private get isBrowser(): boolean {
-    return isPlatformBrowser(this.platformId);
+  cartItems$ = this.cartItemsSubject.asObservable();
+
+  get cartItems(): CartItem[] {
+    return this.cartItemsSubject.value;
   }
 
-  cartItems = signal<CartItem[]>(this.loadCart());
-
-  private loadCart(): CartItem[] {
-    if (!this.isBrowser) {
-      return [];
-    }
-
-    const cart = localStorage.getItem(this.CART_KEY);
-    return cart ? JSON.parse(cart) : [];
+  getTotalItems(): number {
+    return this.cartItems.reduce((total, item) => total + item.cantidad, 0);
   }
 
-  private saveCart(): void {
-    if (!this.isBrowser) {
-      return;
-    }
+  addToCart(product: CartItem): void {
+    const currentItems = this.cartItems;
 
-    localStorage.setItem(
-      this.CART_KEY,
-      JSON.stringify(this.cartItems())
+    const existingItem = currentItems.find(
+      item => item.id === product.id && item.talla === product.talla
     );
-  }
 
-  addToCart(item: CartItem): void {
-    const items = this.cartItems();
-
-    const existingItem = items.find(
-      product => product.id === item.id && product.talla === item.talla
-    );
+    let updatedItems: CartItem[];
 
     if (existingItem) {
-      existingItem.cantidad += item.cantidad;
-      this.cartItems.set([...items]);
+      updatedItems = currentItems.map(item =>
+        item.id === product.id && item.talla === product.talla
+          ? { ...item, cantidad: item.cantidad + product.cantidad }
+          : item
+      );
     } else {
-      this.cartItems.set([...items, item]);
+      updatedItems = [...currentItems, product];
     }
 
-    this.saveCart();
+    this.updateCart(updatedItems);
   }
 
-  removeFromCart(id: string, talla: string): void {
-    const items = this.cartItems().filter(
-      item => !(item.id === id && item.talla === talla)
-    );
-
-    this.cartItems.set(items);
-    this.saveCart();
-  }
-
-  increaseQuantity(id: string, talla: string): void {
-    const items = this.cartItems().map(item =>
+  increaseQuantity(id: string | number, talla?: string): void {
+    const updatedItems = this.cartItems.map(item =>
       item.id === id && item.talla === talla
         ? { ...item, cantidad: item.cantidad + 1 }
         : item
     );
 
-    this.cartItems.set(items);
-    this.saveCart();
+    this.updateCart(updatedItems);
   }
 
-  decreaseQuantity(id: string, talla: string): void {
-    const items = this.cartItems()
+  decreaseQuantity(id: string | number, talla?: string): void {
+    const updatedItems = this.cartItems
       .map(item =>
         item.id === id && item.talla === talla
           ? { ...item, cantidad: item.cantidad - 1 }
@@ -90,22 +71,56 @@ export class CartService {
       )
       .filter(item => item.cantidad > 0);
 
-    this.cartItems.set(items);
-    this.saveCart();
+    this.updateCart(updatedItems);
   }
 
-  clearCart(): void {
-    this.cartItems.set([]);
+  removeFromCart(id: string | number, talla?: string): void {
+    const updatedItems = this.cartItems.filter(
+      item => !(item.id === id && item.talla === talla)
+    );
 
-    if (this.isBrowser) {
-      localStorage.removeItem(this.CART_KEY);
-    }
+    this.updateCart(updatedItems);
   }
 
   getSubtotal(): number {
-    return this.cartItems().reduce(
+    return this.cartItems.reduce(
       (total, item) => total + item.precio * item.cantidad,
       0
     );
+  }
+
+  clearCart(): void {
+    this.updateCart([]);
+  }
+
+  private updateCart(items: CartItem[]): void {
+    if (this.isBrowser()) {
+      localStorage.setItem(this.storageKey, JSON.stringify(items));
+    }
+
+    this.cartItemsSubject.next(items);
+  }
+
+  private loadCartFromStorage(): CartItem[] {
+    if (!this.isBrowser()) {
+      return [];
+    }
+
+    const cart = localStorage.getItem(this.storageKey);
+
+    if (!cart) {
+      return [];
+    }
+
+    try {
+      return JSON.parse(cart) as CartItem[];
+    } catch {
+      localStorage.removeItem(this.storageKey);
+      return [];
+    }
+  }
+
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
 }

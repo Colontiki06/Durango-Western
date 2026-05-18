@@ -1,27 +1,31 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-carrito',
-  imports: [RouterLink],
+  standalone: true,
+  imports: [CommonModule, RouterLink, CurrencyPipe],
   templateUrl: './carrito.html',
   styleUrl: './carrito.css'
 })
 export class Carrito {
-  cartService = inject(CartService);
+  constructor(private cartService: CartService) {}
 
-  items = this.cartService.cartItems;
+  items() {
+    return this.cartService.cartItems;
+  }
 
-  increase(id: string, talla: string): void {
+  increase(id: string | number, talla?: string): void {
     this.cartService.increaseQuantity(id, talla);
   }
 
-  decrease(id: string, talla: string): void {
+  decrease(id: string | number, talla?: string): void {
     this.cartService.decreaseQuantity(id, talla);
   }
 
-  remove(id: string, talla: string): void {
+  remove(id: string | number, talla?: string): void {
     this.cartService.removeFromCart(id, talla);
   }
 
