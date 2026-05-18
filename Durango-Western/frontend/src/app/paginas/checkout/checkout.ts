@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+
 import { CartService } from '../../core/services/cart.service';
 
 @Component({
@@ -11,6 +12,7 @@ import { CartService } from '../../core/services/cart.service';
   styleUrl: './checkout.css'
 })
 export class Checkout {
+
   constructor(private cartService: CartService) {}
 
   items() {
@@ -24,4 +26,5 @@ export class Checkout {
   getSubtotal(): number {
     return this.cartService.getSubtotal();
   }
+
 }

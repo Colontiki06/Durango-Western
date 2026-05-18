@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 
 import { Navbar } from './layout/components/navbar/navbar';
 import { Footer } from './layout/components/footer/footer';
@@ -11,4 +11,12 @@ import { Footer } from './layout/components/footer/footer';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  protected readonly title = signal('Durango-Western');
+
+  private router = inject(Router);
+
+  get isAdminRoute(): boolean {
+    return this.router.url.startsWith('/admin');
+  }
+}

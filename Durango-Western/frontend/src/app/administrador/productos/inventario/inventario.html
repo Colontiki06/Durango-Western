@@ -1,0 +1,155 @@
+<div class="p-5 md:p-8">
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-4xl font-bold text-[#2f1b12]">
+        Inventario
+      </h1>
+
+      <p class="text-[#8a542f] mt-2">
+        Gestiona productos, stock, precios y estado del catálogo.
+      </p>
+    </div>
+
+    <a
+      routerLink="/admin/agregar-producto"
+      class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-6 py-3 rounded-xl font-semibold transition text-center"
+    >
+      + Agregar producto
+    </a>
+  </div>
+
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+    <div class="bg-white rounded-2xl p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2">Productos activos</p>
+      <h2 class="text-3xl font-bold text-[#2f1b12]">86</h2>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2">Stock bajo</p>
+      <h2 class="text-3xl font-bold text-[#2f1b12]">12</h2>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2">Categorías</p>
+      <h2 class="text-3xl font-bold text-[#2f1b12]">8</h2>
+    </div>
+
+  </section>
+
+  <section class="bg-white rounded-2xl shadow-md p-6">
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+      <h2 class="text-2xl font-bold text-[#2f1b12]">
+        Productos
+      </h2>
+
+      <div class="flex flex-col md:flex-row gap-3">
+
+        <input
+          type="text"
+          placeholder="Buscar producto..."
+          class="h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+
+        <select class="h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]">
+          <option>Todas las categorías</option>
+          <option>Botas</option>
+          <option>Sombreros</option>
+          <option>Camisas</option>
+          <option>Pantalones</option>
+        </select>
+
+      </div>
+
+    </div>
+
+    <div class="overflow-x-auto">
+
+      <table class="w-full text-left border-collapse">
+
+        <thead>
+          <tr class="bg-[#f5ede1] text-[#2f1b12] text-sm">
+            <th class="p-4">Producto</th>
+            <th class="p-4">Categoría</th>
+            <th class="p-4">Precio</th>
+            <th class="p-4">Stock</th>
+            <th class="p-4">Estado</th>
+            <th class="p-4 text-right">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for(producto of productos; track $index) {
+
+            <tr class="border-b border-[#eadcc7] hover:bg-[#fff8ec] transition">
+
+              <td class="p-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-14 h-14 bg-[#e7dccb] rounded-lg flex items-center justify-center text-[#8b7355] text-2xl">
+                    ▧
+                  </div>
+
+                  <div>
+                    <h3 class="font-bold text-[#2f1b12]">
+                      Producto próximamente
+                    </h3>
+
+                    <p class="text-sm text-[#8a542f]">
+                      SKU: DW-000{{ $index + 1 }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+
+              <td class="p-4 text-[#4b2e1f]">
+                Botas
+              </td>
+
+              <td class="p-4 font-semibold text-[#2f1b12]">
+                $0.00
+              </td>
+
+              <td class="p-4 text-[#4b2e1f]">
+                0
+              </td>
+
+              <td class="p-4">
+                <span class="px-3 py-1 rounded-full text-xs bg-emerald-100 text-emerald-700">
+                  Activo
+                </span>
+              </td>
+
+              <td class="p-4">
+                <div class="flex justify-end gap-2">
+
+                  <a
+                    routerLink="/admin/editar-producto/producto-demo"
+                       class="px-3 py-2 rounded-lg bg-[#f5ede1] hover:bg-[#8a542f] hover:text-white transition"
+                    >
+                       Editar
+                    </a>
+
+                  <button class="px-3 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-600 hover:text-white transition">
+                    Eliminar
+                  </button>
+
+                </div>
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>
