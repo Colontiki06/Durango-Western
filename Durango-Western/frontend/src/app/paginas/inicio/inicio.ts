@@ -1,4 +1,12 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+  NgZone
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 
@@ -9,12 +17,56 @@ import { CartService } from '../../core/services/cart.service';
   templateUrl: './inicio.html',
   styleUrl: './inicio.css'
 })
-export class Inicio {
+export class Inicio implements OnInit, OnDestroy {
+
+agregarProductoVista(): void {
+  if (!this.productoVista) return;
+
+  this.cartService.addToCart({
+    id: this.productoVista.id,
+    nombre: this.productoVista.nombre,
+    precio: this.productoVista.precio,
+    cantidad: 1,
+    talla: this.tallaSeleccionada,
+    imagen: this.productoVista.imagen
+  });
+
+  this.cerrarVista();
+  }
+
+  tallaSeleccionada = '23';
+
+  seleccionarTalla(talla: string): void {
+    this.tallaSeleccionada = talla;
+  }
+
+  productoVista: any = null;
+
+  abrirVista(producto: any): void {
+    this.productoVista = producto;
+  }
+
+  cerrarVista(): void {
+    this.productoVista = null;
+  }
 
   @ViewChild('categoriasCarousel')
   categoriasCarousel!: ElementRef<HTMLDivElement>;
 
   activeDot = 0;
+  bannerActual = 0;
+  intervaloBanner: any;
+
+  categorias = [
+    { nombre: 'Botas Caballero', imagen: '/img/BotasCaballero.PNG', ruta: '/productos/botas-caballero' },
+    { nombre: 'Botas Dama', imagen: '/img/BotasDama.png', ruta: '/productos/botas-dama' },
+    { nombre: 'Sombreros', imagen: '/img/Sombreros.png', ruta: '/productos/sombreros' },
+    { nombre: 'Camisas', imagen: '/img/Camisas.png', ruta: '/productos/camisas' },
+    { nombre: 'Cintos', imagen: '/img/Cintos.png', ruta: '/productos/cintos' },
+    { nombre: 'Gorras', imagen: '/img/Gorras.PNG', ruta: '/productos/gorras' },
+    { nombre: 'Accesorios', imagen: '/img/Accesorios.png', ruta: '/productos/accesorios' },
+    { nombre: 'Pantalones', imagen: '/img/Pantalones.png', ruta: '/productos/pantalones' }
+  ];
 
   banners = [
     {
@@ -40,37 +92,50 @@ export class Inicio {
     }
   ];
 
-  bannerActual = 0;
+  constructor(
+  private cartService: CartService,
+  private cdr: ChangeDetectorRef,
+  private ngZone: NgZone
+  ) {}
 
-  constructor(private cartService: CartService) {}
+ ngOnInit(): void {
+  this.intervaloBanner = setInterval(() => {
+    this.ngZone.run(() => {
+      this.siguienteBanner();
+      this.cdr.detectChanges();
+    });
+  }, 3000);
+}
+
+ ngOnDestroy(): void {
+  clearInterval(this.intervaloBanner);
+}
 
   siguienteBanner(): void {
-    this.bannerActual =
-      (this.bannerActual + 1) % this.banners.length;
-  }
+  this.bannerActual = (this.bannerActual + 1) % this.banners.length;
+}
 
   anteriorBanner(): void {
     this.bannerActual =
       this.bannerActual === 0
         ? this.banners.length - 1
         : this.bannerActual - 1;
+
+    this.cdr.detectChanges();
   }
 
-  scrollCategorias(direction: 'left' | 'right'): void {
+  scrollCategorias(direction: 'left' | 'right', event?: Event): void {
 
-    const carousel = this.categoriasCarousel.nativeElement;
+  event?.stopPropagation();
 
-    const scrollAmount = 280;
+  const carousel = this.categoriasCarousel.nativeElement;
 
-    carousel.scrollBy({
-      left: direction === 'right'
-        ? scrollAmount
-        : -scrollAmount,
-      behavior: 'smooth'
-    });
+  carousel.scrollBy({
+    left: direction === 'right' ? 320 : -320,
+    behavior: 'smooth'
+  });
 
-    this.updateActiveDot(direction);
-  }
+}
 
   addToCart(product: {
     id: string;
@@ -78,7 +143,6 @@ export class Inicio {
     precio: number;
     imagen: string;
   }): void {
-
     this.cartService.addToCart({
       id: product.id,
       nombre: product.nombre,
@@ -87,29 +151,6 @@ export class Inicio {
       talla: 'Única',
       imagen: product.imagen
     });
-
-  }
-
-  private updateActiveDot(direction: 'left' | 'right'): void {
-
-    const totalDots = 4;
-
-    if (direction === 'right') {
-
-      this.activeDot =
-        this.activeDot === totalDots - 1
-          ? 0
-          : this.activeDot + 1;
-
-    } else {
-
-      this.activeDot =
-        this.activeDot === 0
-          ? totalDots - 1
-          : this.activeDot - 1;
-
-    }
-
   }
 
 }
