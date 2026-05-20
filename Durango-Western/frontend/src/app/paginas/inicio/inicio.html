@@ -82,7 +82,7 @@
 </section>
 
 <!-- CATEGORÍAS -->
-<section class="bg-[#f3e4cc] pb-8">
+<section class="bg-[#f3e4cc] pb-6">
 
   <div class="bg-gradient-to-r from-[#2f1b12] via-[#4b2e1f] to-[#2f1b12] py-4 text-center shadow-md">
     <h2 class="text-white text-2xl font-bold tracking-wide">
@@ -90,7 +90,7 @@
     </h2>
   </div>
 
-  <div class="relative max-w-7xl mx-auto px-20 py-6 overflow-visible">
+  <div class="relative max-w-7xl mx-auto px-20 py-10 overflow-visible">
 
     <button
       type="button"
@@ -102,8 +102,8 @@
 
     <div
       #categoriasCarousel
-      class="flex gap-14 overflow-x-auto scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pt-8 pb-6"
-    >
+      class="flex gap-14 overflow-x-auto scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pt-14 pb-2"
+      >
 
       @for(categoria of categorias; track categoria.nombre) {
         <a
