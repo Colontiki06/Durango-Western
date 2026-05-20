@@ -37,17 +37,64 @@
       </button>
 
       <!-- USUARIO -->
-      <button
-        type="button"
-        class="icon-button"
-        (click)="goToUserArea()"
-        aria-label="Área de usuario"
-      >
-        <img
-          src="/icons/usuario.svg"
-          alt="Usuario"
-        />
+<div class="user-menu-wrapper">
+
+  <button
+    type="button"
+    class="icon-button"
+    aria-label="Área de usuario"
+  >
+    <img
+      src="/icons/usuario.svg"
+      alt="Usuario"
+    />
+  </button>
+
+  <div class="user-dropdown">
+
+    @if(auth.isLoggedIn()) {
+
+      <button type="button" (click)="goTo('/perfil')">
+        Mi perfil
       </button>
+
+      <button type="button" (click)="goTo('/pedidos')">
+        Mis compras
+      </button>
+
+      <button type="button" (click)="goTo('/metodos-pago')">
+        Métodos de pago
+      </button>
+
+      <button type="button" (click)="logout()">
+        Cerrar sesión
+      </button>
+
+    } @else {
+
+      <div class="px-3 py-3 text-left">
+        <p class="text-[#2f1b12] font-bold mb-1">
+          ¿Ya tienes cuenta?
+        </p>
+
+        <p class="text-[#8a542f] text-sm mb-3">
+          Inicia sesión para ver tu perfil, pedidos y métodos de pago.
+        </p>
+
+        <button
+          type="button"
+          (click)="goTo('/login')"
+          class="w-full bg-[#4b2e1f] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#6b3f26] transition"
+        >
+          Iniciar sesión
+        </button>
+      </div>
+
+    }
+
+  </div>
+
+</div>
 
       <!-- CARRITO -->
       <button

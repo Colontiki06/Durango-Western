@@ -2,11 +2,11 @@
 
   <div class="mb-10">
     <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
-      Mis pedidos
+      Mis compras
     </h1>
 
     <p class="text-[#8a542f] mt-2">
-      Consulta el estado de tus compras y tu historial de pedidos.
+      Consulta el estado de tus compras y tu historial.
     </p>
   </div>
 
@@ -27,8 +27,6 @@
               Fecha: {{ pedido.fecha }}
             </p>
           </div>
-
-        
 
         </div>
 
@@ -77,7 +75,8 @@
                 En camino
               </div>
 
-              <div class="hidden md:block w-10 h-[2px]"
+              <div
+                class="hidden md:block w-10 h-[2px]"
                 [class.bg-[#8a542f]]="pedido.estado === 'Entregado'"
                 [class.bg-[#d8c5aa]]="pedido.estado !== 'Entregado'"
               ></div>
@@ -101,11 +100,17 @@
 
           <div class="flex flex-col gap-3">
 
-            <button class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-3 rounded-xl font-bold transition">
+            <button
+              (click)="abrirDetalle(pedido)"
+              class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-3 rounded-xl font-bold transition"
+            >
               Ver detalle
             </button>
 
-            <button class="bg-[#f5ede1] hover:bg-[#eadcc7] text-[#4b2e1f] py-3 rounded-xl font-bold transition">
+            <button
+              (click)="abrirRastreo(pedido)"
+              class="bg-[#f5ede1] hover:bg-[#eadcc7] text-[#4b2e1f] py-3 rounded-xl font-bold transition"
+            >
               Rastrear pedido
             </button>
 
@@ -120,3 +125,162 @@
   </div>
 
 </section>
+
+<!-- MODAL DETALLE -->
+@if(modalDetalle && pedidoSeleccionado) {
+
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-5">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-8 relative">
+
+      <button
+        (click)="cerrarModal()"
+        class="absolute top-4 right-4 text-[#4b2e1f] text-2xl font-bold"
+      >
+        ×
+      </button>
+
+      <h2 class="text-3xl font-bold text-[#2f1b12] mb-2">
+        Detalle del pedido
+      </h2>
+
+      <p class="text-[#8a542f] mb-8">
+        Pedido #{{ pedidoSeleccionado.id }}
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-8">
+
+        <div class="bg-[#f5ede1] rounded-xl h-[180px] overflow-hidden">
+          <img
+            [src]="pedidoSeleccionado.imagen"
+            [alt]="pedidoSeleccionado.producto"
+            class="w-full h-full object-contain"
+          >
+        </div>
+
+        <div class="space-y-3 text-[#3b2418]">
+
+          <h3 class="text-2xl font-bold text-[#2f1b12]">
+            {{ pedidoSeleccionado.producto }}
+          </h3>
+
+          <p><strong>Fecha:</strong> {{ pedidoSeleccionado.fecha }}</p>
+          <p><strong>Estado:</strong> {{ pedidoSeleccionado.estado }}</p>
+          <p><strong>Talla:</strong> {{ pedidoSeleccionado.talla }}</p>
+          <p><strong>Total:</strong> ${{ pedidoSeleccionado.total }} MXN</p>
+          <p><strong>Método de pago:</strong> {{ pedidoSeleccionado.metodoPago }}</p>
+          <p><strong>Método de envío:</strong> {{ pedidoSeleccionado.metodoEnvio }}</p>
+          <p><strong>Dirección:</strong> {{ pedidoSeleccionado.direccion }}</p>
+
+        </div>
+
+      </div>
+
+      <div class="mt-8 flex justify-end">
+        <button
+          (click)="cerrarModal()"
+          class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-6 py-3 rounded-xl font-bold transition"
+        >
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+<!-- MODAL RASTREO -->
+@if(modalRastreo && pedidoSeleccionado) {
+
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-5">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8 relative">
+
+      <button
+        (click)="cerrarModal()"
+        class="absolute top-4 right-4 text-[#4b2e1f] text-2xl font-bold"
+      >
+        ×
+      </button>
+
+      <h2 class="text-3xl font-bold text-[#2f1b12] mb-2">
+        Rastreo del pedido
+      </h2>
+
+      <p class="text-[#8a542f] mb-8">
+        Pedido #{{ pedidoSeleccionado.id }}
+      </p>
+
+      <div class="bg-[#f5ede1] rounded-2xl p-6 mb-8">
+
+        <p class="text-[#3b2418] mb-2">
+          <strong>Paquetería:</strong> {{ pedidoSeleccionado.paqueteria }}
+        </p>
+
+        <p class="text-[#3b2418] mb-2">
+          <strong>Número de guía:</strong> {{ pedidoSeleccionado.guia }}
+        </p>
+
+        <p class="text-[#3b2418]">
+          <strong>Entrega estimada:</strong> {{ pedidoSeleccionado.fechaEstimada }}
+        </p>
+
+      </div>
+
+      <div class="space-y-6">
+
+        <div class="flex gap-4">
+          <span class="w-4 h-4 mt-1 rounded-full bg-[#8a542f]"></span>
+          <div>
+            <h3 class="font-bold text-[#2f1b12]">Pedido realizado</h3>
+            <p class="text-[#8a542f]">Tu compra fue registrada correctamente.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <span class="w-4 h-4 mt-1 rounded-full bg-[#8a542f]"></span>
+          <div>
+            <h3 class="font-bold text-[#2f1b12]">Enviado</h3>
+            <p class="text-[#8a542f]">Tu paquete salió del almacén.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <span class="w-4 h-4 mt-1 rounded-full bg-[#8a542f]"></span>
+          <div>
+            <h3 class="font-bold text-[#2f1b12]">En camino</h3>
+            <p class="text-[#8a542f]">Tu pedido está en ruta.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <span
+            class="w-4 h-4 mt-1 rounded-full"
+            [class.bg-[#8a542f]]="pedidoSeleccionado.estado === 'Entregado'"
+            [class.bg-[#d8c5aa]]="pedidoSeleccionado.estado !== 'Entregado'"
+          ></span>
+
+          <div>
+            <h3
+              class="font-bold"
+              [class.text-[#2f1b12]]="pedidoSeleccionado.estado === 'Entregado'"
+              [class.text-[#9a8a78]]="pedidoSeleccionado.estado !== 'Entregado'"
+            >
+              Entregado
+            </h3>
+
+            <p class="text-[#8a542f]">
+              El pedido fue entregado al cliente.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

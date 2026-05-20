@@ -107,6 +107,12 @@ export const routes: Routes = [
       import('./administrador/auth/login-admin/login-admin')
         .then(m => m.LoginAdmin)
   },
+  {
+  path: 'metodos-pago',
+  loadComponent: () =>
+    import('./paginas/metodos-pago/metodos-pago')
+      .then(m => m.MetodosPago)
+},
 
   {
     path: 'admin',

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 interface Address {
   id: number;
@@ -19,11 +20,12 @@ interface CustomerProfile {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
 export class Perfil {
+
   customer: CustomerProfile = {
     fullName: '',
     email: '',
@@ -50,7 +52,7 @@ export class Perfil {
   showEditAddressModal = false;
   showEditProfileModal = false;
 
-  addAddress() {
+  addAddress(): void {
     this.customer.addresses.push({
       ...this.newAddress,
       id: Date.now(),
@@ -67,14 +69,14 @@ export class Perfil {
     this.showAddAddressModal = false;
   }
 
-  openEditAddress(address: Address) {
+  openEditAddress(address: Address): void {
     this.editAddressData = { ...address };
     this.showEditAddressModal = true;
   }
 
-  saveEditedAddress() {
+  saveEditedAddress(): void {
     const index = this.customer.addresses.findIndex(
-      a => a.id === this.editAddressData.id
+      address => address.id === this.editAddressData.id
     );
 
     if (index !== -1) {
@@ -84,9 +86,14 @@ export class Perfil {
     this.showEditAddressModal = false;
   }
 
-  deleteAddress(id: number) {
+  deleteAddress(id: number): void {
     this.customer.addresses = this.customer.addresses.filter(
       address => address.id !== id
     );
   }
+
+  saveProfile(): void {
+    this.showEditProfileModal = false;
+  }
+
 }
