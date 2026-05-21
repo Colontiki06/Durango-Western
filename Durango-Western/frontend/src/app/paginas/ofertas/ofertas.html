@@ -1,0 +1,321 @@
+<section class="bg-[#f5ede1] min-h-screen">
+
+  <!-- HERO -->
+  <div class="relative h-[340px] md:h-[460px] overflow-hidden">
+    <img src="/img/banner.png" alt="Ofertas Durango Western" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-black/55"></div>
+
+    <div class="absolute inset-0 flex items-center px-6 md:px-20">
+      <div class="max-w-2xl text-white">
+        <p class="text-[#d6a15d] tracking-[4px] font-bold mb-3">
+          PROMOCIONES ESPECIALES
+        </p>
+
+        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-5">
+          Ofertas Durango Western
+        </h1>
+
+        <p class="text-lg md:text-2xl text-white/90 mb-7">
+          Descuentos, meses sin intereses y últimas piezas por tiempo limitado.
+        </p>
+
+        <a
+          href="#descuentos"
+          class="inline-block bg-[#8a542f] hover:bg-[#6b3f26] text-white px-8 py-3 rounded-xl font-bold transition"
+        >
+          Ver promociones
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-5 md:px-16 py-14">
+
+    <!-- BENEFICIOS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
+
+      <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+        <div class="text-4xl mb-3">🔥</div>
+        <h3 class="font-bold text-[#2f1b12] text-xl">Hasta 50% OFF</h3>
+        <p class="text-[#8a542f] mt-2">Productos seleccionados.</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+        <div class="text-4xl mb-3">💳</div>
+        <h3 class="font-bold text-[#2f1b12] text-xl">Meses sin intereses</h3>
+        <p class="text-[#8a542f] mt-2">Compra ahora y paga después.</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+        <div class="text-4xl mb-3">🚚</div>
+        <h3 class="font-bold text-[#2f1b12] text-xl">Envío gratis</h3>
+        <p class="text-[#8a542f] mt-2">En compras mínimas de $4,000.</p>
+      </div>
+
+    </div>
+
+    <!-- 50 OFF -->
+    <section id="descuentos" class="mb-16">
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+          <h2 class="text-3xl font-bold text-[#2f1b12]">
+            Hasta 50% de descuento
+          </h2>
+          <p class="text-[#8a542f] mt-2">
+            Aprovecha los mejores precios en productos seleccionados.
+          </p>
+        </div>
+
+        <span class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-bold w-fit">
+          50% OFF
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        @for(producto of productos50; track producto.slug) {
+
+          <article class="relative bg-white rounded-2xl shadow-md overflow-hidden hover:-translate-y-2 hover:shadow-2xl duration-300 transition">
+
+            <div class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+              -50%
+            </div>
+
+            <a [routerLink]="['/detalle-producto', producto.slug]" class="block h-[220px] bg-[#f5ede1]">
+              <img [src]="producto.imagen" [alt]="producto.nombre" class="w-full h-full object-contain p-8">
+            </a>
+
+            <div class="p-5">
+              <h3 class="font-bold text-[#2f1b12] mb-3 text-lg">
+                {{ producto.nombre }}
+              </h3>
+
+              <p class="line-through text-[#9a8a78]">
+                ${{ producto.precioOriginal }} MXN
+              </p>
+
+              <p class="text-2xl font-bold text-red-700 mb-4">
+                ${{ producto.precioOferta }} MXN
+              </p>
+
+              <a [routerLink]="['/detalle-producto', producto.slug]" class="block text-center bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-2.5 rounded-xl font-bold transition">
+                Ver producto
+              </a>
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    </section>
+
+    <!-- BANNER INTERMEDIO -->
+    <section class="relative overflow-hidden rounded-3xl bg-[#4b2e1f] px-8 py-10 md:px-14 md:py-12 mb-16 shadow-xl">
+
+      <div class="absolute right-0 top-0 h-full w-1/2 opacity-20 hidden md:block">
+        <img src="/img/BotasDama.png" alt="Promoción" class="w-full h-full object-contain">
+      </div>
+
+      <div class="relative max-w-2xl text-white">
+        <p class="text-[#d6a15d] tracking-[4px] font-bold mb-3">
+          HOT SALE WESTERN
+        </p>
+
+        <h2 class="text-3xl md:text-5xl font-bold mb-4">
+          Hasta 12 MSI + envío gratis
+        </h2>
+
+        <p class="text-white/80 mb-6">
+          Promoción válida en productos seleccionados de temporada.
+        </p>
+
+        <a
+          href="#msi"
+          class="inline-block bg-[#d6a15d] hover:bg-[#c08f46] text-[#2f1b12] px-7 py-3 rounded-xl font-bold transition"
+        >
+          Comprar con MSI
+        </a>
+      </div>
+
+    </section>
+
+    <!-- MSI -->
+    <section id="msi" class="mb-16">
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+          <h2 class="text-3xl font-bold text-[#2f1b12]">
+            Meses sin intereses
+          </h2>
+          <p class="text-[#8a542f] mt-2">
+            Compra productos premium con pagos cómodos.
+          </p>
+        </div>
+
+        <span class="bg-[#4b2e1f] text-white px-4 py-2 rounded-full font-bold w-fit">
+          Hasta 6 MSI
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        @for(producto of msi; track producto.slug) {
+
+          <article class="relative bg-white rounded-2xl shadow-md overflow-hidden hover:-translate-y-2 hover:shadow-2xl duration-300 transition">
+
+            <div class="absolute top-3 right-3 bg-[#4b2e1f] text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+              6 MSI
+            </div>
+
+            <a [routerLink]="['/detalle-producto', producto.slug]" class="block h-[220px] bg-[#f5ede1]">
+              <img [src]="producto.imagen" [alt]="producto.nombre" class="w-full h-full object-contain p-8">
+            </a>
+
+            <div class="p-5">
+              <h3 class="font-bold text-[#2f1b12] mb-3 text-lg">
+                {{ producto.nombre }}
+              </h3>
+
+              <p class="text-[#8a542f] font-semibold">
+                Desde ${{ producto.precioOferta / 6 | number:'1.0-0' }} MXN al mes
+              </p>
+
+              <p class="text-2xl font-bold text-[#2f1b12] mb-4">
+                ${{ producto.precioOferta }} MXN
+              </p>
+
+              <a [routerLink]="['/detalle-producto', producto.slug]" class="block text-center bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-2.5 rounded-xl font-bold transition">
+                Ver producto
+              </a>
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    </section>
+
+    <!-- ÚLTIMAS PIEZAS -->
+    <section class="mb-16">
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+          <h2 class="text-3xl font-bold text-[#2f1b12]">
+            Últimas piezas
+          </h2>
+          <p class="text-[#8a542f] mt-2">
+            Productos con pocas unidades disponibles.
+          </p>
+        </div>
+
+        <span class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-bold w-fit">
+          Stock limitado
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        @for(producto of ultimasPiezas; track producto.slug) {
+
+          <article class="relative bg-white rounded-2xl shadow-md overflow-hidden hover:-translate-y-2 hover:shadow-2xl duration-300 transition">
+
+            <div class="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+              Últimas
+            </div>
+
+            <a [routerLink]="['/detalle-producto', producto.slug]" class="block h-[220px] bg-[#f5ede1]">
+              <img [src]="producto.imagen" [alt]="producto.nombre" class="w-full h-full object-contain p-8">
+            </a>
+
+            <div class="p-5">
+              <h3 class="font-bold text-[#2f1b12] mb-3 text-lg">
+                {{ producto.nombre }}
+              </h3>
+
+              <p class="line-through text-[#9a8a78]">
+                ${{ producto.precioOriginal }} MXN
+              </p>
+
+              <p class="text-2xl font-bold text-[#2f1b12] mb-4">
+                ${{ producto.precioOferta }} MXN
+              </p>
+
+              <a [routerLink]="['/detalle-producto', producto.slug]" class="block text-center bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-2.5 rounded-xl font-bold transition">
+                Ver producto
+              </a>
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    </section>
+
+    <!-- MÁS VENDIDOS -->
+    <section>
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+          <h2 class="text-3xl font-bold text-[#2f1b12]">
+            Más vendidos en promoción
+          </h2>
+          <p class="text-[#8a542f] mt-2">
+            Los favoritos de nuestros clientes con precio especial.
+          </p>
+        </div>
+
+        <span class="bg-[#eadcc7] text-[#4b2e1f] px-4 py-2 rounded-full font-bold w-fit">
+          Top ventas
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        @for(producto of masVendidos; track producto.slug) {
+
+          <article class="relative bg-white rounded-2xl shadow-md overflow-hidden hover:-translate-y-2 hover:shadow-2xl duration-300 transition">
+
+            <div class="absolute top-3 right-3 bg-[#d6a15d] text-[#2f1b12] text-xs font-bold px-3 py-1 rounded-full z-10">
+              Popular
+            </div>
+
+            <a [routerLink]="['/detalle-producto', producto.slug]" class="block h-[220px] bg-[#f5ede1]">
+              <img [src]="producto.imagen" [alt]="producto.nombre" class="w-full h-full object-contain p-8">
+            </a>
+
+            <div class="p-5">
+              <h3 class="font-bold text-[#2f1b12] mb-3 text-lg">
+                {{ producto.nombre }}
+              </h3>
+
+              <p class="line-through text-[#9a8a78]">
+                ${{ producto.precioOriginal }} MXN
+              </p>
+
+              <p class="text-2xl font-bold text-[#2f1b12] mb-4">
+                ${{ producto.precioOferta }} MXN
+              </p>
+
+              <a [routerLink]="['/detalle-producto', producto.slug]" class="block text-center bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-2.5 rounded-xl font-bold transition">
+                Ver producto
+              </a>
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    </section>
+
+  </div>
+
+</section>

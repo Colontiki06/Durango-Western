@@ -2,171 +2,184 @@
   Envíos gratis en compras mínimas de $4,000
 </div>
 
-<!-- NAVBAR -->
 <nav class="navbar">
-
   <div class="navbar-container">
 
-    <!-- LOGO -->
-    <a
-      routerLink="/"
-      class="logo-link"
-      aria-label="Durango Western inicio"
-    >
-      <img
-        src="/img/logo-durango.png"
-        alt="Durango Western"
-        class="logo-img"
-      />
+    <a routerLink="/" class="logo-link" aria-label="Durango Western inicio">
+      <img src="/img/logo-durango.png" alt="Durango Western" class="logo-img" />
     </a>
 
-    <!-- ICONOS -->
     <div class="navbar-icons">
 
-      <!-- BUSCADOR -->
-      <button
-        type="button"
-        class="icon-button"
-        aria-label="Buscar"
-        (click)="toggleSearch()"
-      >
-        <img
-          src="/icons/lupa.svg"
-          alt="Buscar"
-        />
+      <button type="button" class="icon-button" aria-label="Buscar" (click)="toggleSearch()">
+        <img src="/icons/lupa.svg" alt="Buscar" />
       </button>
 
-      <!-- USUARIO -->
-<div class="user-menu-wrapper">
-
-  <button
-    type="button"
-    class="icon-button"
-    aria-label="Área de usuario"
-  >
-    <img
-      src="/icons/usuario.svg"
-      alt="Usuario"
-    />
-  </button>
-
-  <div class="user-dropdown">
-
-    @if(auth.isLoggedIn()) {
-
-      <button type="button" (click)="goTo('/perfil')">
-        Mi perfil
-      </button>
-
-      <button type="button" (click)="goTo('/pedidos')">
-        Mis compras
-      </button>
-
-      <button type="button" (click)="goTo('/metodos-pago')">
-        Métodos de pago
-      </button>
-
-      <button type="button" (click)="logout()">
-        Cerrar sesión
-      </button>
-
-    } @else {
-
-      <div class="px-3 py-3 text-left">
-        <p class="text-[#2f1b12] font-bold mb-1">
-          ¿Ya tienes cuenta?
-        </p>
-
-        <p class="text-[#8a542f] text-sm mb-3">
-          Inicia sesión para ver tu perfil, pedidos y métodos de pago.
-        </p>
-
-        <button
-          type="button"
-          (click)="goTo('/login')"
-          class="w-full bg-[#4b2e1f] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#6b3f26] transition"
-        >
-          Iniciar sesión
+      <div class="user-menu-wrapper">
+        <button type="button" class="icon-button" aria-label="Área de usuario">
+          <img src="/icons/usuario.svg" alt="Usuario" />
         </button>
+
+        <div class="user-dropdown">
+          @if(auth.isLoggedIn()) {
+            <button type="button" (click)="goTo('/perfil')">Mi perfil</button>
+            <button type="button" (click)="goTo('/pedidos')">Mis compras</button>
+            <button type="button" (click)="goTo('/metodos-pago')">Métodos de pago</button>
+            <button type="button" (click)="logout()">Cerrar sesión</button>
+          } @else {
+            <div class="px-3 py-3 text-left">
+              <p class="text-[#2f1b12] font-bold mb-1">¿Ya tienes cuenta?</p>
+              <p class="text-[#8a542f] text-sm mb-3">
+                Inicia sesión para ver tu perfil, pedidos y métodos de pago.
+              </p>
+
+              <button
+                type="button"
+                (click)="goTo('/login')"
+                class="w-full bg-[#4b2e1f] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#6b3f26] transition"
+              >
+                Iniciar sesión
+              </button>
+            </div>
+          }
+        </div>
       </div>
 
-    }
+      <button type="button" class="icon-button cart-button" routerLink="/carrito" aria-label="Carrito">
+        <img src="/icons/bolso.svg" alt="Carrito" />
 
-  </div>
-
-</div>
-
-      <!-- CARRITO -->
-      <button
-        type="button"
-        class="icon-button cart-button"
-        routerLink="/carrito"
-        aria-label="Carrito"
-      >
-
-        <img
-          src="/icons/bolso.svg"
-          alt="Carrito"
-        />
-
-        <span
-          *ngIf="cartCount > 0"
-          class="cart-badge"
-        >
+        <span *ngIf="cartCount > 0" class="cart-badge">
           {{ cartCount }}
         </span>
-
       </button>
 
     </div>
 
   </div>
-
 </nav>
 
-<!-- BUSCADOR DESPLEGABLE -->
 @if(searchOpen) {
-
   <div class="search-dropdown">
-
     <div class="search-container">
-
       <input
         type="text"
         placeholder="Buscar botas, sombreros, camisas..."
         class="search-input"
       >
 
-      <button
-        type="button"
-        class="search-btn"
-      >
+      <button type="button" class="search-btn">
         Buscar
       </button>
-
     </div>
-
   </div>
-
 }
 
-<!-- MENÚ -->
 <div class="menu-bar">
 
-  <a routerLink="/productos/botas-caballero">
-    Caballero
-  </a>
+  <div class="mega-item">
+    <a routerLink="/productos/botas-caballero" class="menu-link">
+      Caballero
+    </a>
 
-  <a routerLink="/productos/dama">
-    Dama
-  </a>
+    <div class="mega-menu">
+      <div class="mega-content">
 
-  <a routerLink="/productos/ninos">
-    Niños
-  </a>
+        <div>
+          <h3>Caballero</h3>
 
-  <a routerLink="/productos/ofertas">
-    Ofertas
-  </a>
+          <a routerLink="/productos/botas-caballero">Botas</a>
+          <a routerLink="/productos/sombreros">Sombreros</a>
+          <a routerLink="/productos/camisas">Camisas</a>
+          <a routerLink="/productos/pantalones">Pantalones</a>
+          <a routerLink="/productos/cintos">Cintos</a>
+        </div>
+
+        <div>
+          <h3>Destacado</h3>
+
+          <a routerLink="/productos/botas-caballero">Botas vaqueras</a>
+          <a routerLink="/productos/camisas">Camisas western</a>
+          <a routerLink="/productos/accesorios">Accesorios</a>
+        </div>
+
+        <div class="mega-promo">
+          <img src="/img/BotasCaballero.PNG" alt="Caballero">
+          <p>Estilo western para caballero</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="mega-item">
+    <a routerLink="/productos/dama" class="menu-link">
+      Dama
+    </a>
+
+    <div class="mega-menu">
+      <div class="mega-content">
+
+        <div>
+          <h3>Dama</h3>
+
+          <a routerLink="/productos/botas-dama">Botas</a>
+          <a routerLink="/productos/sombreros">Sombreros</a>
+          <a routerLink="/productos/camisas">Blusas / Camisas</a>
+          <a routerLink="/productos/accesorios">Accesorios</a>
+        </div>
+
+        <div>
+          <h3>Destacado</h3>
+
+          <a routerLink="/productos/botas-dama">Botas bordadas</a>
+          <a routerLink="/productos/accesorios">Bolsos</a>
+          <a routerLink="/productos/cintos">Cintos</a>
+        </div>
+
+        <div class="mega-promo">
+          <img src="/img/BotasDama.png" alt="Dama">
+          <p>Moda western para dama</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="mega-item">
+    <a routerLink="/productos/ninos" class="menu-link">
+      Niños
+    </a>
+
+    <div class="mega-menu">
+      <div class="mega-content">
+
+        <div>
+          <h3>Niños</h3>
+
+          <a routerLink="/productos/ninos">Botas infantiles</a>
+          <a routerLink="/productos/camisas">Camisas</a>
+          <a routerLink="/productos/sombreros">Sombreros</a>
+          <a routerLink="/productos/accesorios">Accesorios</a>
+        </div>
+
+        <div>
+          <h3>Destacado</h3>
+
+          <a routerLink="/productos/ninos">Colección infantil</a>
+          <a routerLink="/productos/ofertas">Promociones</a>
+        </div>
+
+        <div class="mega-promo">
+          <img src="/img/Gorras.PNG" alt="Niños">
+          <p>Estilo western para los pequeños</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <a routerLink="/ofertas" class="menu-link">
+  Ofertas
+</a>
 
 </div>
