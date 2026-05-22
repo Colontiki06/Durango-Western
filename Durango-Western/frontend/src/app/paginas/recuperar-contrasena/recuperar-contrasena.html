@@ -1,0 +1,54 @@
+<div class="min-h-[calc(100vh-210px)] bg-[#f5e6cf] flex justify-center pt-14">
+
+  <section class="w-full max-w-[448px]">
+
+    <div class="bg-[#6b3418] text-white text-center px-7 py-9">
+      <h1 class="text-[28px] font-extrabold mb-3">
+        Recuperar contraseña
+      </h1>
+
+      <p class="text-base">
+        Accede nuevamente a tu cuenta Durango Western
+      </p>
+    </div>
+
+    <div class="px-8 py-10">
+
+      <p class="text-center text-[#1f120c] text-base leading-7 mb-8">
+        Ingresa el correo electrónico asociado a tu cuenta y te enviaremos instrucciones para restablecer tu contraseña.
+      </p>
+
+      @if(mensajeExito) {
+        <div class="bg-emerald-100 text-emerald-700 text-center px-4 py-3 mb-5 font-semibold text-sm">
+          Si el correo existe, recibirás un enlace de recuperación.
+        </div>
+      }
+
+      <input
+        type="email"
+        [(ngModel)]="email"
+        placeholder="Correo electrónico"
+        class="w-full h-[43px] border border-[#8b7355] bg-white px-4 text-base mb-4 outline-none focus:border-[#8a542f]"
+      >
+
+      <button
+        type="button"
+        (click)="enviarEnlace()"
+        class="w-full h-11 bg-[#9a5c30] hover:bg-[#6b3418] text-white text-sm font-semibold transition mb-4"
+      >
+        ENVIAR ENLACE
+      </button>
+
+      <button
+        type="button"
+        routerLink="/login"
+        class="w-full h-11 bg-[#9a5c30] hover:bg-[#6b3418] text-white text-sm font-semibold transition"
+      >
+        REGRESAR A INICIO DE SESIÓN
+      </button>
+
+    </div>
+
+  </section>
+
+</div>

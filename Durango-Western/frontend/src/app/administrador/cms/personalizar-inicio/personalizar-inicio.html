@@ -2,7 +2,6 @@
 
   <!-- Header -->
   <div class="mb-10">
-
     <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
       Personalizar inicio
     </h1>
@@ -10,7 +9,6 @@
     <p class="text-[#8a542f] mt-2">
       Modifica banners, categorías y contenido visual de la página principal.
     </p>
-
   </div>
 
   <!-- Carrusel principal -->
@@ -24,14 +22,14 @@
         </h2>
 
         <p class="text-[#8a542f] mt-1">
-          Administra las imágenes y textos que aparecen en el carrusel de inicio.
+          Administra las imágenes, textos y botones que aparecen en el carrusel de inicio.
         </p>
       </div>
 
       <button
         type="button"
         (click)="abrirModalBanner()"
-        class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-5 py-3 rounded-xl font-semibold transition"
+        class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-5 py-3 rounded-xl font-semibold transition"
       >
         + Agregar banner
       </button>
@@ -49,22 +47,27 @@
 
             <img
               [src]="banner.imagen"
+              alt="Banner"
               class="w-full h-full object-cover"
             >
 
-            <div class="absolute inset-0 bg-black/40 flex flex-col justify-center px-8">
+            <div class="absolute inset-0 bg-black/45 flex flex-col justify-center px-8">
 
               <p class="text-[#d6a15d] text-sm md:text-lg mb-2 tracking-widest">
                 {{ banner.textoSuperior }}
               </p>
 
-              <h2 class="text-white text-3xl md:text-5xl font-bold max-w-[600px]">
+              <h2 class="text-white text-3xl md:text-5xl font-bold max-w-[650px]">
                 {{ banner.titulo }}
               </h2>
 
               <p class="text-white/90 mt-3">
                 {{ banner.descripcion }}
               </p>
+
+              <span class="inline-block mt-5 bg-[#8a542f] text-white px-6 py-3 rounded-lg font-bold w-fit">
+                {{ banner.textoBoton }}
+              </span>
 
             </div>
 
@@ -122,6 +125,32 @@
               >
             </div>
 
+            <div>
+              <label class="block mb-2 font-semibold text-[#2f1b12]">
+                Texto del botón
+              </label>
+
+              <input
+                type="text"
+                [(ngModel)]="banner.textoBoton"
+                placeholder="Ver colección"
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+              >
+            </div>
+
+            <div>
+              <label class="block mb-2 font-semibold text-[#2f1b12]">
+                Enlace del botón
+              </label>
+
+              <input
+                type="text"
+                [(ngModel)]="banner.enlaceBoton"
+                placeholder="/productos/dama"
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+              >
+            </div>
+
             <div class="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4 border-t border-[#eadcc7]">
 
               <label class="flex items-center gap-3 text-[#2f1b12] font-semibold">
@@ -137,7 +166,7 @@
 
                 <button
                   type="button"
-                  class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-5 py-2 rounded-lg font-semibold transition"
+                  class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-5 py-2 rounded-lg font-semibold transition"
                 >
                   Guardar
                 </button>
@@ -145,7 +174,7 @@
                 <button
                   type="button"
                   (click)="eliminarBanner($index)"
-                  class="bg-red-100 text-red-700 hover:bg-red-600 hover:text-white px-5 py-2 rounded-lg font-semibold transition"
+                  class="bg-red-100 text-red-700 hover:bg-red-600 hover:text-white active:bg-red-700 active:text-white active:scale-95 px-5 py-2 rounded-lg font-semibold transition"
                 >
                   Eliminar
                 </button>
@@ -170,7 +199,6 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
 
       <div>
-
         <h2 class="text-2xl font-bold text-[#2f1b12]">
           Categorías destacadas
         </h2>
@@ -178,12 +206,11 @@
         <p class="text-[#8a542f] mt-1">
           Administra las categorías visibles en la Home.
         </p>
-
       </div>
 
       <button
         type="button"
-        class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-5 py-3 rounded-xl font-semibold transition"
+        class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-5 py-3 rounded-xl font-semibold transition"
       >
         Guardar categorías
       </button>
@@ -197,12 +224,11 @@
         <div class="border border-[#eadcc7] rounded-2xl overflow-hidden">
 
           <div class="h-[220px] bg-[#f5ede1]">
-
             <img
               [src]="categoria.imagen"
+              [alt]="categoria.nombre"
               class="w-full h-full object-cover"
             >
-
           </div>
 
           <div class="p-5">
@@ -285,6 +311,20 @@
           class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
         >
 
+        <input
+          [(ngModel)]="nuevoBanner.textoBoton"
+          type="text"
+          placeholder="Texto del botón"
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+
+        <input
+          [(ngModel)]="nuevoBanner.enlaceBoton"
+          type="text"
+          placeholder="/productos/dama"
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+
         <label class="flex items-center gap-3 text-[#2f1b12] font-semibold">
           <input
             type="checkbox"
@@ -301,7 +341,7 @@
         <button
           type="button"
           (click)="cerrarModalBanner()"
-          class="border border-[#4b2e1f] text-[#4b2e1f] px-6 py-3 rounded-xl font-bold"
+          class="border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:bg-[#4b2e1f] active:text-white active:scale-95 px-6 py-3 rounded-xl font-bold transition"
         >
           Cancelar
         </button>
@@ -309,7 +349,7 @@
         <button
           type="button"
           (click)="agregarBanner()"
-          class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-6 py-3 rounded-xl font-bold"
+          class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-6 py-3 rounded-xl font-bold transition"
         >
           Aceptar y agregar
         </button>

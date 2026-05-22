@@ -1,80 +1,99 @@
-<div class="p-5 md:p-8">
+<div class="p-4 sm:p-5 md:p-8">
 
- <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12] mb-8 md:mb-10">
-    Dashboard
-  </h1>
+  <div class="mb-8 md:mb-10">
+    <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+      Dashboard
+    </h1>
+
+    <p class="text-[#8a542f] mt-2">
+      Resumen general de ventas, pedidos e inventario.
+    </p>
+  </div>
 
   <!-- KPIs -->
-  <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
 
-    <div class="bg-white rounded-2xl p-6 shadow-md">
-      <p class="text-[#8a542f] mb-2">
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
         Ventas del mes
       </p>
 
-      <h2 class="text-4xl font-bold text-[#2f1b12]">
+      <h2 class="text-3xl md:text-4xl font-bold text-[#2f1b12] break-words">
         $50,000
       </h2>
     </div>
 
-    <div class="bg-white rounded-2xl p-6 shadow-md">
-      <p class="text-[#8a542f] mb-2">
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
         Pedidos
       </p>
 
-      <h2 class="text-4xl font-bold text-[#2f1b12]">
+      <h2 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
         132
       </h2>
     </div>
 
-    <div class="bg-white rounded-2xl p-6 shadow-md">
-      <p class="text-[#8a542f] mb-2">
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md sm:col-span-2 xl:col-span-1">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
         Productos activos
       </p>
 
-      <h2 class="text-4xl font-bold text-[#2f1b12]">
+      <h2 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
         86
       </h2>
     </div>
 
   </section>
 
-  <!-- Grid -->
-  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- Grid principal -->
+  <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8">
 
     <!-- Gráfica -->
-    <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-md">
+    <div class="xl:col-span-2 bg-white rounded-2xl p-5 md:p-6 shadow-md">
 
-      <h2 class="text-2xl font-bold text-[#2f1b12] mb-6">
-        Ventas del mes
-      </h2>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12]">
+          Ventas del mes
+        </h2>
 
-      <div class="h-[300px] bg-[#f5ede1] rounded-xl flex items-center justify-center">
+        <span class="bg-[#f5ede1] text-[#8a542f] px-4 py-2 rounded-full text-sm font-semibold w-fit">
+          Mayo 2026
+        </span>
+      </div>
+
+      <div class="h-[220px] sm:h-[260px] md:h-[320px] bg-[#f5ede1] rounded-xl flex items-center justify-center text-center px-4 text-[#4b2e1f] font-semibold">
         📊 Gráfica próximamente
       </div>
 
     </div>
 
     <!-- Más vendido -->
-    <div class="bg-white rounded-2xl p-6 shadow-md">
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
 
-      <h2 class="text-2xl font-bold text-[#2f1b12] mb-6">
+      <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-6">
         Más vendido
       </h2>
 
       <div class="bg-[#f5ede1] p-4 rounded-xl">
 
-        <div class="h-[220px] bg-[#e7dccb] rounded-lg mb-4 flex items-center justify-center">
+        <div class="h-[180px] sm:h-[220px] xl:h-[200px] bg-[#e7dccb] rounded-lg mb-4 flex items-center justify-center text-6xl">
           🥾
         </div>
 
-        <h3 class="font-bold text-[#2f1b12]">
+        <h3 class="font-bold text-[#2f1b12] text-lg">
           Bota Durango Clásica
         </h3>
 
         <p class="text-[#8a542f] font-semibold mt-2">
           $3,200 MXN
         </p>
+
+        <button
+          type="button"
+          class="mt-5 w-full bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-3 rounded-xl font-semibold transition"
+        >
+          Ver producto
+        </button>
 
       </div>
 

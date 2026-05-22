@@ -69,28 +69,24 @@ agregarProductoVista(): void {
   ];
 
   banners = [
-    {
-      textoSuperior: 'NUEVA COLECCIÓN',
-      titulo: 'Estilo western auténtico',
-      descripcion: 'Primavera Verano 2026',
-      boton: 'Ver colección',
-      imagen: '/img/banner.png'
-    },
-    {
-      textoSuperior: 'BOTAS PREMIUM',
-      titulo: 'Diseño vaquero para todos',
-      descripcion: 'Caballero y dama',
-      boton: 'Comprar ahora',
-      imagen: '/img/BotasCaballero.PNG'
-    },
-    {
-      textoSuperior: 'NUEVOS LANZAMIENTOS',
-      titulo: 'Sombreros y accesorios',
-      descripcion: 'Colección western',
-      boton: 'Explorar',
-      imagen: '/img/Sombreros.png'
-    }
-  ];
+  {
+    textoSuperior: 'NUEVA COLECCIÓN',
+    titulo: 'Estilo western auténtico',
+    descripcion: 'Primavera Verano 2026',
+    textoBoton: 'Ver colección',
+    enlaceBoton: '/productos/dama',
+    imagen: '/img/banner.png'
+  },
+
+  {
+    textoSuperior: 'OFERTAS ESPECIALES',
+    titulo: 'Promociones western',
+    descripcion: 'Hasta 50% de descuento',
+    textoBoton: 'Ver ofertas',
+    enlaceBoton: '/ofertas',
+    imagen: '/img/Sombreros.png'
+  }
+];
 
   constructor(
   private cartService: CartService,
