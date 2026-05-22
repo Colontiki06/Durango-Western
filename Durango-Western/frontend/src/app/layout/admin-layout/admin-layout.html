@@ -1,18 +1,18 @@
 <div class="bg-[#f5ede1] min-h-screen">
 
   <!-- Header móvil -->
- <header class="lg:hidden sticky top-0 z-30 bg-[#4b2e1f] text-white px-5 py-4 flex items-center justify-between shadow-md">
-  <h1 class="font-bold tracking-widest text-[#d6a15d]">
-    DURANGO WESTERN
-  </h1>
+  <header class="lg:hidden sticky top-0 z-30 bg-[#4b2e1f] text-white px-5 py-4 flex items-center justify-between shadow-md">
+    <h1 class="font-bold tracking-widest text-[#d6a15d]">
+      DURANGO WESTERN
+    </h1>
 
-  <button
-    (click)="toggleSidebar()"
-    class="text-3xl leading-none"
-  >
-    ☰
-  </button>
-</header>
+    <button
+      (click)="toggleSidebar()"
+      class="text-3xl leading-none"
+    >
+      ☰
+    </button>
+  </header>
 
   <!-- Overlay móvil -->
   @if(sidebarOpen()) {
@@ -39,7 +39,7 @@
     </div>
 
     <!-- Contenido -->
-    <main class="flex-1 min-h-screen overflow-x-hidden">
+    <main class="flex-1 min-h-screen overflow-x-hidden lg:ml-[260px]">
       <router-outlet></router-outlet>
     </main>
 

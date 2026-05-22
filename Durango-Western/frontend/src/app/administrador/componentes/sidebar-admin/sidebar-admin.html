@@ -1,4 +1,58 @@
-<aside class="w-[260px] min-h-screen bg-[#4b2e1f] text-white flex flex-col">
+<aside class="fixed left-0 top-0 z-50 w-[260px] h-screen bg-[#4b2e1f] text-white flex flex-col">
+
+  @if(mostrarConfirmacion) {
+
+  <div class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center px-6">
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+
+      <h2 class="text-2xl font-bold text-[#4b2e1f] mb-3">
+        ¿Cerrar sesión?
+      </h2>
+
+      <p class="text-gray-600 mb-6">
+        ¿Estás seguro de que deseas cerrar sesión?
+      </p>
+
+      <!-- Checkbox -->
+      <label class="flex items-center gap-3 mb-6 cursor-pointer">
+
+        <input
+          type="checkbox"
+          [(ngModel)]="noVolverMostrar"
+          class="w-5 h-5 accent-[#8a542f]"
+        >
+
+        <span class="text-[#4b2e1f] font-medium">
+          No volver a mostrar
+        </span>
+
+      </label>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-3">
+
+        <button
+          (click)="cancelarCerrarSesion()"
+          class="px-5 py-2 rounded-lg bg-gray-200 text-[#4b2e1f] font-medium hover:bg-gray-300 transition-all duration-300"
+        >
+          Cancelar
+        </button>
+
+        <button
+          (click)="confirmarCerrarSesion()"
+          class="px-5 py-2 rounded-lg bg-[#8a542f] text-white hover:bg-[#a96b40] transition"
+        >
+          Cerrar sesión
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
 
   <!-- Logo / Usuario -->
   <div class="p-6 border-b border-[#6b3f26]">
@@ -28,7 +82,7 @@
   </div>
 
   <!-- Navegación -->
-  <nav class="flex-1 p-4 space-y-2">
+  <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
 
     <!-- Dashboard -->
     <a
@@ -105,29 +159,32 @@
       </span>
     </a>
 
+    <!-- Personalizar inicio -->
     <a
       routerLink="/admin/personalizar-inicio"
       routerLinkActive="bg-[#6b3f26]"
       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#6b3f26] transition-all duration-300"
-  >
-    <span class="text-xl">🎨</span>
-    <span class="font-medium">Personalizar inicio</span>
-  </a>
+    >
+      <span class="text-xl">
+        🎨
+      </span>
+
+      <span class="font-medium">
+        Personalizar inicio
+      </span>
+    </a>
 
   </nav>
 
   <!-- Footer -->
   <div class="p-4 border-t border-[#6b3f26]">
 
-        <button
-           onclick="localStorage.removeItem('admin_logged'); window.location.href='/admin/login'"
-              class="w-full bg-[#8a542f] hover:bg-[#a96b40] text-white py-3 rounded-xl font-semibold transition-all duration-300"
-        >
-          Cerrar sesión
-        </button>
-
-  
-
+    <button
+      (click)="cerrarSesion()"
+      class="w-full bg-[#8a542f] hover:bg-[#a96b40] text-white py-3 rounded-xl font-semibold transition-all duration-300"
+    >
+      Cerrar sesión
+    </button>
 
   </div>
 
