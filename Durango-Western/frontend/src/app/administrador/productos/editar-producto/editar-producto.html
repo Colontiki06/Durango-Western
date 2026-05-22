@@ -10,7 +10,7 @@
       </h1>
 
       <p class="text-[#8a542f] mt-2">
-        Modifica información, stock y detalles del producto.
+        Modifica información, stock, promociones y detalles del producto.
       </p>
 
     </div>
@@ -41,7 +41,7 @@
 
           <input
             type="text"
-            value="Bota Durango Clásica"
+            [(ngModel)]="producto.nombre"
             class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
           >
 
@@ -56,7 +56,7 @@
 
           <input
             type="text"
-            value="DW-001"
+            [(ngModel)]="producto.codigo"
             class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
           >
 
@@ -71,7 +71,7 @@
 
           <input
             type="number"
-            value="3200"
+            [(ngModel)]="producto.precio"
             class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
           >
 
@@ -85,9 +85,10 @@
           </label>
 
           <select
+            [(ngModel)]="producto.categoria"
             class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
           >
-            <option selected>Botas</option>
+            <option>Botas</option>
             <option>Sombreros</option>
             <option>Camisas</option>
             <option>Pantalones</option>
@@ -104,7 +105,7 @@
 
           <input
             type="number"
-            value="15"
+            [(ngModel)]="producto.stock"
             class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
           >
 
@@ -118,9 +119,10 @@
           </label>
 
           <select
+            [(ngModel)]="producto.estado"
             class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
           >
-            <option selected>Activo</option>
+            <option>Activo</option>
             <option>Agotado</option>
             <option>Oculto</option>
           </select>
@@ -169,8 +171,158 @@
 
           <textarea
             rows="6"
+            [(ngModel)]="producto.descripcion"
             class="w-full border border-[#d8c5aa] rounded-lg p-4 outline-none resize-none focus:ring-2 focus:ring-[#8a542f]"
-          >Bota western clásica elaborada en piel premium con acabado artesanal.</textarea>
+          ></textarea>
+
+        </div>
+
+<!-- PROMOCIONES -->
+        <div class="md:col-span-2 bg-[#f5ede1] border border-[#eadcc7] rounded-2xl p-6">
+
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+            <div>
+              <h2 class="text-2xl font-bold text-[#2f1b12]">
+                Promociones y marketing
+              </h2>
+
+              <p class="text-[#8a542f] mt-1">
+                Configura descuentos, MSI y etiquetas visibles en la tienda.
+              </p>
+            </div>
+
+            <label class="flex items-center gap-3 font-bold text-[#2f1b12]">
+              <input
+                type="checkbox"
+                [(ngModel)]="producto.promocionActiva"
+                class="w-5 h-5"
+              >
+              Activar promoción
+            </label>
+
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <div>
+              <label class="block text-[#2f1b12] mb-2 font-medium">
+                Porcentaje de descuento
+              </label>
+
+              <input
+                type="number"
+                min="0"
+                max="100"
+                [(ngModel)]="producto.porcentajeDescuento"
+                [disabled]="!producto.promocionActiva"
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
+              >
+            </div>
+
+            <div>
+              <label class="block text-[#2f1b12] mb-2 font-medium">
+                Precio con descuento
+              </label>
+
+              <input
+                type="text"
+                [value]="'$' + (precioOferta | number:'1.0-2') + ' MXN'"
+                disabled
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 bg-white text-[#2f1b12] font-bold"
+              >
+            </div>
+
+            <div>
+              <label class="block text-[#2f1b12] mb-2 font-medium">
+                Fecha inicio promoción
+              </label>
+
+              <input
+                type="date"
+                [(ngModel)]="producto.fechaInicioPromo"
+                [disabled]="!producto.promocionActiva"
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
+              >
+            </div>
+
+            <div>
+              <label class="block text-[#2f1b12] mb-2 font-medium">
+                Fecha fin promoción
+              </label>
+
+              <input
+                type="date"
+                [(ngModel)]="producto.fechaFinPromo"
+                [disabled]="!producto.promocionActiva"
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
+              >
+            </div>
+
+            <div>
+              <label class="block text-[#2f1b12] mb-2 font-medium">
+                Etiqueta visible
+              </label>
+
+              <input
+                type="text"
+                [(ngModel)]="producto.etiquetaPromo"
+                placeholder="Ej. 25% OFF"
+                [disabled]="!producto.promocionActiva"
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
+              >
+            </div>
+
+            <div>
+              <label class="block text-[#2f1b12] mb-2 font-medium">
+                Meses sin intereses
+              </label>
+
+              <select
+                [(ngModel)]="producto.mesesMsi"
+                [disabled]="!producto.msiActivo"
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
+              >
+                <option [value]="0">Sin MSI</option>
+                <option [value]="3">3 meses</option>
+                <option [value]="6">6 meses</option>
+                <option [value]="9">9 meses</option>
+                <option [value]="12">12 meses</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+
+              <label class="flex items-center gap-3 bg-white p-4 rounded-xl font-semibold text-[#2f1b12]">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="producto.msiActivo"
+                  class="w-5 h-5"
+                >
+                Activar MSI
+              </label>
+
+              <label class="flex items-center gap-3 bg-white p-4 rounded-xl font-semibold text-[#2f1b12]">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="producto.ultimasPiezas"
+                  class="w-5 h-5"
+                >
+                Últimas piezas
+              </label>
+
+              <label class="flex items-center gap-3 bg-white p-4 rounded-xl font-semibold text-[#2f1b12]">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="producto.promocionDestacada"
+                  class="w-5 h-5"
+                >
+                Destacar en ofertas
+              </label>
+
+            </div>
+
+          </div>
 
         </div>
 

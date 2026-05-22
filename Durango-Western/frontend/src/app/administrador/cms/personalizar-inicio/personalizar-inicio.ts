@@ -12,22 +12,26 @@ export class PersonalizarInicio {
   showAddBannerModal = false;
 
   nuevoBanner = {
-    textoSuperior: '',
-    titulo: '',
-    descripcion: '',
-    imagen: '/img/banner.png',
-    activo: true
-  };
+  textoSuperior: '',
+  titulo: '',
+  descripcion: '',
+  imagen: '/img/Sombreros.png',
+  textoBoton: 'Ver colección',
+  enlaceBoton: '/productos',
+  activo: true
+};
 
   banners = [
-    {
-      textoSuperior: 'NUEVA COLECCIÓN',
-      titulo: 'Estilo western auténtico',
-      descripcion: 'Primavera Verano 2026',
-      imagen: '/img/banner.png',
-      activo: true
-    }
-  ];
+  {
+    textoSuperior: 'NUEVA COLECCIÓN',
+    titulo: 'Estilo western auténtico',
+    descripcion: 'Primavera Verano 2026',
+    imagen: '/img/banner.png',
+    textoBoton: 'Ver colección',
+    enlaceBoton: '/productos/dama',
+    activo: true
+  }
+];
 
   categorias = [
     {
@@ -72,12 +76,14 @@ export class PersonalizarInicio {
     this.showAddBannerModal = false;
 
     this.nuevoBanner = {
-      textoSuperior: '',
-      titulo: '',
-      descripcion: '',
-      imagen: '/img/banner.png',
-      activo: true
-    };
+  textoSuperior: '',
+  titulo: '',
+  descripcion: '',
+  imagen: '/img/banner.png',
+  textoBoton: 'Ver colección',
+  enlaceBoton: '/productos',
+  activo: true
+};
   }
 
   agregarBanner(): void {
