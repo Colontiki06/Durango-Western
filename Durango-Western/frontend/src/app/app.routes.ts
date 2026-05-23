@@ -113,6 +113,18 @@ export const routes: Routes = [
     import('./paginas/metodos-pago/metodos-pago')
       .then(m => m.MetodosPago)
 },
+{
+  path: 'ofertas',
+  loadComponent: () =>
+    import('./paginas/ofertas/ofertas')
+      .then(m => m.Ofertas)
+},
+{
+  path: 'recuperar-contrasena',
+  loadComponent: () =>
+    import('./paginas/recuperar-contrasena/recuperar-contrasena')
+      .then(m => m.RecuperarContrasena)
+},
 
   {
     path: 'admin',

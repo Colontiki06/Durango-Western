@@ -7,6 +7,7 @@ import {
   ChangeDetectorRef,
   NgZone
 } from '@angular/core';
+
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 
@@ -19,43 +20,15 @@ import { CartService } from '../../core/services/cart.service';
 })
 export class Inicio implements OnInit, OnDestroy {
 
-agregarProductoVista(): void {
-  if (!this.productoVista) return;
-
-  this.cartService.addToCart({
-    id: this.productoVista.id,
-    nombre: this.productoVista.nombre,
-    precio: this.productoVista.precio,
-    cantidad: 1,
-    talla: this.tallaSeleccionada,
-    imagen: this.productoVista.imagen
-  });
-
-  this.cerrarVista();
-  }
-
-  tallaSeleccionada = '23';
-
-  seleccionarTalla(talla: string): void {
-    this.tallaSeleccionada = talla;
-  }
-
-  productoVista: any = null;
-
-  abrirVista(producto: any): void {
-    this.productoVista = producto;
-  }
-
-  cerrarVista(): void {
-    this.productoVista = null;
-  }
-
   @ViewChild('categoriasCarousel')
   categoriasCarousel!: ElementRef<HTMLDivElement>;
 
   activeDot = 0;
   bannerActual = 0;
   intervaloBanner: any;
+
+  tallaSeleccionada = '23';
+  productoVista: any = null;
 
   categorias = [
     { nombre: 'Botas Caballero', imagen: '/img/BotasCaballero.PNG', ruta: '/productos/botas-caballero' },
@@ -74,46 +47,43 @@ agregarProductoVista(): void {
       titulo: 'Estilo western auténtico',
       descripcion: 'Primavera Verano 2026',
       boton: 'Ver colección',
+      textoBoton: 'Ver colección',
+      enlaceBoton: '/productos/dama',
       imagen: '/img/banner.png'
     },
     {
-      textoSuperior: 'BOTAS PREMIUM',
-      titulo: 'Diseño vaquero para todos',
-      descripcion: 'Caballero y dama',
-      boton: 'Comprar ahora',
-      imagen: '/img/BotasCaballero.PNG'
-    },
-    {
-      textoSuperior: 'NUEVOS LANZAMIENTOS',
-      titulo: 'Sombreros y accesorios',
-      descripcion: 'Colección western',
-      boton: 'Explorar',
+      textoSuperior: 'OFERTAS ESPECIALES',
+      titulo: 'Promociones western',
+      descripcion: 'Hasta 50% de descuento',
+      boton: 'Ver ofertas',
+      textoBoton: 'Ver ofertas',
+      enlaceBoton: '/ofertas',
       imagen: '/img/Sombreros.png'
     }
   ];
 
   constructor(
-  private cartService: CartService,
-  private cdr: ChangeDetectorRef,
-  private ngZone: NgZone
+    private cartService: CartService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {}
 
- ngOnInit(): void {
-  this.intervaloBanner = setInterval(() => {
-    this.ngZone.run(() => {
-      this.siguienteBanner();
-      this.cdr.detectChanges();
-    });
-  }, 3000);
-}
+  ngOnInit(): void {
+    this.intervaloBanner = setInterval(() => {
+      this.ngZone.run(() => {
+        this.siguienteBanner();
+        this.cdr.detectChanges();
+      });
+    }, 3000);
+  }
 
- ngOnDestroy(): void {
-  clearInterval(this.intervaloBanner);
-}
+  ngOnDestroy(): void {
+    clearInterval(this.intervaloBanner);
+  }
 
   siguienteBanner(): void {
-  this.bannerActual = (this.bannerActual + 1) % this.banners.length;
-}
+    this.bannerActual = (this.bannerActual + 1) % this.banners.length;
+  }
 
   anteriorBanner(): void {
     this.bannerActual =
@@ -125,17 +95,43 @@ agregarProductoVista(): void {
   }
 
   scrollCategorias(direction: 'left' | 'right', event?: Event): void {
+    event?.stopPropagation();
 
-  event?.stopPropagation();
+    const carousel = this.categoriasCarousel.nativeElement;
 
-  const carousel = this.categoriasCarousel.nativeElement;
+    carousel.scrollBy({
+      left: direction === 'right' ? 320 : -320,
+      behavior: 'smooth'
+    });
+  }
 
-  carousel.scrollBy({
-    left: direction === 'right' ? 320 : -320,
-    behavior: 'smooth'
-  });
+  abrirVista(producto: any): void {
+    this.productoVista = producto;
+    this.tallaSeleccionada = '23';
+  }
 
-}
+  cerrarVista(): void {
+    this.productoVista = null;
+  }
+
+  seleccionarTalla(talla: string): void {
+    this.tallaSeleccionada = talla;
+  }
+
+  agregarProductoVista(): void {
+    if (!this.productoVista) return;
+
+    this.cartService.addToCart({
+      id: this.productoVista.id,
+      nombre: this.productoVista.nombre,
+      precio: this.productoVista.precio,
+      cantidad: 1,
+      talla: this.tallaSeleccionada,
+      imagen: this.productoVista.imagen
+    });
+
+    this.cerrarVista();
+  }
 
   addToCart(product: {
     id: string;
