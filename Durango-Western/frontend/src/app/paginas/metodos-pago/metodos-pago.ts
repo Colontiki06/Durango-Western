@@ -33,6 +33,11 @@ export class MetodosPago {
 
   addPaymentMethod(): void {
 
+    // Evita guardar si no seleccionó tarjeta
+    if (!this.newPaymentMethod.brand) {
+      return;
+    }
+
     this.paymentMethods.push({
       ...this.newPaymentMethod,
       id: Date.now(),
