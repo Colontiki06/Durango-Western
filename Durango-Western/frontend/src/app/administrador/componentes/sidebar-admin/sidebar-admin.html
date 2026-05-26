@@ -1,191 +1,148 @@
-<aside class="fixed left-0 top-0 z-50 w-[260px] h-screen bg-[#4b2e1f] text-white flex flex-col">
+<aside class="w-[260px] max-w-[85vw] h-dvh bg-[#4b2e1f] text-white flex flex-col">
 
   @if(mostrarConfirmacion) {
+    <div class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center px-6">
 
-  <div class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center px-6">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
 
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+        <h2 class="text-2xl font-bold text-[#4b2e1f] mb-3">
+          ¿Cerrar sesión?
+        </h2>
 
-      <h2 class="text-2xl font-bold text-[#4b2e1f] mb-3">
-        ¿Cerrar sesión?
-      </h2>
+        <p class="text-gray-600 mb-6">
+          ¿Estás seguro de que deseas cerrar sesión?
+        </p>
 
-      <p class="text-gray-600 mb-6">
-        ¿Estás seguro de que deseas cerrar sesión?
-      </p>
+        <label class="flex items-center gap-3 mb-6 cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="noVolverMostrar"
+            class="w-5 h-5 accent-[#8a542f]"
+          >
 
-      <!-- Checkbox -->
-      <label class="flex items-center gap-3 mb-6 cursor-pointer">
+          <span class="text-[#4b2e1f] font-medium">
+            No volver a mostrar
+          </span>
+        </label>
 
-        <input
-          type="checkbox"
-          [(ngModel)]="noVolverMostrar"
-          class="w-5 h-5 accent-[#8a542f]"
-        >
+        <div class="flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="cancelarCerrarSesion()"
+            class="px-5 py-2 rounded-lg bg-gray-200 text-[#4b2e1f] font-medium hover:bg-gray-300 transition-all duration-300"
+          >
+            Cancelar
+          </button>
 
-        <span class="text-[#4b2e1f] font-medium">
-          No volver a mostrar
-        </span>
-
-      </label>
-
-      <!-- Botones -->
-      <div class="flex justify-end gap-3">
-
-        <button
-          (click)="cancelarCerrarSesion()"
-          class="px-5 py-2 rounded-lg bg-gray-200 text-[#4b2e1f] font-medium hover:bg-gray-300 transition-all duration-300"
-        >
-          Cancelar
-        </button>
-
-        <button
-          (click)="confirmarCerrarSesion()"
-          class="px-5 py-2 rounded-lg bg-[#8a542f] text-white hover:bg-[#a96b40] transition"
-        >
-          Cerrar sesión
-        </button>
+          <button
+            type="button"
+            (click)="confirmarCerrarSesion()"
+            class="px-5 py-2 rounded-lg bg-[#8a542f] text-white hover:bg-[#a96b40] transition"
+          >
+            Cerrar sesión
+          </button>
+        </div>
 
       </div>
 
     </div>
+  }
 
-  </div>
-
-}
-
-  <!-- Logo / Usuario -->
+  <!-- Usuario -->
   <div class="p-6 border-b border-[#6b3f26]">
-
     <div class="flex items-center gap-4">
 
-      <!-- Avatar -->
-      <div class="w-14 h-14 rounded-full bg-[#d6a15d] flex items-center justify-center text-[#4b2e1f] font-bold text-xl shadow-md">
+      <div class="w-14 h-14 shrink-0 rounded-full bg-[#d6a15d] flex items-center justify-center text-[#4b2e1f] font-bold text-xl shadow-md">
         M
       </div>
 
-      <!-- Info -->
-      <div>
-
-        <h2 class="font-semibold text-lg">
+      <div class="min-w-0">
+        <h2 class="font-semibold text-lg truncate">
           Marco Antonio
         </h2>
 
-        <p class="text-sm text-[#d8c5aa]">
+        <p class="text-sm text-[#d8c5aa] truncate">
           Administrador
         </p>
-
       </div>
 
     </div>
-
   </div>
 
   <!-- Navegación -->
   <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
 
-    <!-- Dashboard -->
     <a
       routerLink="/admin/dashboard"
       routerLinkActive="bg-[#6b3f26]"
+      (click)="cerrarMenu()"
       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#6b3f26] transition-all duration-300"
     >
-      <span class="text-xl">
-        🏠
-      </span>
-
-      <span class="font-medium">
-        Dashboard
-      </span>
+      <span class="text-xl">🏠</span>
+      <span class="font-medium">Dashboard</span>
     </a>
 
-    <!-- Inventario -->
     <a
       routerLink="/admin/inventario"
       routerLinkActive="bg-[#6b3f26]"
+      (click)="cerrarMenu()"
       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#6b3f26] transition-all duration-300"
     >
-      <span class="text-xl">
-        📦
-      </span>
-
-      <span class="font-medium">
-        Inventario
-      </span>
+      <span class="text-xl">📦</span>
+      <span class="font-medium">Inventario</span>
     </a>
 
-    <!-- Pedidos -->
     <a
       routerLink="/admin/pedidos"
       routerLinkActive="bg-[#6b3f26]"
+      (click)="cerrarMenu()"
       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#6b3f26] transition-all duration-300"
     >
-      <span class="text-xl">
-        🛒
-      </span>
-
-      <span class="font-medium">
-        Pedidos
-      </span>
+      <span class="text-xl">🛒</span>
+      <span class="font-medium">Pedidos</span>
     </a>
 
-    <!-- Agregar producto -->
     <a
       routerLink="/admin/agregar-producto"
       routerLinkActive="bg-[#6b3f26]"
+      (click)="cerrarMenu()"
       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#6b3f26] transition-all duration-300"
     >
-      <span class="text-xl">
-        ➕
-      </span>
-
-      <span class="font-medium">
-        Agregar producto
-      </span>
+      <span class="text-xl">➕</span>
+      <span class="font-medium">Agregar producto</span>
     </a>
 
-    <!-- Configuración -->
     <a
       routerLink="/admin/configuracion"
       routerLinkActive="bg-[#6b3f26]"
+      (click)="cerrarMenu()"
       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#6b3f26] transition-all duration-300"
     >
-      <span class="text-xl">
-        ⚙️
-      </span>
-
-      <span class="font-medium">
-        Configuración
-      </span>
+      <span class="text-xl">⚙️</span>
+      <span class="font-medium">Configuración</span>
     </a>
 
-    <!-- Personalizar inicio -->
     <a
       routerLink="/admin/personalizar-inicio"
       routerLinkActive="bg-[#6b3f26]"
+      (click)="cerrarMenu()"
       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#6b3f26] transition-all duration-300"
     >
-      <span class="text-xl">
-        🎨
-      </span>
-
-      <span class="font-medium">
-        Personalizar inicio
-      </span>
+      <span class="text-xl">🎨</span>
+      <span class="font-medium">Personalizar inicio</span>
     </a>
 
   </nav>
 
-  <!-- Footer -->
+  <!-- Cerrar sesión -->
   <div class="p-4 border-t border-[#6b3f26]">
-
     <button
+      type="button"
       (click)="cerrarSesion()"
       class="w-full bg-[#8a542f] hover:bg-[#a96b40] text-white py-3 rounded-xl font-semibold transition-all duration-300"
     >
       Cerrar sesión
     </button>
-
   </div>
 
 </aside>

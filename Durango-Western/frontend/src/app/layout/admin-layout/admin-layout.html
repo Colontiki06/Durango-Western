@@ -7,6 +7,7 @@
     </h1>
 
     <button
+      type="button"
       (click)="toggleSidebar()"
       class="text-3xl leading-none"
     >
@@ -15,34 +16,30 @@
   </header>
 
   <!-- Overlay móvil -->
-  @if(sidebarOpen()) {
+  @if (sidebarOpen()) {
     <div
       (click)="closeSidebar()"
       class="fixed inset-0 bg-black/40 z-40 lg:hidden"
     ></div>
   }
 
-  <div class="flex">
-
-    <!-- Sidebar desktop -->
-    <div class="hidden lg:block">
-      <app-sidebar-admin />
-    </div>
-
-    <!-- Sidebar móvil -->
-    <div
-      class="fixed top-0 left-0 z-50 transition-transform duration-300 lg:hidden"
-      [class.translate-x-0]="sidebarOpen()"
-      [class.-translate-x-full]="!sidebarOpen()"
-    >
-      <app-sidebar-admin />
-    </div>
-
-    <!-- Contenido -->
-    <main class="flex-1 min-h-screen overflow-x-hidden lg:ml-[260px]">
-      <router-outlet></router-outlet>
-    </main>
-
+  <!-- Sidebar escritorio -->
+  <div class="hidden lg:block fixed left-0 top-0 z-50 w-[260px] h-screen">
+    <app-sidebar-admin></app-sidebar-admin>
   </div>
+
+  <!-- Sidebar móvil -->
+  <div
+    class="fixed top-0 left-0 z-50 w-[260px] max-w-[85vw] h-dvh transition-transform duration-300 lg:hidden"
+    [class.translate-x-0]="sidebarOpen()"
+    [class.-translate-x-full]="!sidebarOpen()"
+  >
+    <app-sidebar-admin (navigate)="closeSidebar()"></app-sidebar-admin>
+  </div>
+
+  <!-- Contenido -->
+  <main class="min-h-screen overflow-x-hidden lg:ml-[260px]">
+    <router-outlet></router-outlet>
+  </main>
 
 </div>

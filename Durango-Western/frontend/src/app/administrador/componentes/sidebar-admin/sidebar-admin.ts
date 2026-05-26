@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -15,26 +15,28 @@ import { FormsModule } from '@angular/forms';
 })
 export class SidebarAdmin {
 
+  @Output() navigate = new EventEmitter<void>();
+
   mostrarConfirmacion = false;
   noVolverMostrar = false;
 
-  cerrarSesion(): void {
+  cerrarMenu(): void {
+    this.navigate.emit();
+  }
 
+  cerrarSesion(): void {
     const omitido = localStorage.getItem('skip_logout_confirm');
 
     if (omitido === 'true') {
-
       localStorage.removeItem('admin_logged');
       window.location.href = '/admin/login';
       return;
-
     }
 
     this.mostrarConfirmacion = true;
   }
 
   confirmarCerrarSesion(): void {
-
     if (this.noVolverMostrar) {
       localStorage.setItem('skip_logout_confirm', 'true');
     }
