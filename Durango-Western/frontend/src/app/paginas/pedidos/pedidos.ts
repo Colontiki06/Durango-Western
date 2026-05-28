@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
-import { OrdersService, Pedido } from '../../core/services/orders';
+import { OrdersService, Pedido } from '../../core/services/orders/orders';
 
 @Component({
   selector: 'app-pedidos',

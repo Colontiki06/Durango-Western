@@ -1,6 +1,7 @@
+import { StorageModule } from './storage/storage.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -43,34 +44,13 @@ import { AuditoriaModule } from './auditoria/auditoria.module';
 
 @Module({
   imports: [
+
     ConfigModule.forRoot({
       isGlobal: true,
     }),
 
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT || '5432'),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-
-      synchronize: false,
-
-      logging: process.env.NODE_ENV !== 'production',
-
-      autoLoadEntities: true,
-
-      ssl:
-        process.env.NODE_ENV === 'production'
-          ? {
-              rejectUnauthorized: false,
-            }
-          : false,
-    }),
+    // PRISMA
+    PrismaModule,
 
     // AUTH
     AuthModule,
@@ -107,6 +87,8 @@ import { AuditoriaModule } from './auditoria/auditoria.module';
 
     // AUDITORÍA
     AuditoriaModule,
+
+    StorageModule,
   ],
 
   controllers: [AppController],

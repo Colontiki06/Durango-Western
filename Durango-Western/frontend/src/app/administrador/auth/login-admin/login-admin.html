@@ -18,23 +18,44 @@
 
     <div class="space-y-5 text-left">
 
+      <!-- EMAIL -->
       <input
         type="email"
         placeholder="Correo administrador"
+        [(ngModel)]="email"
         class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
       >
 
+      <!-- PASSWORD -->
       <input
         type="password"
         placeholder="Contraseña"
+        [(ngModel)]="password"
         class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
       >
 
+      <!-- ERROR -->
+      @if(error) {
+        <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
+          {{ error }}
+        </div>
+      }
+
+      <!-- BUTTON -->
       <button
         (click)="login()"
-        class="w-full bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-3 rounded-xl font-semibold transition"
+        [disabled]="loading"
+        class="w-full bg-[#4b2e1f] hover:bg-[#6b3f26] disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold transition"
       >
-        Iniciar sesión
+
+        @if(!loading) {
+          Iniciar sesión
+        }
+
+        @else {
+          Ingresando...
+        }
+
       </button>
 
     </div>

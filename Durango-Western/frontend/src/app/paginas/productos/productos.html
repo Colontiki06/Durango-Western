@@ -157,33 +157,45 @@
       <section>
 
         <p class="text-sm text-[#4b2e1f] mb-6">
-          12 productos encontrados
+          {{ products.length }} productos encontrados
         </p>
 
         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
 
-          @for(product of products; track $index) {
+          @for(product of products; track product.id) {
 
             <a
-              routerLink="/detalle-producto/producto-demo"
+              [routerLink]="['/detalle-producto', product.slug]"
               class="block bg-[#fff8ec] p-3 shadow-sm hover:shadow-lg transition"
             >
 
-              <div class="aspect-square bg-[#e7dccb] flex items-center justify-center mb-3">
-                <span class="text-5xl text-[#8b7355]">▧</span>
-              </div>
+              <div class="aspect-square bg-[#e7dccb] overflow-hidden mb-3">
 
-              <h3 class="text-[#2f1b12] text-sm font-semibold mb-2">
-                Producto próximamente
+                <img
+                  [src]="product.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/600x600'"
+    [alt]="product.nombre"
+               class="w-full h-full object-cover"
+  >
+
+</div>
+
+              <h3 class="text-[#2f1b12] text-sm font-semibold mb-2 line-clamp-2">
+                {{ product.nombre }}
               </h3>
 
-              <p class="text-[#2f1b12] font-bold mb-3">
-                $0.00 MXN
+              <p class="text-xs text-[#7b5a45] mb-2 line-clamp-2">
+                {{ product.descripcion }}
               </p>
 
-              <button class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2">
-                Agregar al carrito
-              </button>
+              <p class="text-[#2f1b12] font-bold mb-3">
+                ${{ product.precio }} MXN
+              </p>
+
+            <div
+  class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2 text-center"
+>
+  Ver producto
+</div>
 
             </a>
 

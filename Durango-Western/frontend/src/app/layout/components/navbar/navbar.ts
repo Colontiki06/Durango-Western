@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
-import { Auth } from '../../../core/services/auth';
-import { CartService } from '../../../core/services/cart.service';
+import { Auth } from '../../../core/services/auth/auth';
+import { CartService } from '../../../core/services/cart/cart.service';
 
 @Component({
   selector: 'app-navbar',
