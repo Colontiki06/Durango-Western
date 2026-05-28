@@ -18,7 +18,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT || 3000);
-  console.log(`Backend Vortiz corriendo en puerto ${process.env.PORT || 3000}`);
+  await app.listen(process.env.PORT || 4000);
+  console.log(`Backend Vortiz corriendo en puerto ${process.env.PORT || 4000}`);
 }
 bootstrap();

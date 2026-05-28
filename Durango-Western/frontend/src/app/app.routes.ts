@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin-guard';
+
 
 export const routes: Routes = [
 
@@ -127,16 +129,17 @@ export const routes: Routes = [
 },
 
   {
-    path: 'admin',
-    loadComponent: () =>
-      import('./layout/admin-layout/admin-layout')
-        .then(m => m.AdminLayout),
-    children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
+  path: 'admin',
+  canActivate: [adminGuard],
+  loadComponent: () =>
+    import('./layout/admin-layout/admin-layout')
+      .then(m => m.AdminLayout),
+  children: [
+    {
+      path: '',
+      redirectTo: 'dashboard',
+      pathMatch: 'full'
+    },
       {
         path: 'dashboard',
         loadComponent: () =>

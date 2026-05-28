@@ -1,7 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { CartService } from '../../core/services/cart.service';
+import { Observable, of } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+
+import { CartService } from '../../core/services/cart/cart.service';
+import { ApiService } from '../../core/services/api/api.service';
+
+type ProductoState = {
+  loading: boolean;
+  error: string;
+  producto: any | null;
+};
 
 @Component({
   selector: 'app-detalle-producto',
@@ -10,67 +20,73 @@ import { CartService } from '../../core/services/cart.service';
   templateUrl: './detalle-producto.html',
   styleUrl: './detalle-producto.css'
 })
-export class DetalleProducto {
-  slug: string | null = null;
+export class DetalleProducto implements OnInit {
 
-  producto = {
-    id: 'producto-demo',
-    nombre: 'Producto western',
-    precio: 1999,
-    descripcion: 'Producto estilo western de alta calidad.',
-    imagenPrincipal: '/img/producto-demo.jpg',
-    imagenes: [
-      '/img/producto-demo.jpg',
-      '/img/producto-demo.jpg',
-      '/img/producto-demo.jpg'
-    ]
-  };
+  productoState$!: Observable<ProductoState>;
 
   tallas = ['25', '26', '27', '28', '29', '30'];
-
   selectedSize = '27';
-
-  relacionados = [
-    {
-      nombre: 'Bota western clásica',
-      precio: 1899,
-      imagen: '/img/producto-demo.jpg'
-    },
-    {
-      nombre: 'Sombrero vaquero',
-      precio: 899,
-      imagen: '/img/producto-demo.jpg'
-    },
-    {
-      nombre: 'Camisa western',
-      precio: 699,
-      imagen: '/img/producto-demo.jpg'
-    }
-  ];
 
   constructor(
     private route: ActivatedRoute,
-    private cartService: CartService
-  ) {
-    this.slug = this.route.snapshot.paramMap.get('slug');
+    private cartService: CartService,
+    private api: ApiService
+  ) {}
 
-    if (this.slug) {
-      this.producto.id = this.slug;
-    }
+  ngOnInit(): void {
+    this.productoState$ = this.route.paramMap.pipe(
+      switchMap(params => {
+        const slug = params.get('slug');
+
+        if (!slug) {
+          return of({
+            loading: false,
+            error: 'Producto no encontrado',
+            producto: null
+          });
+        }
+
+        return this.api.get<any>(`productos/slug/${slug}`).pipe(
+          map(producto => ({
+            loading: false,
+            error: '',
+            producto
+          })),
+          startWith({
+            loading: true,
+            error: '',
+            producto: null
+          }),
+          catchError(() =>
+            of({
+              loading: false,
+              error: 'No se pudo cargar el producto',
+              producto: null
+            })
+          )
+        );
+      })
+    );
+  }
+
+  imagenPrincipal(producto: any): string {
+    return producto?.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/800x800';
   }
 
   seleccionarTalla(talla: string): void {
     this.selectedSize = talla;
   }
 
-  addToCart(): void {
+  addToCart(producto: any): void {
+    if (!producto) return;
+
     this.cartService.addToCart({
-      id: this.producto.id,
-      nombre: this.producto.nombre,
-      precio: this.producto.precio,
+      id: producto.id,
+      nombre: producto.nombre,
+      precio: Number(producto.precio),
       cantidad: 1,
       talla: this.selectedSize,
-      imagen: this.producto.imagenPrincipal
+      imagen: this.imagenPrincipal(producto)
     });
   }
 }

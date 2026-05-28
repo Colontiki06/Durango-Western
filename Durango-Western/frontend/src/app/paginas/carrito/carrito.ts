@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CartService } from '../../core/services/cart.service';
+import { CartService } from '../../core/services/cart/cart.service';
 
 @Component({
   selector: 'app-carrito',

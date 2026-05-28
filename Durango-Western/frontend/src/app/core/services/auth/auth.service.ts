@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { ApiService } from './api.service';
-import { StorageService } from './storage.service';
+import { ApiService } from '../api/api.service';
+import { StorageService } from '../storage/storage.service';
 
 interface LoginRequest {
   email: string;
