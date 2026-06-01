@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+
+import { ApiService } from '../../../core/services/api/api.service';
 
 type FiltroInventario = 'todos' | 'promociones' | 'msi' | 'ultimas' | 'sin-stock';
 
@@ -21,99 +24,110 @@ interface ProductoInventario {
 
 @Component({
   selector: 'app-inventario',
-  imports: [RouterLink],
+  standalone: true,
+  imports: [RouterLink, FormsModule],
   templateUrl: './inventario.html',
   styleUrl: './inventario.css'
 })
-export class Inventario {
+export class Inventario implements OnInit {
+
+  private api = inject(ApiService);
 
   filtroActivo: FiltroInventario = 'todos';
 
-  productos: ProductoInventario[] = [
-    {
-      id: 'bota-ranch',
-      nombre: 'Bota Durango Clásica Ranch',
-      sku: 'DW-0001',
-      categoria: 'Botas',
-      precio: 2399,
-      stock: 14,
-      estado: 'Activo',
-      imagen: '/img/BotasCaballero.PNG',
-      promocionActiva: true,
-      porcentajeDescuento: 50,
-      msiActivo: false,
-      mesesMsi: 0,
-      ultimasPiezas: false
-    },
-    {
-      id: 'sombrero-premium',
-      nombre: 'Sombrero Durango Premium',
-      sku: 'DW-0002',
-      categoria: 'Sombreros',
-      precio: 1499,
-      stock: 8,
-      estado: 'Activo',
-      imagen: '/img/Sombreros.png',
-      promocionActiva: true,
-      porcentajeDescuento: 30,
-      msiActivo: true,
-      mesesMsi: 6,
-      ultimasPiezas: false
-    },
-    {
-      id: 'camisa-western',
-      nombre: 'Camisa Western Negra',
-      sku: 'DW-0003',
-      categoria: 'Camisas',
-      precio: 1299,
-      stock: 3,
-      estado: 'Activo',
-      imagen: '/img/Camisas.png',
-      promocionActiva: false,
-      porcentajeDescuento: 0,
-      msiActivo: true,
-      mesesMsi: 6,
-      ultimasPiezas: true
-    },
-    {
-      id: 'cinto-premium',
-      nombre: 'Cinto Western Premium',
-      sku: 'DW-0004',
-      categoria: 'Cintos',
-      precio: 899,
-      stock: 0,
-      estado: 'Activo',
-      imagen: '/img/Cintos.png',
+  loading = true;
+  error = '';
+
+  busqueda = '';
+  categoriaSeleccionada = 'todas';
+
+  productos: ProductoInventario[] = [];
+
+  ngOnInit(): void {
+    this.cargarProductos();
+  }
+
+  cargarProductos(): void {
+    this.loading = true;
+    this.error = '';
+
+    this.api.get<any[]>('productos').subscribe({
+      next: (data) => {
+        this.productos = data.map(producto => this.mapearProducto(producto));
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error cargando inventario:', error);
+        this.error = 'No se pudo cargar el inventario';
+        this.loading = false;
+      }
+    });
+  }
+
+  mapearProducto(producto: any): ProductoInventario {
+    const stockTotal = (producto.producto_variantes ?? [])
+      .reduce((total: number, variante: any) => total + Number(variante.stock ?? 0), 0);
+
+    return {
+      id: producto.id,
+      nombre: producto.nombre,
+      sku: producto.codigo ?? 'SIN-SKU',
+      categoria: producto.categorias?.nombre ?? 'Sin categoría',
+      precio: Number(producto.precio ?? 0),
+      stock: stockTotal,
+      estado: producto.activo ? 'Activo' : 'Oculto',
+      imagen: producto.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/200x200',
       promocionActiva: false,
       porcentajeDescuento: 0,
       msiActivo: false,
       mesesMsi: 0,
-      ultimasPiezas: false
-    }
-  ];
+      ultimasPiezas: stockTotal > 0 && stockTotal <= 5
+    };
+  }
 
   setFiltro(filtro: FiltroInventario): void {
     this.filtroActivo = filtro;
   }
 
+  get categoriasDisponibles(): string[] {
+    return [...new Set(this.productos.map(producto => producto.categoria))];
+  }
+
   get productosFiltrados(): ProductoInventario[] {
+    let resultado = [...this.productos];
+
+    if (this.busqueda.trim()) {
+      const texto = this.busqueda.toLowerCase();
+
+      resultado = resultado.filter(producto =>
+        producto.nombre.toLowerCase().includes(texto) ||
+        producto.sku.toLowerCase().includes(texto)
+      );
+    }
+
+    if (this.categoriaSeleccionada !== 'todas') {
+      resultado = resultado.filter(producto =>
+        producto.categoria === this.categoriaSeleccionada
+      );
+    }
+
     if (this.filtroActivo === 'promociones') {
-      return this.productos.filter(producto => producto.promocionActiva);
+      resultado = resultado.filter(producto => producto.promocionActiva);
     }
 
     if (this.filtroActivo === 'msi') {
-      return this.productos.filter(producto => producto.msiActivo);
+      resultado = resultado.filter(producto => producto.msiActivo);
     }
 
     if (this.filtroActivo === 'ultimas') {
-      return this.productos.filter(producto => producto.ultimasPiezas);
+      resultado = resultado.filter(producto => producto.ultimasPiezas);
     }
 
     if (this.filtroActivo === 'sin-stock') {
-      return this.productos.filter(producto => producto.stock === 0);
+      resultado = resultado.filter(producto => producto.stock === 0);
     }
 
-    return this.productos;
+    return resultado;
   }
 
   get totalPromociones(): number {
@@ -131,5 +145,4 @@ export class Inventario {
   get totalSinStock(): number {
     return this.productos.filter(producto => producto.stock === 0).length;
   }
-
 }

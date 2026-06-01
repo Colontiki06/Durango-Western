@@ -1,5 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 
 import { Navbar } from './layout/components/navbar/navbar';
 import { Footer } from './layout/components/footer/footer';
@@ -12,11 +13,23 @@ import { Footer } from './layout/components/footer/footer';
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('Durango-Western');
 
   private router = inject(Router);
 
-  get isAdminRoute(): boolean {
-    return this.router.url.startsWith('/admin');
+  currentUrl = '';
+
+  constructor() {
+    this.currentUrl = this.router.url;
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.currentUrl = event.urlAfterRedirects;
+        console.log('RUTA ACTUAL:', this.currentUrl);
+      });
+  }
+
+  isAdminRoute(): boolean {
+    return this.currentUrl.startsWith('/admin');
   }
 }
