@@ -1,10 +1,7 @@
 <div class="p-8">
 
-  <!-- Header -->
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-
     <div>
-
       <h1 class="text-4xl font-bold text-[#2f1b12]">
         Editar producto
       </h1>
@@ -12,362 +9,420 @@
       <p class="text-[#8a542f] mt-2">
         Modifica información, stock, promociones y detalles del producto.
       </p>
-
     </div>
 
     <a
       routerLink="/admin/inventario"
-      class="border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-6 py-3 rounded-xl font-semibold transition text-center"
+      class="cursor-pointer border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:scale-95 px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-center"
     >
       Volver
     </a>
-
   </div>
 
-  <!-- Grid -->
-  <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8">
+  @if(loading()) {
+    <div class="bg-white rounded-2xl shadow-md p-8 text-center text-[#2f1b12] font-semibold">
+      Cargando producto...
+    </div>
+  }
 
-    <!-- Formulario -->
-    <section class="bg-white rounded-2xl shadow-md p-8">
+  @else if(error()) {
+    <div class="bg-red-100 text-red-700 rounded-2xl shadow-md p-8 text-center font-semibold">
+      {{ error() }}
+    </div>
+  }
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  @else {
 
-        <!-- Nombre -->
-        <div class="md:col-span-2">
+    <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8">
 
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Nombre del producto
-          </label>
+      <section class="bg-white rounded-2xl shadow-md p-8">
 
-          <input
-            type="text"
-            [(ngModel)]="producto.nombre"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        </div>
-
-        <!-- Código -->
-        <div>
-
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Código
-          </label>
-
-          <input
-            type="text"
-            [(ngModel)]="producto.codigo"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-
-        </div>
-
-        <!-- Precio -->
-        <div>
-
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Precio
-          </label>
-
-          <input
-            type="number"
-            [(ngModel)]="producto.precio"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-
-        </div>
-
-        <!-- Categoría -->
-        <div>
-
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Categoría
-          </label>
-
-          <select
-            [(ngModel)]="producto.categoria"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-            <option>Botas</option>
-            <option>Sombreros</option>
-            <option>Camisas</option>
-            <option>Pantalones</option>
-          </select>
-
-        </div>
-
-        <!-- Stock -->
-        <div>
-
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Stock
-          </label>
-
-          <input
-            type="number"
-            [(ngModel)]="producto.stock"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-
-        </div>
-
-        <!-- Estado -->
-        <div>
-
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Estado
-          </label>
-
-          <select
-            [(ngModel)]="producto.estado"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-            <option>Activo</option>
-            <option>Agotado</option>
-            <option>Oculto</option>
-          </select>
-
-        </div>
-
-        <!-- Tallas -->
-        <div class="md:col-span-2">
-
-          <label class="block text-[#2f1b12] mb-3 font-medium">
-            Tallas disponibles
-          </label>
-
-          <div class="flex flex-wrap gap-3">
-
-            <button class="px-4 py-2 rounded-lg bg-[#8a542f] text-white">
-              25
-            </button>
-
-            <button class="px-4 py-2 rounded-lg bg-[#8a542f] text-white">
-              26
-            </button>
-
-            <button class="px-4 py-2 rounded-lg bg-[#8a542f] text-white">
-              27
-            </button>
-
-            <button class="px-4 py-2 rounded-lg bg-[#f5ede1] hover:bg-[#8a542f] hover:text-white transition">
-              28
-            </button>
-
-            <button class="px-4 py-2 rounded-lg bg-[#f5ede1] hover:bg-[#8a542f] hover:text-white transition">
-              29
-            </button>
-
-          </div>
-
-        </div>
-
-        <!-- Descripción -->
-        <div class="md:col-span-2">
-
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Descripción
-          </label>
-
-          <textarea
-            rows="6"
-            [(ngModel)]="producto.descripcion"
-            class="w-full border border-[#d8c5aa] rounded-lg p-4 outline-none resize-none focus:ring-2 focus:ring-[#8a542f]"
-          ></textarea>
-
-        </div>
-
-<!-- PROMOCIONES -->
-        <div class="md:col-span-2 bg-[#f5ede1] border border-[#eadcc7] rounded-2xl p-6">
-
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-
-            <div>
-              <h2 class="text-2xl font-bold text-[#2f1b12]">
-                Promociones y marketing
-              </h2>
-
-              <p class="text-[#8a542f] mt-1">
-                Configura descuentos, MSI y etiquetas visibles en la tienda.
-              </p>
-            </div>
-
-            <label class="flex items-center gap-3 font-bold text-[#2f1b12]">
-              <input
-                type="checkbox"
-                [(ngModel)]="producto.promocionActiva"
-                class="w-5 h-5"
-              >
-              Activar promoción
+          <div class="md:col-span-2">
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Nombre del producto
             </label>
 
+            <input
+              type="text"
+              [ngModel]="producto().nombre"
+              (ngModelChange)="actualizarCampo('nombre', $event)"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Código
+            </label>
 
-            <div>
-              <label class="block text-[#2f1b12] mb-2 font-medium">
-                Porcentaje de descuento
-              </label>
+            <input
+              type="text"
+              [ngModel]="producto().codigo"
+              (ngModelChange)="actualizarCampo('codigo', $event)"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+          </div>
 
-              <input
-                type="number"
-                min="0"
-                max="100"
-                [(ngModel)]="producto.porcentajeDescuento"
-                [disabled]="!producto.promocionActiva"
-                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
-              >
+          <div>
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Precio
+            </label>
+
+            <input
+              type="number"
+              [ngModel]="producto().precio"
+              (ngModelChange)="actualizarCampo('precio', $event)"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+          </div>
+
+          <div>
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Categoría
+            </label>
+
+            <select
+              [ngModel]="producto().categoria_id"
+              (ngModelChange)="actualizarCampo('categoria_id', $event)"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+              <option value="">Selecciona una categoría</option>
+
+              @for(categoria of categorias(); track categoria.id) {
+                <option [value]="categoria.id">
+                  {{ categoria.nombre }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Stock total
+            </label>
+
+            <input
+              type="number"
+              [ngModel]="producto().stock"
+              disabled
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 bg-gray-100 text-[#2f1b12]"
+            >
+          </div>
+
+          @if(producto().variantes?.length > 0) {
+
+            <div class="md:col-span-2 border border-[#eadcc7] rounded-2xl overflow-hidden">
+
+              <div class="bg-[#f5ede1] px-6 py-4 flex items-center justify-between">
+                <div>
+                  <h2 class="text-lg font-bold text-[#2f1b12]">
+                    Stock por variante
+                  </h2>
+
+                  <p class="text-xs text-[#8a542f]">
+                    Edita el stock por talla y guarda todo al final.
+                  </p>
+                </div>
+
+                <span class="bg-white px-4 py-2 rounded-full text-sm font-bold text-[#4b2e1f]">
+                  Total: {{ producto().stock }}
+                </span>
+              </div>
+
+              <div class="divide-y divide-[#eadcc7] bg-white">
+
+                @for(variante of producto().variantes; track variante.id) {
+
+                  <div class="grid grid-cols-[90px_1fr_120px] items-center gap-4 px-6 py-3">
+
+                    <p class="font-bold text-[#2f1b12]">
+                      {{ variante.tallas?.nombre }}
+                    </p>
+
+                    <p class="text-sm text-[#8a542f] truncate">
+                      {{ variante.sku }}
+                    </p>
+
+                    <input
+                      type="number"
+                      min="0"
+                      [ngModel]="variante.stock"
+                      (ngModelChange)="actualizarStockLocal(variante.id, $event)"
+                      class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+                    >
+
+                  </div>
+
+                }
+
+              </div>
+
+              <div class="bg-[#f5ede1] border-t border-[#eadcc7] p-6">
+
+                <h3 class="font-bold text-[#2f1b12] mb-4">
+                  Agregar nueva talla
+                </h3>
+
+                <div class="grid md:grid-cols-[1fr_120px_150px] gap-4">
+
+                  <select
+                    [(ngModel)]="nuevaVariante.talla_id"
+                    class="h-12 border border-[#d8c5aa] rounded-lg px-4"
+                  >
+                    <option value="">Selecciona una talla</option>
+
+                    <optgroup label="Calzado niños">
+                      @for(talla of tallas(); track talla.id) {
+                        @if(talla.tipo === 'calzado_nino') {
+                          <option [value]="talla.id">{{ talla.nombre }}</option>
+                        }
+                      }
+                    </optgroup>
+
+                    <optgroup label="Calzado">
+                      @for(talla of tallas(); track talla.id) {
+                        @if(talla.tipo === 'calzado') {
+                          <option [value]="talla.id">{{ talla.nombre }}</option>
+                        }
+                      }
+                    </optgroup>
+
+                    <optgroup label="Ropa niños">
+                      @for(talla of tallas(); track talla.id) {
+                        @if(talla.tipo === 'ropa_nino') {
+                          <option [value]="talla.id">{{ talla.nombre }}</option>
+                        }
+                      }
+                    </optgroup>
+
+                    <optgroup label="Ropa">
+                      @for(talla of tallas(); track talla.id) {
+                        @if(talla.tipo === 'ropa') {
+                          <option [value]="talla.id">{{ talla.nombre }}</option>
+                        }
+                      }
+                    </optgroup>
+
+                    <optgroup label="Sombrero">
+                      @for(talla of tallas(); track talla.id) {
+                        @if(talla.tipo === 'sombrero') {
+                          <option [value]="talla.id">{{ talla.nombre }}</option>
+                        }
+                      }
+                    </optgroup>
+                  </select>
+
+                  <input
+                    type="number"
+                    min="0"
+                    [(ngModel)]="nuevaVariante.stock"
+                    placeholder="Stock"
+                    class="h-12 border border-[#d8c5aa] rounded-lg px-4"
+                  >
+
+                  <button
+                    type="button"
+                    (click)="agregarVariante()"
+                    class="cursor-pointer bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+                  >
+                    Agregar talla
+                  </button>
+
+                </div>
+
+              </div>
+
             </div>
 
-            <div>
-              <label class="block text-[#2f1b12] mb-2 font-medium">
-                Precio con descuento
-              </label>
+          }
 
-              <input
-                type="text"
-                [value]="'$' + (precioOferta | number:'1.0-2') + ' MXN'"
-                disabled
-                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 bg-white text-[#2f1b12] font-bold"
-              >
-            </div>
+          <div>
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Estado
+            </label>
 
-            <div>
-              <label class="block text-[#2f1b12] mb-2 font-medium">
-                Fecha inicio promoción
-              </label>
+            <select
+              [ngModel]="producto().estado"
+              (ngModelChange)="actualizarCampo('estado', $event)"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+              <option>Activo</option>
+              <option>Oculto</option>
+            </select>
+          </div>
 
-              <input
-                type="date"
-                [(ngModel)]="producto.fechaInicioPromo"
-                [disabled]="!producto.promocionActiva"
-                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
-              >
-            </div>
+          <div>
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Costo
+            </label>
 
-            <div>
-              <label class="block text-[#2f1b12] mb-2 font-medium">
-                Fecha fin promoción
-              </label>
+            <input
+              type="number"
+              [ngModel]="producto().costo"
+              (ngModelChange)="actualizarCampo('costo', $event)"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+          </div>
 
-              <input
-                type="date"
-                [(ngModel)]="producto.fechaFinPromo"
-                [disabled]="!producto.promocionActiva"
-                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
-              >
-            </div>
+          <div class="md:col-span-2">
+            <label class="block text-[#2f1b12] mb-2 font-medium">
+              Descripción
+            </label>
 
-            <div>
-              <label class="block text-[#2f1b12] mb-2 font-medium">
-                Etiqueta visible
-              </label>
-
-              <input
-                type="text"
-                [(ngModel)]="producto.etiquetaPromo"
-                placeholder="Ej. 25% OFF"
-                [disabled]="!producto.promocionActiva"
-                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
-              >
-            </div>
-
-            <div>
-              <label class="block text-[#2f1b12] mb-2 font-medium">
-                Meses sin intereses
-              </label>
-
-              <select
-                [(ngModel)]="producto.mesesMsi"
-                [disabled]="!producto.msiActivo"
-                class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] disabled:bg-gray-100"
-              >
-                <option [value]="0">Sin MSI</option>
-                <option [value]="3">3 meses</option>
-                <option [value]="6">6 meses</option>
-                <option [value]="9">9 meses</option>
-                <option [value]="12">12 meses</option>
-              </select>
-            </div>
-
-            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-
-              <label class="flex items-center gap-3 bg-white p-4 rounded-xl font-semibold text-[#2f1b12]">
-                <input
-                  type="checkbox"
-                  [(ngModel)]="producto.msiActivo"
-                  class="w-5 h-5"
-                >
-                Activar MSI
-              </label>
-
-              <label class="flex items-center gap-3 bg-white p-4 rounded-xl font-semibold text-[#2f1b12]">
-                <input
-                  type="checkbox"
-                  [(ngModel)]="producto.ultimasPiezas"
-                  class="w-5 h-5"
-                >
-                Últimas piezas
-              </label>
-
-              <label class="flex items-center gap-3 bg-white p-4 rounded-xl font-semibold text-[#2f1b12]">
-                <input
-                  type="checkbox"
-                  [(ngModel)]="producto.promocionDestacada"
-                  class="w-5 h-5"
-                >
-                Destacar en ofertas
-              </label>
-
-            </div>
-
+            <textarea
+              rows="6"
+              [ngModel]="producto().descripcion"
+              (ngModelChange)="actualizarCampo('descripcion', $event)"
+              class="w-full border border-[#d8c5aa] rounded-lg p-4 outline-none resize-none focus:ring-2 focus:ring-[#8a542f]"
+            ></textarea>
           </div>
 
         </div>
 
-      </div>
+        <div class="flex flex-wrap gap-4 mt-10">
 
-      <!-- Botones -->
-      <div class="flex flex-wrap gap-4 mt-10">
+          <button
+            type="button"
+            (click)="guardarCambios()"
+            class="cursor-pointer bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+          >
+            Guardar cambios
+          </button>
 
-        <button class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-8 py-3 rounded-lg font-semibold transition">
-          Guardar cambios
-        </button>
+          <button
+            type="button"
+            (click)="ocultarProducto()"
+            class="cursor-pointer bg-red-100 text-red-700 hover:bg-red-600 hover:text-white active:scale-95 px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+          >
+            Ocultar producto
+          </button>
 
-        <button class="bg-red-100 text-red-700 hover:bg-red-600 hover:text-white px-8 py-3 rounded-lg font-semibold transition">
-          Eliminar producto
-        </button>
+        </div>
 
-      </div>
+      </section>
 
-    </section>
+      <aside class="bg-white rounded-2xl shadow-md p-8 h-fit">
 
-    <!-- Imagen -->
-    <aside class="bg-white rounded-2xl shadow-md p-8 h-fit">
+        <h2 class="text-2xl font-bold text-[#2f1b12] mb-6">
+          Imagen del producto
+        </h2>
 
-      <h2 class="text-2xl font-bold text-[#2f1b12] mb-6">
-        Imagen del producto
-      </h2>
+        <div class="h-[350px] bg-[#f5ede1] rounded-2xl overflow-hidden flex items-center justify-center text-center">
 
-      <div class="h-[350px] bg-[#f5ede1] rounded-2xl flex flex-col items-center justify-center text-center">
+          @if(producto().imagen) {
+            <img
+              [src]="producto().imagen"
+              [alt]="producto().nombre"
+              class="w-full h-full object-cover"
+            >
+          }
 
-        <span class="text-7xl mb-4">
-          🥾
-        </span>
+          @else {
+            <div>
+              <span class="text-7xl mb-4 block">📦</span>
 
-        <p class="text-[#8a542f]">
-          Imagen actual del producto
-        </p>
+              <p class="text-[#8a542f]">
+                Sin imagen
+              </p>
+            </div>
+          }
 
-      </div>
+        </div>
 
-      <button class="w-full mt-6 bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-semibold transition">
-        Cambiar imagen
-      </button>
+        @if(producto().imagenes?.length > 0) {
 
-    </aside>
+          <div class="grid grid-cols-2 gap-3 mt-4">
 
-  </div>
+            @for(img of producto().imagenes; track img.id) {
+
+              <div
+                class="group relative bg-[#f5ede1] rounded-xl overflow-hidden border-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                [class.border-emerald-400]="img.principal"
+                [class.border-[#eadcc7]]="!img.principal"
+              >
+
+                <div class="absolute top-2 right-2 flex gap-1 z-10 opacity-90 group-hover:opacity-100">
+                  <button
+                    type="button"
+                    (click)="moverImagen(img.id, 'arriba')"
+                    class="cursor-pointer w-8 h-8 bg-white hover:bg-[#4b2e1f] hover:text-white rounded-full transition-all duration-200 shadow-sm hover:shadow-md active:scale-90 text-xs font-bold"
+                    title="Subir imagen"
+                  >
+                    ↑
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="moverImagen(img.id, 'abajo')"
+                    class="cursor-pointer w-8 h-8 bg-white hover:bg-[#4b2e1f] hover:text-white rounded-full transition-all duration-200 shadow-sm hover:shadow-md active:scale-90 text-xs font-bold"
+                    title="Bajar imagen"
+                  >
+                    ↓
+                  </button>
+                </div>
+
+                @if(img.principal) {
+                  <div class="absolute top-2 left-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full z-10">
+                    Principal
+                  </div>
+                }
+
+                <div class="aspect-square">
+                  <img
+                    [src]="img.imagen_url"
+                    [alt]="producto().nombre"
+                    class="w-full h-full object-cover"
+                  >
+                </div>
+
+                <div class="p-2 flex flex-col gap-2 bg-white">
+
+                  @if(!img.principal) {
+                    <button
+                      type="button"
+                      (click)="marcarImagenPrincipal(img.id)"
+                      class="cursor-pointer text-xs bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white rounded-lg py-2 font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+                    >
+                      Hacer principal
+                    </button>
+                  }
+
+                  <button
+                    type="button"
+                    (click)="eliminarImagen(img.id)"
+                    class="cursor-pointer text-xs bg-red-100 text-red-700 hover:bg-red-600 hover:text-white active:scale-95 rounded-lg py-2 font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+                  >
+                    Eliminar
+                  </button>
+
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
+
+        <label
+          class="cursor-pointer block w-full mt-6 bg-[#8a542f] hover:bg-[#6b3f26] active:scale-95 text-white py-3 rounded-lg font-semibold transition-all duration-200 text-center shadow-sm hover:shadow-md"
+        >
+          Agregar imagen
+          <input
+            type="file"
+            accept="image/*"
+            class="hidden"
+            (change)="seleccionarImagen($event)"
+          >
+        </label>
+
+      </aside>
+
+    </div>
+
+  }
 
 </div>

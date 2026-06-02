@@ -18,30 +18,45 @@
 
       @if(state.producto) {
 
+        <!-- DETALLE DEL PRODUCTO -->
         <div class="grid grid-cols-1 lg:grid-cols-[120px_1fr_420px] gap-6 mb-14">
 
+          <!-- Miniaturas -->
           <div class="hidden lg:flex flex-col gap-4">
 
-            @for(img of state.producto.producto_imagenes; track img.id) {
-              <div class="aspect-square bg-[#e7dccb] overflow-hidden">
+            @for(img of imagenesProducto(state.producto); track img.id) {
+
+              <div
+                (click)="seleccionarImagen(img.imagen_url)"
+                class="aspect-square bg-[#e7dccb] overflow-hidden cursor-pointer border-2 transition"
+                [class.border-[#4b2e1f]]="imagenPrincipal(state.producto) === img.imagen_url"
+                [class.border-transparent]="imagenPrincipal(state.producto) !== img.imagen_url"
+              >
+
                 <img
                   [src]="img.imagen_url"
                   [alt]="state.producto.nombre"
                   class="w-full h-full object-cover"
                 >
+
               </div>
+
             }
 
           </div>
 
+          <!-- Imagen principal -->
           <div class="bg-[#fff8ec] aspect-square overflow-hidden flex items-center justify-center">
+
             <img
               [src]="imagenPrincipal(state.producto)"
               [alt]="state.producto.nombre"
               class="w-full h-full object-cover"
             >
+
           </div>
 
+          <!-- Información -->
           <div class="bg-[#f5ede1] p-4">
 
             <p class="text-sm text-[#8a542f] mb-2">
@@ -60,34 +75,67 @@
               {{ state.producto.descripcion }}
             </p>
 
+            <!-- Stock general -->
             <div class="mb-6">
 
-              <h3 class="text-[#2f1b12] font-semibold mb-3">
-                Talla:
-              </h3>
+              @if(stockTotal(state.producto) > 0) {
+                <p class="text-sm text-emerald-700 font-semibold">
+                  Disponible: {{ stockTotal(state.producto) }} piezas
+                </p>
+              }
 
-              <div class="grid grid-cols-4 gap-2">
+              @else {
+                <p class="text-sm text-red-700 font-semibold">
+                  Producto agotado
+                </p>
+              }
 
-                @for(talla of tallas; track talla) {
-                  <button
-                    type="button"
-                    (click)="seleccionarTalla(talla)"
-                    class="border border-[#cbb89d] py-2 text-sm hover:bg-[#4b2e1f] hover:text-white transition"
-                    [class.bg-[#4b2e1f]]="selectedSize === talla"
-                    [class.text-white]="selectedSize === talla"
-                  >
-                    {{ talla }}
-                  </button>
+            </div>
+
+            <!-- Variantes / tallas reales -->
+            @if(variantesDisponibles(state.producto).length > 0) {
+
+              <div class="mb-6">
+
+                <h3 class="text-[#2f1b12] font-semibold mb-3">
+                  Talla:
+                </h3>
+
+                <div class="grid grid-cols-4 gap-2">
+
+                  @for(variante of variantesDisponibles(state.producto); track variante.id) {
+
+                    <button
+                      type="button"
+                      (click)="seleccionarVariante(variante)"
+                      [disabled]="variante.stock <= 0"
+                      class="border border-[#cbb89d] py-2 text-sm hover:bg-[#4b2e1f] hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-inherit"
+                      [class.bg-[#4b2e1f]]="selectedVariant?.id === variante.id"
+                      [class.text-white]="selectedVariant?.id === variante.id"
+                    >
+                      {{ variante.tallas?.nombre }}
+                    </button>
+
+                  }
+
+                </div>
+
+                @if(selectedVariant) {
+                  <p class="text-xs text-[#8a542f] mt-3">
+                    Stock en talla {{ selectedVariant.tallas?.nombre }}:
+                    {{ selectedVariant.stock }} piezas
+                  </p>
                 }
 
               </div>
 
-            </div>
+            }
 
             <button
               type="button"
               (click)="addToCart(state.producto)"
-              class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white py-3 font-semibold mb-4 transition"
+              [disabled]="stockTotal(state.producto) <= 0"
+              class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 font-semibold mb-4 transition"
             >
               AGREGAR AL CARRITO
             </button>
@@ -95,6 +143,56 @@
           </div>
 
         </div>
+
+        <!-- PRODUCTOS RELACIONADOS -->
+        @if(state.relacionados.length > 0) {
+
+          <section class="mt-16">
+
+            <h2 class="text-center text-2xl font-bold text-[#2f1b12] mb-8">
+              También te puede interesar
+            </h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+              @for(producto of state.relacionados; track producto.id) {
+
+                <a
+                  [routerLink]="['/detalle-producto', producto.slug]"
+                  class="block bg-[#fff8ec] p-3 shadow-sm hover:shadow-lg transition"
+                >
+
+                  <div class="aspect-square bg-[#e7dccb] overflow-hidden mb-3">
+
+                    <img
+                      [src]="imagenProducto(producto)"
+                      [alt]="producto.nombre"
+                      class="w-full h-full object-cover"
+                    >
+
+                  </div>
+
+                  <h3 class="text-sm font-semibold text-[#2f1b12] mb-2 line-clamp-2">
+                    {{ producto.nombre }}
+                  </h3>
+
+                  <p class="font-bold text-[#2f1b12] mb-3">
+                    {{ producto.precio | currency:'MXN':'symbol':'1.0-0' }}
+                  </p>
+
+                  <div class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2 text-center">
+                    Ver producto
+                  </div>
+
+                </a>
+
+              }
+
+            </div>
+
+          </section>
+
+        }
 
       }
 

@@ -172,10 +172,10 @@
               <div class="aspect-square bg-[#e7dccb] overflow-hidden mb-3">
 
                 <img
-                  [src]="product.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/600x600'"
-    [alt]="product.nombre"
-               class="w-full h-full object-cover"
-  >
+  [src]="imagenProducto(product)"
+  [alt]="product.nombre"
+  class="w-full h-full object-cover"
+/>
 
 </div>
 

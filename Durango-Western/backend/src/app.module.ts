@@ -15,7 +15,6 @@ import { RolesModule } from './roles/roles.module';
 
 // CATÁLOGO
 import { ProductosModule } from './productos/productos.module';
-import { CategoriasModule } from './categorias/categorias.module';
 import { MarcasModule } from './marcas/marcas.module';
 import { VariantesProductosModule } from './variantes-productos/variantes-productos.module';
 import { AtributosModule } from './atributos/atributos.module';
@@ -41,6 +40,8 @@ import { ConfiguracionesModule } from './configuraciones/configuraciones.module'
 
 // AUDITORÍA
 import { AuditoriaModule } from './auditoria/auditoria.module';
+import { TallasModule } from './tallas/tallas.module';
+import { CategoriasModule } from './categorias/categorias.module';
 
 @Module({
   imports: [
@@ -75,6 +76,8 @@ import { AuditoriaModule } from './auditoria/auditoria.module';
     PedidosModule,
     PagosModule,
     EnviosModule,
+    PedidosModule,
+    PagosModule,
 
     // MARKETING
     PromocionesModule,
@@ -89,6 +92,9 @@ import { AuditoriaModule } from './auditoria/auditoria.module';
     AuditoriaModule,
 
     StorageModule,
+
+    TallasModule,
+
   ],
 
   controllers: [AppController],

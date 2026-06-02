@@ -3,10 +3,14 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface CartItem {
   id: string | number;
+  producto_id?: string;
+  variante_id?: string | null;
   nombre: string;
+  codigo?: string;
   precio: number;
   cantidad: number;
-  talla?: string;
+  talla?: string | null;
+  stock?: number;
   imagen?: string;
 }
 
@@ -33,18 +37,30 @@ export class CartService {
   addToCart(product: CartItem): void {
     const currentItems = this.cartItems;
 
-    const existingItem = currentItems.find(
-      item => item.id === product.id && item.talla === product.talla
+    const existingItem = currentItems.find(item =>
+      item.id === product.id &&
+      item.variante_id === product.variante_id
     );
 
     let updatedItems: CartItem[];
 
     if (existingItem) {
-      updatedItems = currentItems.map(item =>
-        item.id === product.id && item.talla === product.talla
-          ? { ...item, cantidad: item.cantidad + product.cantidad }
-          : item
-      );
+      updatedItems = currentItems.map(item => {
+        if (item.id === product.id && item.variante_id === product.variante_id) {
+          const nuevaCantidad = item.cantidad + product.cantidad;
+
+          if (item.stock !== undefined && nuevaCantidad > item.stock) {
+            return item;
+          }
+
+          return {
+            ...item,
+            cantidad: nuevaCantidad
+          };
+        }
+
+        return item;
+      });
     } else {
       updatedItems = [...currentItems, product];
     }
@@ -52,20 +68,32 @@ export class CartService {
     this.updateCart(updatedItems);
   }
 
-  increaseQuantity(id: string | number, talla?: string): void {
-    const updatedItems = this.cartItems.map(item =>
-      item.id === id && item.talla === talla
-        ? { ...item, cantidad: item.cantidad + 1 }
-        : item
-    );
+  increaseQuantity(id: string | number, variante_id?: string | null): void {
+    const updatedItems = this.cartItems.map(item => {
+      if (item.id === id && item.variante_id === variante_id) {
+        const nuevaCantidad = item.cantidad + 1;
+
+        if (item.stock !== undefined && nuevaCantidad > item.stock) {
+          alert('No hay suficiente stock disponible');
+          return item;
+        }
+
+        return {
+          ...item,
+          cantidad: nuevaCantidad
+        };
+      }
+
+      return item;
+    });
 
     this.updateCart(updatedItems);
   }
 
-  decreaseQuantity(id: string | number, talla?: string): void {
+  decreaseQuantity(id: string | number, variante_id?: string | null): void {
     const updatedItems = this.cartItems
       .map(item =>
-        item.id === id && item.talla === talla
+        item.id === id && item.variante_id === variante_id
           ? { ...item, cantidad: item.cantidad - 1 }
           : item
       )
@@ -74,9 +102,9 @@ export class CartService {
     this.updateCart(updatedItems);
   }
 
-  removeFromCart(id: string | number, talla?: string): void {
+  removeFromCart(id: string | number, variante_id?: string | null): void {
     const updatedItems = this.cartItems.filter(
-      item => !(item.id === id && item.talla === talla)
+      item => !(item.id === id && item.variante_id === variante_id)
     );
 
     this.updateCart(updatedItems);
@@ -102,15 +130,11 @@ export class CartService {
   }
 
   private loadCartFromStorage(): CartItem[] {
-    if (!this.isBrowser()) {
-      return [];
-    }
+    if (!this.isBrowser()) return [];
 
     const cart = localStorage.getItem(this.storageKey);
 
-    if (!cart) {
-      return [];
-    }
+    if (!cart) return [];
 
     try {
       return JSON.parse(cart) as CartItem[];
@@ -123,4 +147,6 @@ export class CartService {
   private isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
+
+  
 }
