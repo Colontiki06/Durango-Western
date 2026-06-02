@@ -174,11 +174,20 @@ export const routes: Routes = [
   },
 
   {
-    path: 'confirmacion-compra',
-    loadComponent: () =>
-      import('./paginas/confirmacion-compra/confirmacion-compra')
-        .then(m => m.ConfirmacionCompra)
-  },
+  path: 'pago-exitoso',
+  loadComponent: () => import('./paginas/confirmacion-compra/confirmacion-compra')
+    .then(m => m.ConfirmacionCompra)
+},
+{
+  path: 'pago-pendiente',
+  loadComponent: () => import('./paginas/confirmacion-compra/confirmacion-compra')
+    .then(m => m.ConfirmacionCompra)
+},
+{
+  path: 'pago-fallido',
+  loadComponent: () => import('./paginas/confirmacion-compra/confirmacion-compra')
+    .then(m => m.ConfirmacionCompra)
+},
 
   {
     path: 'metodos-pago',

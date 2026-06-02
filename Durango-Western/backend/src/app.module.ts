@@ -76,6 +76,8 @@ import { CategoriasModule } from './categorias/categorias.module';
     PedidosModule,
     PagosModule,
     EnviosModule,
+    PedidosModule,
+    PagosModule,
 
     // MARKETING
     PromocionesModule,
@@ -92,6 +94,7 @@ import { CategoriasModule } from './categorias/categorias.module';
     StorageModule,
 
     TallasModule,
+
   ],
 
   controllers: [AppController],

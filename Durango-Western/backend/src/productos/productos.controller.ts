@@ -74,6 +74,11 @@ updateOrdenImagen(
   );
 }
 
+@Post()
+create(@Body() body: any) {
+  return this.productosService.create(body);
+}
+
 @Get(':id')
 findOne(@Param('id') id: string) {
   return this.productosService.findOne(id);

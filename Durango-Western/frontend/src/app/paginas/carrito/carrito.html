@@ -1,173 +1,288 @@
+@if(mensajeError) {
+  <div class="fixed top-28 right-6 z-50 bg-red-600 text-white px-5 py-4 rounded-xl font-semibold shadow-xl">
+    {{ mensajeError }}
+  </div>
+}
+
 <div class="min-h-screen bg-[#f5ede1] px-5 md:px-10 py-8 md:py-10">
 
   <div class="max-w-7xl mx-auto">
 
-    <h1 class="text-2xl md:text-3xl font-bold text-[#2f1b12] mb-8 md:mb-10">
-      Carrito de compra
-    </h1>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 md:mb-10">
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-[#2f1b12]">
+          Carrito de compra
+        </h1>
 
-      <!-- Productos -->
-      <section class="space-y-5 md:space-y-8">
+        @if(!carritoVacio()) {
+          <p class="text-sm text-[#8a542f] mt-1">
+            {{ totalArticulos() }} artículo(s) en tu carrito
+          </p>
+        }
+      </div>
 
-        @for(item of items(); track item.id) {
+      <a
+        routerLink="/productos"
+        class="text-[#4b2e1f] border border-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-5 py-2 rounded-lg font-semibold transition"
+      >
+        ← Seguir comprando
+      </a>
 
-          <div class="bg-[#fff8ec] p-4 flex flex-col md:flex-row gap-5 rounded-sm">
+    </div>
 
-            <!-- Imagen -->
-            <div class="w-full md:w-40 h-40 md:h-48 bg-[#e7dccb] flex items-center justify-center">
+    @if(carritoVacio()) {
 
-              <span class="text-6xl text-[#8b7355]">
-                ▧
-              </span>
+      <div class="bg-[#fff8ec] p-10 text-center rounded-xl shadow-sm">
+        <h2 class="text-2xl font-bold text-[#2f1b12] mb-3">
+          Tu carrito está vacío
+        </h2>
 
-            </div>
+        <p class="text-[#8a542f] mb-6">
+          Explora nuestras botas, sombreros y accesorios western.
+        </p>
 
-            <!-- Info -->
-            <div class="flex-1 flex flex-col justify-center">
+        <a
+          routerLink="/productos"
+          class="inline-block bg-[#8a542f] hover:bg-[#6b3f26] text-white px-8 py-3 rounded-lg font-semibold transition"
+        >
+          Ver productos
+        </a>
+      </div>
 
-              <h3 class="font-bold text-[#2f1b12] text-lg">
-                {{ item.nombre }}
-              </h3>
+    }
 
-              <p class="text-sm text-[#4b2e1f] mt-1">
-                Modelo / Variante
-              </p>
+    @else {
 
-              <p class="text-sm text-[#4b2e1f]">
-                Talla: {{ item.talla }}
-              </p>
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12">
 
-              <p class="text-sm text-[#4b2e1f]">
-                Código: {{ item.id }}
-              </p>
+        <section class="space-y-5 md:space-y-8">
 
-              <!-- Controles -->
-              <div class="flex items-center justify-between mt-5">
+          @for(item of items(); track item.id + '-' + item.variante_id) {
 
-                <div class="flex items-center bg-[#8a542f] text-white">
+            <div class="bg-[#fff8ec] p-4 flex flex-col md:flex-row gap-5 rounded-xl shadow-sm">
 
-                  <button
-                    (click)="remove(item.id, item.talla)"
-                    class="px-3 py-2"
+              <div class="w-full md:w-48 h-48 bg-[#e7dccb] rounded-lg overflow-hidden flex items-center justify-center">
+
+                @if(item.imagen) {
+                  <img
+                    [src]="item.imagen"
+                    [alt]="item.nombre"
+                    class="w-full h-full object-cover"
                   >
-                    🗑
-                  </button>
+                }
 
-                  <button
-                    (click)="decrease(item.id, item.talla)"
-                    class="px-3 py-2"
+                @else {
+                  <span class="text-6xl text-[#8b7355]">▧</span>
+                }
+
+              </div>
+
+              <div class="flex-1 flex flex-col justify-center">
+
+                <h3 class="font-bold text-[#2f1b12] text-lg">
+                  {{ item.nombre }}
+                </h3>
+
+                @if(item.codigo) {
+                  <p class="text-sm text-[#4b2e1f] mt-1">
+                    SKU: {{ item.codigo }}
+                  </p>
+                }
+
+                @if(item.talla) {
+                  <p class="text-sm text-[#4b2e1f]">
+                    Talla: {{ item.talla }}
+                  </p>
+                }
+
+                @if(item.stock !== undefined) {
+                  <p
+                    class="text-xs mt-1 font-semibold"
+                    [class.text-red-700]="item.stock <= 2"
+                    [class.text-[#8a542f]]="item.stock > 2"
                   >
-                    -
-                  </button>
+                    @if(item.stock <= 2) {
+                      ⚠ Solo quedan {{ item.stock }} piezas
+                    }
+                    @else {
+                      Disponible: {{ item.stock }} piezas
+                    }
+                  </p>
+                }
 
-                  <span class="px-5 py-2 border-x border-white/30">
-                    {{ item.cantidad }}
-                  </span>
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mt-5">
 
-                  <button
-                    (click)="increase(item.id, item.talla)"
-                    class="px-3 py-2 text-lg"
-                  >
-                    +
-                  </button>
+                  <div class="flex items-center gap-3">
+
+                    <button
+                      type="button"
+                      (click)="decrease(item)"
+                      class="cursor-pointer w-10 h-10 bg-[#8a542f] hover:bg-[#6b3f26] text-white rounded-lg font-bold transition"
+                    >
+                      -
+                    </button>
+
+                    <span class="w-12 h-10 flex items-center justify-center bg-white border border-[#d8c5aa] rounded-lg font-bold text-[#2f1b12]">
+                      {{ item.cantidad }}
+                    </span>
+
+                    <button
+                      type="button"
+                      (click)="increase(item)"
+                      class="cursor-pointer w-10 h-10 bg-[#8a542f] hover:bg-[#6b3f26] text-white rounded-lg font-bold transition"
+                    >
+                      +
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="remove(item)"
+                      class="cursor-pointer ml-2 text-sm text-red-700 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+
+                  <div class="text-right min-w-[150px]">
+                    <div class="border-t border-[#d8c5aa] pt-3">
+                      <p class="text-xs text-[#8a542f] uppercase tracking-wide font-semibold">
+                        Precio unitario
+                      </p>
+
+                      <p class="font-bold text-[#2f1b12] text-2xl">
+                        {{ item.precio | currency:'MXN':'symbol':'1.0-0' }}
+                      </p>
+                    </div>
+                  </div>
 
                 </div>
-
-                <p class="font-bold text-[#2f1b12] text-lg">
-                  ${{ item.precio * item.cantidad }} MXN
-                </p>
 
               </div>
 
             </div>
 
-          </div>
-
-        }
-
-        <!-- Envío -->
-        <div class="text-[#2f1b12] text-sm pt-2">
-
-          <p>
-            Llega el lun 20 de abr
-          </p>
-
-          <p class="mt-2">
-            Envío gratuito
-          </p>
-
-        </div>
-
-      </section>
-
-      <!-- Resumen -->
-      <aside class="bg-[#fff8ec] p-6 h-fit rounded-sm">
-
-        <h2 class="font-bold text-[#2f1b12] text-xl mb-6">
-          Resumen del pedido
-        </h2>
-
-        <div class="space-y-4 text-[#2f1b12] text-sm">
-
-          @for(item of items(); track item.id) {
-
-            <div class="flex justify-between gap-6">
-
-              <span>
-                {{ item.nombre }}
-              </span>
-
-              <span class="font-bold">
-                ${{ item.precio * item.cantidad }}
-              </span>
-
-            </div>
-
           }
 
-        </div>
+        </section>
 
-        <!-- Total -->
-        <div class="border-t-2 border-[#2f1b12] mt-8 pt-5">
+        <aside class="bg-[#fff8ec] p-6 h-fit rounded-xl shadow-sm">
 
-          <div class="flex justify-between text-lg text-[#2f1b12]">
+          <h2 class="font-bold text-[#2f1b12] text-xl mb-6">
+            Resumen del pedido
+          </h2>
 
-            <span>
-              Total
-            </span>
+          <div class="mb-6 bg-[#f5ede1] rounded-xl p-4">
 
-            <span class="font-bold">
-              ${{ subtotal() }} MXN
-            </span>
+            @if(tieneEnvioGratis()) {
+              <p class="text-emerald-700 font-bold text-sm mb-3">
+                ✓ Ya calificas para envío gratis
+              </p>
+            }
+
+            @else {
+              <p class="text-[#4b2e1f] font-semibold text-sm mb-3">
+                Te faltan {{ faltaParaEnvioGratis() | currency:'MXN':'symbol':'1.0-0' }} para envío gratis
+              </p>
+            }
+
+            <div class="w-full h-3 bg-white rounded-full overflow-hidden">
+              <div
+                class="h-full bg-[#8a542f] rounded-full transition-all"
+                [style.width.%]="porcentajeEnvioGratis()"
+              ></div>
+            </div>
 
           </div>
 
-        </div>
+          <div class="space-y-4 text-[#2f1b12] text-sm">
 
-        <!-- Botones -->
-        <div class="mt-10 space-y-4">
+            @for(item of items(); track item.id + '-' + item.variante_id) {
 
-          <a
-            routerLink="/checkout"
-            class="block text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 font-medium transition"
-          >
-            Comprar como invitado
-          </a>
+              <div class="flex justify-between gap-6">
 
-          <a
-            routerLink="/login"
-            class="block text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 font-medium transition"
-          >
-            Comprar como miembro
-          </a>
+                <span>
+                  {{ item.nombre }}
 
-        </div>
+                  @if(item.talla) {
+                    <small class="block text-[#8a542f]">
+                      Talla: {{ item.talla }} x{{ item.cantidad }}
+                    </small>
+                  }
+                </span>
 
-      </aside>
+                <span class="font-bold">
+                  {{ item.precio * item.cantidad | currency:'MXN':'symbol':'1.0-0' }}
+                </span>
 
-    </div>
+              </div>
+
+            }
+
+          </div>
+
+          <div class="border-t border-[#d8c5aa] mt-8 pt-5 space-y-3 text-[#2f1b12]">
+
+            <div class="flex justify-between">
+              <span>Subtotal</span>
+              <span class="font-bold">
+                {{ subtotal() | currency:'MXN':'symbol':'1.0-0' }}
+              </span>
+            </div>
+
+            <div class="flex justify-between text-sm text-[#8a542f]">
+              <span>Envío</span>
+
+              @if(tieneEnvioGratis()) {
+                <span class="font-bold text-emerald-700">
+                  Gratis
+                </span>
+              }
+
+              @else {
+                <span>
+                  Se calcula en checkout
+                </span>
+              }
+            </div>
+
+            <div class="border-t-2 border-[#2f1b12] pt-4 flex justify-between text-lg">
+              <span>Total</span>
+              <span class="font-bold">
+                {{ subtotal() | currency:'MXN':'symbol':'1.0-0' }}
+              </span>
+            </div>
+
+            <p class="text-xs text-[#8a542f] mt-3">
+              Los costos de envío se calcularán en el siguiente paso.
+            </p>
+
+          </div>
+
+          <div class="mt-10 space-y-4">
+
+            <a
+              routerLink="/checkout"
+              class="block text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+            >
+              Continuar como invitado
+            </a>
+
+            <a
+              routerLink="/login"
+              class="block text-center border border-[#8a542f] text-[#8a542f] hover:bg-[#8a542f] hover:text-white py-3 rounded-lg font-medium transition"
+            >
+              Iniciar sesión y comprar
+            </a>
+
+          </div>
+
+        </aside>
+
+      </div>
+
+    }
 
   </div>
 

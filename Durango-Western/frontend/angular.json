@@ -62,17 +62,22 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "Durango-Western:build:production"
-            },
-            "development": {
-              "buildTarget": "Durango-Western:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
+  "builder": "@angular/build:dev-server",
+  "options": {
+    "allowedHosts": [
+      "heaving-precision-saucy.ngrok-free.dev"
+    ]
+  },
+  "configurations": {
+    "production": {
+      "buildTarget": "Durango-Western:build:production"
+    },
+    "development": {
+      "buildTarget": "Durango-Western:build:development"
+    }
+  },
+  "defaultConfiguration": "development"
+},
         "test": {
           "builder": "@angular/build:unit-test"
         }

@@ -133,24 +133,29 @@ export class DetalleProducto implements OnInit {
   }
 
   addToCart(producto: any): void {
-    if (!producto) return;
+  if (!producto) return;
 
-    const variantes = this.variantesDisponibles(producto);
+  const variantes = this.variantesDisponibles(producto);
 
-    if (variantes.length > 0 && !this.selectedVariant) {
-      alert('Selecciona una talla antes de agregar al carrito');
-      return;
-    }
-
-    this.cartService.addToCart({
-      id: producto.id,
-      nombre: producto.nombre,
-      precio: Number(producto.precio) + Number(this.selectedVariant?.precio_extra ?? 0),
-      cantidad: 1,
-      talla: this.selectedVariant?.tallas?.nombre ?? null,
-      imagen: this.imagenPrincipal(producto)
-    });
+  if (variantes.length > 0 && !this.selectedVariant) {
+    alert('Selecciona una talla antes de agregar al carrito');
+    return;
   }
+
+  this.cartService.addToCart({
+    id: producto.id,
+    producto_id: producto.id,
+    variante_id: this.selectedVariant?.id ?? null,
+    codigo: this.selectedVariant?.sku ?? producto.codigo ?? '',
+    nombre: producto.nombre,
+    precio: Number(producto.precio) + Number(this.selectedVariant?.precio_extra ?? 0),
+    cantidad: 1,
+    talla: this.selectedVariant?.tallas?.nombre ?? null,
+    stock: Number(this.selectedVariant?.stock ?? 0),
+    imagen: this.imagenPrincipal(producto)
+  });
+}
+
 
   imagenesProducto(producto: any): any[] {
   return [...(producto?.producto_imagenes ?? [])].sort((a: any, b: any) => {

@@ -1,7 +1,6 @@
 <div class="p-8">
 
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-
     <div>
       <h1 class="text-4xl font-bold text-[#2f1b12]">
         Editar producto
@@ -14,11 +13,10 @@
 
     <a
       routerLink="/admin/inventario"
-      class="border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-6 py-3 rounded-xl font-semibold transition text-center"
+      class="cursor-pointer border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:scale-95 px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-center"
     >
       Volver
     </a>
-
   </div>
 
   @if(loading()) {
@@ -86,20 +84,18 @@
             </label>
 
             <select
-  [ngModel]="producto().categoria_id"
-  (ngModelChange)="actualizarCampo('categoria_id', $event)"
-  class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
->
-  <option value="">
-    Selecciona una categoría
-  </option>
+              [ngModel]="producto().categoria_id"
+              (ngModelChange)="actualizarCampo('categoria_id', $event)"
+              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            >
+              <option value="">Selecciona una categoría</option>
 
-  @for(categoria of categorias(); track categoria.id) {
-    <option [value]="categoria.id">
-      {{ categoria.nombre }}
-    </option>
-  }
-</select>
+              @for(categoria of categorias(); track categoria.id) {
+                <option [value]="categoria.id">
+                  {{ categoria.nombre }}
+                </option>
+              }
+            </select>
           </div>
 
           <div>
@@ -141,11 +137,9 @@
 
                   <div class="grid grid-cols-[90px_1fr_120px] items-center gap-4 px-6 py-3">
 
-                    <div>
-                      <p class="font-bold text-[#2f1b12]">
-                        {{ variante.tallas?.nombre }}
-                      </p>
-                    </div>
+                    <p class="font-bold text-[#2f1b12]">
+                      {{ variante.tallas?.nombre }}
+                    </p>
 
                     <p class="text-sm text-[#8a542f] truncate">
                       {{ variante.sku }}
@@ -218,7 +212,6 @@
                         }
                       }
                     </optgroup>
-
                   </select>
 
                   <input
@@ -232,7 +225,7 @@
                   <button
                     type="button"
                     (click)="agregarVariante()"
-                    class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white rounded-lg font-semibold"
+                    class="cursor-pointer bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     Agregar talla
                   </button>
@@ -293,7 +286,7 @@
           <button
             type="button"
             (click)="guardarCambios()"
-            class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-8 py-3 rounded-lg font-semibold transition"
+            class="cursor-pointer bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
           >
             Guardar cambios
           </button>
@@ -301,7 +294,7 @@
           <button
             type="button"
             (click)="ocultarProducto()"
-            class="bg-red-100 text-red-700 hover:bg-red-600 hover:text-white px-8 py-3 rounded-lg font-semibold transition"
+            class="cursor-pointer bg-red-100 text-red-700 hover:bg-red-600 hover:text-white active:scale-95 px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
           >
             Ocultar producto
           </button>
@@ -344,7 +337,37 @@
 
             @for(img of producto().imagenes; track img.id) {
 
-              <div class="bg-[#f5ede1] rounded-lg overflow-hidden border border-[#eadcc7]">
+              <div
+                class="group relative bg-[#f5ede1] rounded-xl overflow-hidden border-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                [class.border-emerald-400]="img.principal"
+                [class.border-[#eadcc7]]="!img.principal"
+              >
+
+                <div class="absolute top-2 right-2 flex gap-1 z-10 opacity-90 group-hover:opacity-100">
+                  <button
+                    type="button"
+                    (click)="moverImagen(img.id, 'arriba')"
+                    class="cursor-pointer w-8 h-8 bg-white hover:bg-[#4b2e1f] hover:text-white rounded-full transition-all duration-200 shadow-sm hover:shadow-md active:scale-90 text-xs font-bold"
+                    title="Subir imagen"
+                  >
+                    ↑
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="moverImagen(img.id, 'abajo')"
+                    class="cursor-pointer w-8 h-8 bg-white hover:bg-[#4b2e1f] hover:text-white rounded-full transition-all duration-200 shadow-sm hover:shadow-md active:scale-90 text-xs font-bold"
+                    title="Bajar imagen"
+                  >
+                    ↓
+                  </button>
+                </div>
+
+                @if(img.principal) {
+                  <div class="absolute top-2 left-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full z-10">
+                    Principal
+                  </div>
+                }
 
                 <div class="aspect-square">
                   <img
@@ -354,105 +377,27 @@
                   >
                 </div>
 
-          <div class="p-2 flex flex-col gap-2">
+                <div class="p-2 flex flex-col gap-2 bg-white">
 
-            @if(img.principal) {
-              <span class="text-xs text-center bg-emerald-100 text-emerald-700 rounded-full py-1 font-bold">
-                Principal
-              </span>
-            }
-            @else {
-              <button
-                type="button"
-                (click)="marcarImagenPrincipal(img.id)"
-                class="
-                  cursor-pointer
-                  text-xs
-                  bg-[#4b2e1f]
-                  hover:bg-[#6b3f26]
-                  active:scale-95
-                  text-white
-                  rounded-lg
-                  py-2
-                  font-semibold
-                  transition-all
-                  duration-200
-                  shadow-sm
-                  hover:shadow-md
-                  "
-              >
-                Hacer principal
-              </button>
-            }
+                  @if(!img.principal) {
+                    <button
+                      type="button"
+                      (click)="marcarImagenPrincipal(img.id)"
+                      class="cursor-pointer text-xs bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white rounded-lg py-2 font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+                    >
+                      Hacer principal
+                    </button>
+                  }
 
-  <div class="grid grid-cols-2 gap-2">
-    <button
-      type="button"
-      (click)="moverImagen(img.id, 'arriba')"
-      class="
-cursor-pointer
-w-8
-h-8
-bg-white
-hover:bg-[#4b2e1f]
-hover:text-white
-rounded-full
-transition-all
-duration-200
-shadow-sm
-hover:shadow-md
-active:scale-90
-"
-    >
-      ↑
-    </button>
+                  <button
+                    type="button"
+                    (click)="eliminarImagen(img.id)"
+                    class="cursor-pointer text-xs bg-red-100 text-red-700 hover:bg-red-600 hover:text-white active:scale-95 rounded-lg py-2 font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+                  >
+                    Eliminar
+                  </button>
 
-    <button
-      type="button"
-      (click)="moverImagen(img.id, 'abajo')"
-      class="
-cursor-pointer
-w-8
-h-8
-bg-white
-hover:bg-[#4b2e1f]
-hover:text-white
-rounded-full
-transition-all
-duration-200
-shadow-sm
-hover:shadow-md
-active:scale-90
-"
-    >
-      ↓
-    </button>
-  </div>
-
-  <button
-    type="button"
-    (click)="eliminarImagen(img.id)"
-    class="
-cursor-pointer
-text-xs
-bg-red-100
-text-red-700
-hover:bg-red-600
-hover:text-white
-active:scale-95
-rounded-lg
-py-2
-font-semibold
-transition-all
-duration-200
-shadow-sm
-hover:shadow-md
-"
-  >
-    Eliminar
-  </button>
-
-</div>
+                </div>
 
               </div>
 
@@ -463,7 +408,7 @@ hover:shadow-md
         }
 
         <label
-          class="block w-full mt-6 bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-semibold transition text-center cursor-pointer"
+          class="cursor-pointer block w-full mt-6 bg-[#8a542f] hover:bg-[#6b3f26] active:scale-95 text-white py-3 rounded-lg font-semibold transition-all duration-200 text-center shadow-sm hover:shadow-md"
         >
           Agregar imagen
           <input

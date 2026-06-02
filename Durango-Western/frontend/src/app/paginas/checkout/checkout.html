@@ -2,283 +2,326 @@
 
   <div class="max-w-7xl mx-auto">
 
-    <h1 class="text-2xl md:text-3xl font-bold text-[#2f1b12] mb-8">
-      Confirmación de compra
-    </h1>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-[#2f1b12]">
+          Checkout
+        </h1>
 
-      <!-- Formulario -->
-      <section class="bg-[#fff8ec] p-5 md:p-8">
+        <p class="text-sm text-[#8a542f] mt-1">
+          Completa tus datos para continuar con el pago.
+        </p>
+      </div>
 
-        <h2 class="font-bold text-[#2f1b12] mb-5">
-          Datos de entrega
+      <a
+        routerLink="/carrito"
+        class="text-[#4b2e1f] border border-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-5 py-2 rounded-lg font-semibold transition"
+      >
+        ← Volver al carrito
+      </a>
+
+    </div>
+
+    @if(carritoVacio()) {
+
+      <div class="bg-[#fff8ec] p-10 text-center rounded-xl shadow-sm">
+        <h2 class="text-2xl font-bold text-[#2f1b12] mb-3">
+          Tu carrito está vacío
         </h2>
 
-        <!-- Tipo de entrega -->
-        <div class="grid grid-cols-2 gap-4 mb-8">
+        <p class="text-[#8a542f] mb-6">
+          Agrega productos antes de continuar al checkout.
+        </p>
 
-          <button class="bg-[#8a542f] text-white py-4 font-semibold">
-            Entrega en domicilio
-          </button>
+        <a
+          routerLink="/productos"
+          class="inline-block bg-[#8a542f] hover:bg-[#6b3f26] text-white px-8 py-3 rounded-lg font-semibold transition"
+        >
+          Ver productos
+        </a>
+      </div>
 
-          <button class="border border-[#8a542f] text-[#2f1b12] py-4 font-semibold">
-            Recoger en tienda
-          </button>
+    }
 
-        </div>
+    @else {
 
-        <!-- Código postal -->
-        <div class="mb-10">
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12">
 
-          <label class="block text-sm text-[#2f1b12] mb-2">
-            Código postal
-          </label>
+        <section class="bg-[#fff8ec] p-5 md:p-8 rounded-xl shadow-sm">
 
-          <div class="flex gap-3">
+          <h2 class="font-bold text-[#2f1b12] text-xl mb-5">
+            Datos de entrega
+          </h2>
 
-            <input
-              class="w-full h-11 border border-[#cbb89d] px-3 bg-white"
-              type="text"
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
+            <button
+              type="button"
+              (click)="seleccionarEntrega('domicilio')"
+              class="cursor-pointer py-4 rounded-lg font-semibold transition"
+              [class.bg-[#8a542f]]="tipoEntrega === 'domicilio'"
+              [class.text-white]="tipoEntrega === 'domicilio'"
+              [class.border]="tipoEntrega !== 'domicilio'"
+              [class.border-[#8a542f]]="tipoEntrega !== 'domicilio'"
+              [class.text-[#2f1b12]]="tipoEntrega !== 'domicilio'"
             >
+              Entrega en domicilio
+            </button>
 
-            <button class="bg-[#8a542f] text-white px-6">
-              Buscar
+            <button
+              type="button"
+              (click)="seleccionarEntrega('tienda')"
+              class="cursor-pointer py-4 rounded-lg font-semibold transition"
+              [class.bg-[#8a542f]]="tipoEntrega === 'tienda'"
+              [class.text-white]="tipoEntrega === 'tienda'"
+              [class.border]="tipoEntrega !== 'tienda'"
+              [class.border-[#8a542f]]="tipoEntrega !== 'tienda'"
+              [class.text-[#2f1b12]]="tipoEntrega !== 'tienda'"
+            >
+              Recoger en tienda
             </button>
 
           </div>
 
-        </div>
+          <div class="mb-10">
 
-        <!-- Contacto -->
-        <div class="mb-10">
+            <h3 class="font-bold text-[#2f1b12] mb-4">
+              Contacto
+            </h3>
 
-          <h3 class="font-bold text-[#2f1b12] mb-4">
-            Contacto
-          </h3>
-
-          <div class="space-y-4">
-
-            <input
-              class="w-full h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Nombre completo"
-            >
-
-            <input
-              class="w-full h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Correo electrónico"
-            >
-
-            <input
-              class="w-full h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Número de teléfono"
-            >
-
-          </div>
-
-        </div>
-
-        <!-- Dirección -->
-        <div class="mb-10">
-
-          <h3 class="font-bold text-[#2f1b12] mb-4">
-            Dirección
-          </h3>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            <input
-              class="h-11 border border-[#cbb89d] px-3 bg-white md:col-span-2"
-              placeholder="Calle"
-            >
-
-            <input
-              class="h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Número exterior"
-            >
-
-            <input
-              class="h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Número interior"
-            >
-
-            <input
-              class="h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Colonia"
-            >
-
-            <input
-              class="h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Ciudad"
-            >
-
-            <input
-              class="h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Estado"
-            >
-
-            <input
-              class="h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Código postal"
-            >
-
-          </div>
-
-        </div>
-
-        <!-- Pago -->
-        <div class="mb-10">
-
-          <h3 class="font-bold text-[#2f1b12] mb-4">
-            Pago
-          </h3>
-
-          <div class="space-y-4">
-
-            <input
-              class="w-full h-11 border border-[#cbb89d] px-3 bg-white"
-              placeholder="Cupón de descuento"
-            >
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-4">
 
               <input
-                class="h-11 border border-[#cbb89d] px-3 bg-white"
-                placeholder="Nombre del titular"
+                [(ngModel)]="cliente.nombre"
+                class="w-full h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                placeholder="Nombre completo"
               >
 
               <input
-                class="h-11 border border-[#cbb89d] px-3 bg-white"
-                placeholder="Número de tarjeta"
+                [(ngModel)]="cliente.correo"
+                type="email"
+                class="w-full h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                placeholder="Correo electrónico"
               >
 
               <input
-                class="h-11 border border-[#cbb89d] px-3 bg-white"
-                placeholder="MM/AA"
-              >
-
-              <input
-                class="h-11 border border-[#cbb89d] px-3 bg-white"
-                placeholder="CVV"
+                [(ngModel)]="cliente.telefono"
+                class="w-full h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                placeholder="Número de teléfono"
               >
 
             </div>
 
           </div>
 
-        </div>
+          @if(tipoEntrega === 'domicilio') {
 
-            <!-- Botón -->
-    <a
-     routerLink="/confirmacion-compra"
-      class="block text-center w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 font-semibold"
-      >
+            <div class="mb-10">
 
-       Realizar pedido
+              <h3 class="font-bold text-[#2f1b12] mb-4">
+                Dirección
+              </h3>
 
-      </a>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <input
+                  [(ngModel)]="direccion.codigoPostal"
+                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  placeholder="Código postal"
+                >
+
+                <input
+                  [(ngModel)]="direccion.estado"
+                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  placeholder="Estado"
+                >
+
+                <input
+                  [(ngModel)]="direccion.ciudad"
+                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  placeholder="Ciudad"
+                >
+
+                <input
+                  [(ngModel)]="direccion.colonia"
+                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  placeholder="Colonia"
+                >
+
+                <input
+                  [(ngModel)]="direccion.calle"
+                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f] md:col-span-2"
+                  placeholder="Calle"
+                >
+
+                <input
+                  [(ngModel)]="direccion.numeroExterior"
+                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  placeholder="Número exterior"
+                >
+
+                <input
+                  [(ngModel)]="direccion.numeroInterior"
+                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  placeholder="Número interior opcional"
+                >
+
+                <textarea
+                  [(ngModel)]="direccion.referencias"
+                  rows="4"
+                  class="border border-[#cbb89d] px-3 py-3 bg-white rounded-lg outline-none resize-none focus:ring-2 focus:ring-[#8a542f] md:col-span-2"
+                  placeholder="Referencias de entrega"
+                ></textarea>
+
+              </div>
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="mb-10 bg-[#f5ede1] rounded-xl p-5 text-[#2f1b12]">
+              <h3 class="font-bold mb-2">
+                Recolección en tienda
+              </h3>
+
+              <p class="text-sm text-[#8a542f]">
+                El pedido se preparará para recoger en sucursal. Más adelante podremos permitir seleccionar sucursal.
+              </p>
+            </div>
+
+          }
+
+          <div class="mb-10">
+
+            <h3 class="font-bold text-[#2f1b12] mb-4">
+              Pago
+            </h3>
+
+            <div class="bg-[#f5ede1] rounded-xl p-5 text-sm text-[#4b2e1f]">
+              El pago se realizará de forma segura mediante Mercado Pago en el siguiente paso.
+            </div>
+
+          </div>
+
+          <button
+  type="button"
+  (click)="realizarPedido()"
+  [disabled]="cargando"
+  class="cursor-pointer w-full bg-[#8a542f] hover:bg-[#6b3f26] active:scale-95 disabled:opacity-60 text-white py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+>
+  {{ cargando ? 'Creando pedido...' : 'Continuar al pago' }}
+</button>
 
         </section>
 
-      <!-- Resumen -->
-      <aside class="bg-[#fff8ec] p-6 h-fit">
+        <aside class="bg-[#fff8ec] p-6 h-fit rounded-xl shadow-sm">
 
-        <h2 class="font-bold text-[#2f1b12] mb-6">
-          Resumen del pedido
-        </h2>
+          <h2 class="font-bold text-[#2f1b12] text-xl mb-6">
+            Resumen del pedido
+          </h2>
 
-        <div class="space-y-4 mb-8">
+          <div class="space-y-4 mb-8">
 
-          @if(items().length === 0) {
+            @for(item of items(); track item.id + '-' + item.variante_id) {
 
-            <p class="text-sm text-[#4b2e1f]">
-              No hay productos en el carrito.
-            </p>
+              <div class="flex gap-4">
 
-          }
+                <div class="w-20 h-24 bg-[#e7dccb] rounded-lg overflow-hidden flex items-center justify-center">
 
-          @for(item of items(); track item.id) {
+                  @if(item.imagen) {
+                    <img
+                      [src]="item.imagen"
+                      [alt]="item.nombre"
+                      class="w-full h-full object-cover"
+                    >
+                  }
 
-            <div class="flex gap-4">
+                  @else {
+                    <span class="text-3xl text-[#8b7355]">
+                      ▧
+                    </span>
+                  }
 
-              <div class="w-20 h-24 bg-[#e7dccb] flex items-center justify-center">
+                </div>
 
-                <span class="text-3xl text-[#8b7355]">
-                  ▧
-                </span>
+                <div class="flex-1">
+
+                  <h3 class="text-sm font-bold text-[#2f1b12]">
+                    {{ item.nombre }}
+                  </h3>
+
+                  @if(item.talla) {
+                    <p class="text-xs text-[#4b2e1f]">
+                      Talla: {{ item.talla }}
+                    </p>
+                  }
+
+                  <p class="text-xs text-[#4b2e1f]">
+                    Cantidad: {{ item.cantidad }}
+                  </p>
+
+                  <p class="text-sm font-bold text-[#2f1b12] mt-2">
+                    {{ item.precio * item.cantidad | currency:'MXN':'symbol':'1.0-0' }}
+                  </p>
+
+                </div>
 
               </div>
 
-              <div class="flex-1">
+            }
 
-                <h3 class="text-sm font-bold text-[#2f1b12]">
-                  {{ item.nombre }}
-                </h3>
+          </div>
 
-                <p class="text-xs text-[#4b2e1f]">
-                  Talla: {{ item.talla }}
-                </p>
+          <div class="border-t border-[#d8c5aa] pt-5 space-y-3 text-[#2f1b12]">
 
-                <p class="text-xs text-[#4b2e1f]">
-                  Cantidad: {{ item.cantidad }}
-                </p>
-
-                <p class="text-sm font-bold text-[#2f1b12] mt-2">
-                  ${{ item.precio * item.cantidad }} MXN
-                </p>
-
-              </div>
-
+            <div class="flex justify-between">
+              <span>Subtotal</span>
+              <span class="font-bold">
+                {{ subtotal() | currency:'MXN':'symbol':'1.0-0' }}
+              </span>
             </div>
 
-          }
+            <div class="flex justify-between text-sm text-[#8a542f]">
+              <span>Envío</span>
 
-        </div>
+              @if(tipoEntrega === 'tienda') {
+                <span class="font-bold text-emerald-700">
+                  Sin costo
+                </span>
+              }
 
-        <!-- Totales -->
-        <div class="border-t-2 border-[#2f1b12] pt-5 space-y-3 text-[#2f1b12]">
+              @else if(subtotal() >= envioGratisMinimo) {
+                <span class="font-bold text-emerald-700">
+                  Gratis
+                </span>
+              }
 
-          <div class="flex justify-between">
+              @else {
+                <span>Se calculará después</span>
+              }
+            </div>
 
-            <span>
-              Subtotal
-            </span>
+            <div class="border-t-2 border-[#2f1b12] pt-4 flex justify-between text-lg">
+              <span>Total</span>
+              <span class="font-bold">
+                {{ total() | currency:'MXN':'symbol':'1.0-0' }}
+              </span>
+            </div>
 
-            <span>
-              ${{ subtotal() }}
-            </span>
-
-          </div>
-
-          <div class="flex justify-between">
-
-            <span>
-              Envío
-            </span>
-
-            <span>
-              Gratis
-            </span>
-
-          </div>
-
-          <div class="flex justify-between font-bold text-lg">
-
-            <span>
-              Total
-            </span>
-
-            <span>
-              ${{ subtotal() }} MXN
-            </span>
+            <p class="text-xs text-[#8a542f] mt-3">
+              El costo final de envío se calculará antes del pago.
+            </p>
 
           </div>
 
-        </div>
+        </aside>
 
-      </aside>
+      </div>
 
-    </div>
+    }
 
   </div>
 
