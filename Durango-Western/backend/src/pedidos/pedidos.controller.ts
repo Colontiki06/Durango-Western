@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 
 import { PedidosService } from './pedidos.service';
 
@@ -23,6 +23,14 @@ test() {
   return {
     mensaje: 'Pedidos funcionando'
   };
+}
+
+  @Patch(':id/estado-envio')
+actualizarEstadoEnvio(
+  @Param('id') id: string,
+  @Body() body: { estado_envio: string },
+) {
+  return this.pedidosService.actualizarEstadoEnvio(id, body.estado_envio);
 }
 
   @Get(':id')

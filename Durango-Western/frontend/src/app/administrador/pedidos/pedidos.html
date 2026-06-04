@@ -10,151 +10,341 @@
     </p>
   </div>
 
-  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8">
+  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
 
-    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
-      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
-        Pedidos hoy
-      </p>
-      <h2 class="text-3xl font-bold text-[#2f1b12]">24</h2>
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] mb-2 text-sm">Por preparar</p>
+      <h2 class="text-3xl font-bold text-[#2f1b12]">{{ porPreparar() }}</h2>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
-      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
-        Pendientes
-      </p>
-      <h2 class="text-3xl font-bold text-[#2f1b12]">8</h2>
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] mb-2 text-sm">Preparando</p>
+      <h2 class="text-3xl font-bold text-[#2f1b12]">{{ preparando() }}</h2>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md sm:col-span-2 xl:col-span-1">
-      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
-        Completados
-      </p>
-      <h2 class="text-3xl font-bold text-[#2f1b12]">132</h2>
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] mb-2 text-sm">Empacados</p>
+      <h2 class="text-3xl font-bold text-[#2f1b12]">{{ empacados() }}</h2>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] mb-2 text-sm">Enviados</p>
+      <h2 class="text-3xl font-bold text-[#2f1b12]">{{ enviados() }}</h2>
     </div>
 
   </section>
 
-  <section class="bg-white rounded-2xl shadow-md p-4 md:p-6">
+  <section class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-[#eadcc7] w-full">
 
-    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-6">
+    <div class="flex flex-col gap-5 mb-6">
 
-      <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12]">
-        Lista de pedidos
-      </h2>
+      <div class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4">
 
-      <div class="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+        <div>
+          <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12]">
+            Lista de pedidos
+          </h2>
 
+          <p class="text-sm text-[#8a542f] mt-1">
+            {{ pedidosFiltrados().length }} de {{ pedidos.length }} pedido(s)
+          </p>
+        </div>
+
+        <button
+          type="button"
+          (click)="cargarPedidos()"
+          class="bg-[#9b6235] hover:bg-[#7d4e2a] text-white px-5 py-3 rounded-lg font-semibold transition whitespace-nowrap"
+        >
+          Actualizar
+        </button>
+
+      </div>
+
+      <div>
         <input
           type="text"
-          placeholder="Buscar pedido..."
-          class="w-full xl:w-[260px] h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+          [(ngModel)]="busqueda"
+          placeholder="Buscar por folio, cliente, teléfono o correo..."
+          class="w-full border border-[#d8c5aa] rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#9b6235]"
         >
+      </div>
 
-        <select class="w-full sm:w-[220px] h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]">
-          <option>Todos</option>
-          <option>Pendiente</option>
-          <option>Enviado</option>
-          <option>Completado</option>
-        </select>
+  <div class="flex items-center gap-3 flex-wrap">
+
+  <span
+    class="text-xs font-bold uppercase bg-[#f5ede1] text-[#8a542f]
+           px-3 py-1 rounded-full"
+  >
+    Pago
+  </span>
+
+  <!-- botones pago -->
+
+</div>
+
+
+      <div class="flex flex-wrap gap-2">
+
+      
+
+        
+
+        <button
+          type="button"
+          (click)="cambiarFiltro('todos')"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroActivo === 'todos' ? 'bg-[#9b6235] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Todos {{ pedidos.length }}
+        </button>
+
+        <button
+          type="button"
+          (click)="cambiarFiltro('por_preparar')"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroActivo === 'por_preparar' ? 'bg-[#9b6235] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Por preparar {{ porPreparar() }}
+        </button>
+
+        <button
+          type="button"
+          (click)="cambiarFiltro('pagados')"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroActivo === 'pagados' ? 'bg-[#9b6235] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Pagados {{ pagados() }}
+        </button>
+
+        <button
+          type="button"
+          (click)="cambiarFiltro('pendientes_pago')"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroActivo === 'pendientes_pago' ? 'bg-[#9b6235] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Pendientes {{ pendientes() }}
+        </button>
+
+      </div>
+
+      
+<div class="flex items-center gap-3 flex-wrap mt-3">
+
+  <span
+    class="text-xs font-bold uppercase bg-[#f5ede1] text-[#8a542f] px-3 py-1 rounded-full"
+  >
+    Envío
+  </span>
+
+  <!-- botones envío -->
+
+</div>
+
+      <div class="flex flex-wrap gap-2">
+
+        
+
+        <button
+          type="button"
+          (click)="filtroEnvio = 'todos'"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroEnvio === 'todos' ? 'bg-[#2f1b12] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Envío todos
+        </button>
+
+        <button
+          type="button"
+          (click)="filtroEnvio = 'pendiente'"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroEnvio === 'pendiente' ? 'bg-[#2f1b12] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Pendiente
+        </button>
+
+        <button
+          type="button"
+          (click)="filtroEnvio = 'preparando'"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroEnvio === 'preparando' ? 'bg-[#2f1b12] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Preparando
+        </button>
+
+        <button
+          type="button"
+          (click)="filtroEnvio = 'empacado'"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroEnvio === 'empacado' ? 'bg-[#2f1b12] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Empacado
+        </button>
+
+        <button
+          type="button"
+          (click)="filtroEnvio = 'enviado'"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroEnvio === 'enviado' ? 'bg-[#2f1b12] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Enviado
+        </button>
+
+        <button
+          type="button"
+          (click)="filtroEnvio = 'entregado'"
+          class="transition-all duration-200 hover:shadow-lg hover:-translate-y-2.5 hover:bg-[#e8dccb] px-4 py-2 rounded-full text-sm font-semibold"
+          [ngClass]="filtroEnvio === 'entregado' ? 'bg-[#2f1b12] text-white' : 'bg-[#f5ede1] text-[#8a542f]'"
+        >
+          Entregado
+        </button>
 
       </div>
 
     </div>
 
-    <div class="overflow-x-auto">
+    @if(loading && pedidos.length === 0) {
+      <p class="text-[#8a542f]">Cargando pedidos...</p>
+    }
 
-      <table class="min-w-[850px] w-full text-left border-collapse">
+    @if(error) {
+      <p class="text-red-600 font-medium mb-4">{{ error }}</p>
+    }
 
-        <thead>
-          <tr class="bg-[#f5ede1] text-[#2f1b12] text-sm">
-            <th class="p-4">Pedido</th>
-            <th class="p-4">Cliente</th>
-            <th class="p-4">Fecha</th>
-            <th class="p-4">Total</th>
-            <th class="p-4">Estado</th>
-            <th class="p-4 text-right">Acciones</th>
-          </tr>
-        </thead>
+    @if(pedidos.length > 0) {
 
-        <tbody>
+      <div class="overflow-x-auto">
 
-          @for(pedido of pedidos; track $index) {
+        <table class="w-full min-w-[1250px]">
 
-            <tr class="border-b border-[#eadcc7] hover:bg-[#fff8ec] transition">
-
-              <td class="p-4">
-                <div class="min-w-[130px]">
-                  <h3 class="font-bold text-[#2f1b12]">
-                    #DW-000{{ $index + 1 }}
-                  </h3>
-
-                  <p class="text-sm text-[#8a542f]">
-                    3 productos
-                  </p>
-                </div>
-              </td>
-
-              <td class="p-4 text-[#4b2e1f] whitespace-nowrap">
-                Juan Pérez
-              </td>
-
-              <td class="p-4 text-[#4b2e1f] whitespace-nowrap">
-                14 May 2026
-              </td>
-
-              <td class="p-4 font-semibold text-[#2f1b12] whitespace-nowrap">
-                $3,299 MXN
-              </td>
-
-              <td class="p-4">
-                @if($index % 3 === 0) {
-                  <span class="px-3 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700 font-bold whitespace-nowrap">
-                    Pendiente
-                  </span>
-                }
-
-                @else if($index % 3 === 1) {
-                  <span class="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700 font-bold whitespace-nowrap">
-                    Enviado
-                  </span>
-                }
-
-                @else {
-                  <span class="px-3 py-1 rounded-full text-xs bg-emerald-100 text-emerald-700 font-bold whitespace-nowrap">
-                    Completado
-                  </span>
-                }
-              </td>
-
-              <td class="p-4">
-                <div class="flex justify-end gap-2">
-
-                  <a
-                    routerLink="/admin/pedidos/DW-0001"
-                    class="px-3 py-2 rounded-lg bg-[#f5ede1] hover:bg-[#8a542f] hover:text-white transition whitespace-nowrap"
-                  >
-                    Ver
-                  </a>
-
-                  <button
-                    class="px-3 py-2 rounded-lg bg-[#4b2e1f] text-white hover:bg-[#6b3f26] transition whitespace-nowrap"
-                  >
-                    Actualizar
-                  </button>
-
-                </div>
-              </td>
-
+          <thead>
+            <tr class="bg-[#f5ede1] text-left text-[#2f1b12] text-sm">
+              <th class="p-4 rounded-l-xl">Pedido</th>
+              <th class="p-4">Cliente</th>
+              <th class="p-4">Productos</th>
+              <th class="p-4">Fecha</th>
+              <th class="p-4">Total</th>
+              <th class="p-4">Pago</th>
+              <th class="p-4">Envío</th>
+              <th class="p-4 rounded-r-xl text-right">Acciones</th>
             </tr>
+          </thead>
 
-          }
+          <tbody>
 
-        </tbody>
+            @for(pedido of pedidosFiltrados(); track pedido.id) {
 
-      </table>
+              <tr
+                class="border-b border-[#eadcc7] hover:bg-[#fff8ec] transition"
+                [ngClass]="{
+                  'bg-red-50 border-l-4 border-red-500':
+                    pedido.estado === 'pagado' &&
+                    (pedido.estado_envio ?? 'pendiente') === 'pendiente'
+                }"
+              >
 
-    </div>
+                <td class="p-4">
+                  <div class="font-bold text-[#2f1b12]">
+                    {{ pedido.folio }}
+                  </div>
+
+                  <div class="text-xs text-[#8a542f] mt-1">
+                    ID: {{ pedido.id.slice(0, 8) }}
+                  </div>
+                </td>
+
+                <td class="p-4">
+                  <div class="font-semibold text-[#2f1b12]">
+                    {{ nombreCliente(pedido) }}
+                  </div>
+
+                  @if(pedido.direcciones?.telefono) {
+                    <div class="text-xs text-[#8a542f] mt-1">
+                      Tel: {{ pedido.direcciones.telefono }}
+                    </div>
+                  }
+                </td>
+
+                <td class="p-4">
+                  <div class="space-y-1">
+                    @for(item of pedido.pedido_items; track item.id) {
+                      <div class="text-sm text-[#2f1b12]">
+                        {{ item.nombre_producto }}
+                      </div>
+
+                      <div class="text-xs text-[#8a542f]">
+                        {{ item.talla || 'Sin talla' }} · x{{ item.cantidad }}
+                      </div>
+                    }
+                  </div>
+                </td>
+
+                <td class="p-4 text-[#4b2e1f] whitespace-nowrap">
+                  {{ pedido.created_at | date:'d MMM y' }}
+                </td>
+
+                <td class="p-4 font-bold text-[#2f1b12] whitespace-nowrap">
+                  {{ pedido.total | currency:'MXN':'symbol':'1.2-2' }}
+                </td>
+
+                <td class="p-4">
+                  <span
+                    class="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
+                    [ngClass]="claseEstado(pedido.estado)"
+                  >
+                    {{ pedido.estado }}
+                  </span>
+                </td>
+
+                <td class="p-4">
+
+                  @if(
+                    pedido.estado === 'pagado' &&
+                    (pedido.estado_envio ?? 'pendiente') === 'pendiente'
+                  ) {
+                    <div class="mb-2">
+                      <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold">
+                        ⚠ Requiere preparación
+                      </span>
+                    </div>
+                  }
+
+                  <span
+                    class="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
+                    [ngClass]="claseEnvio(pedido.estado_envio ?? 'pendiente')"
+                  >
+                    {{ pedido.estado_envio ?? 'pendiente' }}
+                  </span>
+
+                </td>
+
+                <td class="p-4">
+                  <div class="flex justify-end">
+                    <a
+                      [routerLink]="['/admin/pedidos', pedido.id]"
+                      class="bg-[#9b6235] text-white px-4 py-2 rounded-lg hover:bg-[#7d4e2a] font-semibold transition"
+                    >
+                      Ver
+                    </a>
+                  </div>
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+    @if(!loading && pedidosFiltrados().length === 0) {
+      <div class="text-center py-10 text-[#8a542f]">
+        No se encontraron pedidos con los filtros seleccionados.
+      </div>
+    }
 
   </section>
 

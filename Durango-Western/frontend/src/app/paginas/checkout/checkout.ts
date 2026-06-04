@@ -20,7 +20,12 @@ export class Checkout {
   readonly envioGratisMinimo = 4000;
 
   cargando = false;
+  cotizandoEnvio = false;
   tipoEntrega: TipoEntrega = 'domicilio';
+
+  costoEnvio = 0;
+  envioGratis = false;
+  mensajeEnvio = '';
 
   cliente = {
     nombre: '',
@@ -53,7 +58,8 @@ export class Checkout {
   }
 
   envio(): number {
-    return 0;
+    if (this.tipoEntrega === 'tienda') return 0;
+    return this.costoEnvio;
   }
 
   total(): number {
@@ -66,6 +72,59 @@ export class Checkout {
 
   seleccionarEntrega(tipo: TipoEntrega): void {
     this.tipoEntrega = tipo;
+
+    if (tipo === 'tienda') {
+      this.costoEnvio = 0;
+      this.envioGratis = true;
+      this.mensajeEnvio = 'Recolección en tienda sin costo';
+    }
+
+    if (tipo === 'domicilio') {
+      this.cotizarEnvio();
+    }
+  }
+
+  cotizarEnvio(): void {
+    if (this.tipoEntrega !== 'domicilio') return;
+
+    if (!this.direccion.codigoPostal || this.direccion.codigoPostal.length < 5) {
+      this.costoEnvio = 0;
+      this.envioGratis = false;
+      this.mensajeEnvio = 'Ingresa tu código postal para calcular el envío';
+      return;
+    }
+
+    this.cotizandoEnvio = true;
+    this.mensajeEnvio = 'Calculando envío...';
+
+    this.api.post<any>('envios/cotizar', {
+  codigoPostal: this.direccion.codigoPostal,
+  subtotal: this.subtotal(),
+  items: this.items()
+  .filter(item => !!item.variante_id)
+  .map(item => ({
+    variante_id: item.variante_id,
+    cantidad: item.cantidad
+  }))
+}).subscribe({
+      next: (respuesta) => {
+        this.costoEnvio = Number(respuesta.costoEnvio ?? 0);
+        this.envioGratis = Boolean(respuesta.envioGratis);
+
+        this.mensajeEnvio = this.envioGratis
+          ? 'Tu compra tiene envío gratis'
+          : `Costo de envío calculado`;
+
+        this.cotizandoEnvio = false;
+      },
+      error: (error) => {
+        console.error('Error cotizando envío:', error);
+        this.costoEnvio = 0;
+        this.envioGratis = false;
+        this.mensajeEnvio = 'No se pudo calcular el envío';
+        this.cotizandoEnvio = false;
+      }
+    });
   }
 
   realizarPedido(): void {
@@ -79,12 +138,29 @@ export class Checkout {
       return;
     }
 
+    if (this.tipoEntrega === 'domicilio') {
+      if (
+        !this.direccion.codigoPostal ||
+        !this.direccion.calle ||
+        !this.direccion.numeroExterior ||
+        !this.direccion.colonia ||
+        !this.direccion.ciudad ||
+        !this.direccion.estado
+      ) {
+        alert('Completa tu dirección de envío');
+        return;
+      }
+    }
+
     this.cargando = true;
 
     const payload = {
       cliente: this.cliente,
       direccion: this.tipoEntrega === 'domicilio' ? this.direccion : null,
       tipoEntrega: this.tipoEntrega,
+      envio: this.envio(),
+      subtotal: this.subtotal(),
+      total: this.total(),
       items: this.items().map(item => ({
         producto_id: item.producto_id || item.id,
         variante_id: item.variante_id,

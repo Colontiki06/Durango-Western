@@ -172,4 +172,35 @@ export class PedidosService {
       },
     });
   }
+
+ async actualizarEstadoEnvio(id: string, estado_envio: string) {
+  const estadosPermitidos = [
+    'pendiente',
+    'preparando',
+    'empacado',
+    'enviado',
+    'entregado',
+    'cancelado',
+  ];
+
+  if (!estadosPermitidos.includes(estado_envio)) {
+    throw new Error('Estado de envío no válido');
+  }
+
+  return this.prisma.pedidos.update({
+    where: { id },
+    data: {
+      estado_envio,
+      updated_at: new Date(),
+    },
+    include: {
+      pedido_items: true,
+      direcciones: true,
+      pagos: true,
+      envios: true,
+    },
+  });
+}
+
+
 }

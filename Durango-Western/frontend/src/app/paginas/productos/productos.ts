@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -15,6 +15,7 @@ export class Productos implements OnInit {
 
   private route = inject(ActivatedRoute);
   private api = inject(ApiService);
+  private cdr = inject(ChangeDetectorRef);
 
   categoria = this.route.snapshot.paramMap.get('categoria') ?? 'todos';
 
@@ -28,6 +29,7 @@ export class Productos implements OnInit {
     this.api.get<any[]>('productos').subscribe({
       next: (data) => {
         this.products = data;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error cargando productos', error);

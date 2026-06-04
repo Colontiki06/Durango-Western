@@ -82,6 +82,7 @@ import { GoogleMapsConfigModule } from './google-maps-config/google-maps-config.
     EnviosModule,
     PedidosModule,
     PagosModule,
+    EnviosModule,
 
     // MARKETING
     PromocionesModule,
