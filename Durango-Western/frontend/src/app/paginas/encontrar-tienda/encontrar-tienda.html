@@ -2,88 +2,170 @@
 
   <div class="max-w-7xl mx-auto">
 
-    <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12] mb-10">
+    <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12] mb-6">
       Encuentra tu tienda
     </h1>
 
+    <!-- Buscador -->
+    <section class="bg-[#fff8ec] p-5 mb-10 border-l-4 border-[#8a542f]">
+      <h2 class="text-xl font-bold text-[#2f1b12] mb-2">
+        Busca tu sucursal más cercana
+      </h2>
+
+      <p class="text-[#4b2e1f] text-sm mb-4">
+        Escribe una colonia, calle, tienda o código postal. Para una búsqueda más rápida,
+        selecciona una sugerencia del buscador.
+      </p>
+
+      <div class="flex flex-col lg:flex-row gap-3">
+        <input
+          #searchInput
+          type="text"
+          [(ngModel)]="busqueda"
+          placeholder="Busca por colonia, calle, tienda o código postal"
+          class="w-full lg:w-96 px-4 py-3 border border-[#c8a57d] bg-white text-[#2f1b12] outline-none focus:border-[#8a542f]"
+          (keyup.enter)="buscarPorDireccion()"
+        />
+
+        <button
+          type="button"
+          class="bg-[#8a542f] hover:bg-[#6b3f26] text-white px-6 py-3 text-sm font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+          [disabled]="cargandoBusqueda || cargandoUbicacion"
+          (click)="buscarPorDireccion()"
+        >
+          {{ cargandoBusqueda ? 'Buscando...' : 'Buscar tienda' }}
+        </button>
+
+        <button
+          type="button"
+          class="bg-[#4b2e1f] hover:bg-[#2f1b12] text-white px-6 py-3 text-sm font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+          [disabled]="cargandoBusqueda || cargandoUbicacion"
+          (click)="usarUbicacionActual()"
+        >
+          {{ cargandoUbicacion ? 'Obteniendo ubicación...' : 'Usar mi ubicación actual' }}
+        </button>
+
+        <button
+          type="button"
+          class="bg-[#2f1b12] hover:bg-[#1f100a] text-white px-6 py-3 text-sm font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+          [disabled]="cargandoBusqueda || cargandoUbicacion"
+          (click)="limpiarBusqueda()"
+        >
+          Limpiar
+        </button>
+      </div>
+
+      <p class="text-[#4b2e1f] text-xs mt-3">
+        Tip: escribe algo como “Zona Centro Durango”, “Paseo Durango” o “34000 Durango”.
+      </p>
+
+      <p *ngIf="mensajeBusqueda" class="text-[#8a542f] text-sm font-semibold mt-4">
+        {{ mensajeBusqueda }}
+      </p>
+    </section>
+
     <div class="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-10">
 
-      <!-- Lista de sucursales -->
+      <!-- Resultados -->
       <section class="space-y-5">
 
-        <div class="bg-[#fff8ec] p-5 border-l-4 border-[#8a542f]">
+        <div
+          *ngIf="tiendas.length === 0"
+          class="bg-[#fff8ec] p-5 border-l-4 border-[#8a542f]"
+        >
           <h2 class="text-xl font-bold text-[#2f1b12] mb-2">
-            Sucursal Centro
+            Busca tu tienda
           </h2>
 
-          <p class="text-[#4b2e1f] text-sm mb-2">
-            Av. Principal #123, Zona Centro, Durango, Dgo.
-          </p>
-
           <p class="text-[#4b2e1f] text-sm">
-            Lunes a sábado: 9:00 a.m. - 8:00 p.m.
+            Cuando busques una ubicación o uses tu ubicación actual, aquí aparecerán
+            las sucursales más cercanas.
           </p>
-
-          <button class="mt-4 bg-[#8a542f] hover:bg-[#6b3f26] text-white px-5 py-2 text-sm">
-            Ver ubicación
-          </button>
         </div>
 
-        <div class="bg-[#fff8ec] p-5">
+        <div
+          *ngFor="let tienda of tiendas"
+          class="bg-[#fff8ec] p-5 border-l-4 transition cursor-pointer"
+          [class.border-[#8a542f]]="tiendaSeleccionada?.id === tienda.id"
+          [class.border-transparent]="tiendaSeleccionada?.id !== tienda.id"
+          [class.ring-2]="tiendaSeleccionada?.id === tienda.id"
+          [class.ring-[#8a542f]]="tiendaSeleccionada?.id === tienda.id"
+        >
           <h2 class="text-xl font-bold text-[#2f1b12] mb-2">
-            Sucursal Paseo Durango
+            {{ tienda.name }}
           </h2>
 
           <p class="text-[#4b2e1f] text-sm mb-2">
-            Blvd. Felipe Pescador #1401, Durango, Dgo.
+            {{ tienda.address }},
+            {{ tienda.city }},
+            {{ tienda.state }}
+            <span *ngIf="tienda.postal_code">
+              , C.P. {{ tienda.postal_code }}
+            </span>
           </p>
 
-          <p class="text-[#4b2e1f] text-sm">
-            Lunes a domingo: 10:00 a.m. - 9:00 p.m.
+          <p *ngIf="tienda.schedule" class="text-[#4b2e1f] text-sm">
+            {{ tienda.schedule }}
           </p>
 
-          <button class="mt-4 bg-[#8a542f] hover:bg-[#6b3f26] text-white px-5 py-2 text-sm">
-            Ver ubicación
-          </button>
-        </div>
-
-        <div class="bg-[#fff8ec] p-5">
-          <h2 class="text-xl font-bold text-[#2f1b12] mb-2">
-            Sucursal Gómez Palacio
-          </h2>
-
-          <p class="text-[#4b2e1f] text-sm mb-2">
-            Av. Hidalgo #450, Gómez Palacio, Dgo.
+          <p *ngIf="tienda.phone" class="text-[#4b2e1f] text-sm mt-2">
+            Tel. {{ tienda.phone }}
           </p>
 
-          <p class="text-[#4b2e1f] text-sm">
-            Lunes a sábado: 9:00 a.m. - 8:00 p.m.
+          <p
+            *ngIf="tienda.distanciaKm !== undefined"
+            class="text-[#8a542f] text-sm font-bold mt-3"
+          >
+            A {{ tienda.distanciaKm }} km aproximadamente
           </p>
 
-          <button class="mt-4 bg-[#8a542f] hover:bg-[#6b3f26] text-white px-5 py-2 text-sm">
-            Ver ubicación
-          </button>
+          <div class="flex flex-col sm:flex-row gap-3 mt-4">
+            <button
+              type="button"
+              class="bg-[#8a542f] hover:bg-[#6b3f26] text-white px-5 py-2 text-sm"
+              (click)="seleccionarTienda(tienda)"
+            >
+              Ver ubicación
+            </button>
+
+            <button
+              type="button"
+              class="bg-[#2f1b12] hover:bg-[#1f100a] text-white px-5 py-2 text-sm"
+              (click)="abrirRuta(tienda)"
+            >
+              Cómo llegar
+            </button>
+          </div>
         </div>
 
       </section>
 
-      <!-- Mapa placeholder -->
+      <!-- Mapa -->
       <section class="bg-[#fff8ec] p-5">
 
-        <div class="h-[520px] bg-[#e7dccb] flex flex-col items-center justify-center text-center px-6">
+        <div class="h-[520px] bg-[#e7dccb] overflow-hidden">
 
-          <span class="text-7xl text-[#8b7355] mb-5">
-            🗺️
-          </span>
+          <ng-container *ngIf="mapaCargado; else cargandoMapa">
+            <google-map
+              height="100%"
+              width="100%"
+              [center]="center"
+              [zoom]="zoom"
+            >
+              <map-marker
+                *ngFor="let tienda of tiendas"
+                [position]="{ lat: +tienda.lat, lng: +tienda.lng }"
+                [title]="tienda.name"
+                (mapClick)="seleccionarTienda(tienda)"
+              ></map-marker>
+            </google-map>
+          </ng-container>
 
-          <h2 class="text-2xl font-bold text-[#2f1b12] mb-3">
-            Mapa de sucursales
-          </h2>
-
-          <p class="text-[#4b2e1f] max-w-md">
-            Aquí se mostrará el mapa interactivo con la ubicación real
-            de las sucursales cuando se conecte la API o Google Maps.
-          </p>
+          <ng-template #cargandoMapa>
+            <div class="h-full flex items-center justify-center text-[#5b2d16] font-bold">
+              Cargando mapa...
+            </div>
+          </ng-template>
 
         </div>
 

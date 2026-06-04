@@ -1,54 +1,72 @@
-<div class="min-h-[calc(100vh-210px)] bg-[#f5e6cf] flex justify-center pt-14">
+<section class="min-h-screen bg-[#f3e3cc] flex items-center justify-center px-4 py-14">
 
-  <section class="w-full max-w-[448px]">
+  <div class="w-full max-w-[460px] bg-[#fff8ec] shadow-xl border border-[#d8c4a8] rounded-2xl overflow-hidden">
 
-    <div class="bg-[#6b3418] text-white text-center px-7 py-9">
-      <h1 class="text-[28px] font-extrabold mb-3">
+    <!-- Encabezado -->
+    <div class="bg-[#5b2d16] px-8 py-9 text-center">
+      <h1 class="text-white text-3xl font-bold tracking-wide">
         Recuperar contraseña
       </h1>
 
-      <p class="text-base">
-        Accede nuevamente a tu cuenta Durango Western
+      <p class="text-[#f3e3cc] text-sm mt-3">
+        Recupera el acceso a tu cuenta Durango Western
       </p>
     </div>
 
-    <div class="px-8 py-10">
+    <!-- Formulario -->
+    <form class="px-8 py-9">
 
-      <p class="text-center text-[#1f120c] text-base leading-7 mb-8">
-        Ingresa el correo electrónico asociado a tu cuenta y te enviaremos instrucciones para restablecer tu contraseña.
+      <p class="text-center text-sm text-[#3b2618] leading-6 mb-8">
+        Ingresa el correo electrónico asociado a tu cuenta y te enviaremos
+        instrucciones para restablecer tu contraseña.
       </p>
 
-      @if(mensajeExito) {
-        <div class="bg-emerald-100 text-emerald-700 text-center px-4 py-3 mb-5 font-semibold text-sm">
-          Si el correo existe, recibirás un enlace de recuperación.
+      <div class="space-y-5">
+
+        <div>
+          <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+            Correo electrónico
+          </label>
+
+          <input
+            type="email"
+            name="email"
+            placeholder="ejemplo@correo.com"
+            autocomplete="email"
+            class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+          />
         </div>
-      }
 
-      <input
-        type="email"
-        [(ngModel)]="email"
-        placeholder="Correo electrónico"
-        class="w-full h-[43px] border border-[#8b7355] bg-white px-4 text-base mb-4 outline-none focus:border-[#8a542f]"
-      >
+        <button
+          type="button"
+          class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition"
+        >
+          ENVIAR ENLACE
+        </button>
 
-      <button
-        type="button"
-        (click)="enviarEnlace()"
-        class="w-full h-11 bg-[#9a5c30] hover:bg-[#6b3418] text-white text-sm font-semibold transition mb-4"
-      >
-        ENVIAR ENLACE
-      </button>
+        <div class="relative py-2">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-[#d8c4a8]"></div>
+          </div>
 
-      <button
-        type="button"
-        routerLink="/login"
-        class="w-full h-11 bg-[#9a5c30] hover:bg-[#6b3418] text-white text-sm font-semibold transition"
-      >
-        REGRESAR A INICIO DE SESIÓN
-      </button>
+          <div class="relative flex justify-center">
+            <span class="bg-[#fff8ec] px-4 text-xs text-[#6b4a34]">
+              o
+            </span>
+          </div>
+        </div>
 
-    </div>
+        <button
+          type="button"
+          routerLink="/login"
+          class="w-full h-12 rounded-lg border border-[#8b542f] bg-transparent text-[#5b2d16] text-sm font-bold tracking-wide hover:bg-[#f3e3cc] transition"
+        >
+          REGRESAR A INICIO DE SESIÓN
+        </button>
 
-  </section>
+      </div>
+    </form>
 
-</div>
+  </div>
+
+</section>

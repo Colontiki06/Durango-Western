@@ -1,60 +1,105 @@
-<section class="min-h-screen bg-[#f3e3cc] flex justify-center px-4 py-10">
-  <div class="w-full max-w-md bg-[#f3e3cc]">
+<section class="min-h-screen bg-[#f3e3cc] flex items-center justify-center px-4 py-14">
 
-    <!-- ENCABEZADO SIN IMAGEN -->
-    <div class="bg-[#5b2d16] py-8 px-6 text-center">
-      <h1 class="text-white text-2xl font-bold">
+  <div class="w-full max-w-[460px] bg-[#fff8ec] shadow-xl border border-[#d8c4a8] rounded-2xl overflow-hidden">
+
+    <!-- Encabezado -->
+    <div class="bg-[#5b2d16] px-8 py-9 text-center">
+      <h1 class="text-white text-3xl font-bold tracking-wide">
         Iniciar sesión
       </h1>
 
-      <p class="text-[#f3e3cc] text-sm mt-2">
+      <p class="text-[#f3e3cc] text-sm mt-3">
         Accede a tu cuenta Durango Western
       </p>
     </div>
 
-    <!-- FORMULARIO -->
-    <div class="px-8 py-10 bg-[#f3e3cc]">
-      <p class="text-center text-sm text-[#2b1a10] mb-8">
+    <!-- Formulario -->
+    <form class="px-8 py-9" (ngSubmit)="login()">
+
+      <p class="text-center text-sm text-[#3b2618] leading-6 mb-8">
         En caso de ya tener una cuenta existente, es necesario volver a registrar
         para poder ingresar en nuestro nuevo sitio web.
       </p>
 
-      <div class="space-y-4">
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          class="w-full border border-[#7b6b5b] bg-white px-4 py-2 outline-none focus:border-[#5b2d16]"
-        />
+      <div class="space-y-5">
 
-        <input
-          type="password"
-          placeholder="Contraseña"
-          class="w-full border border-[#7b6b5b] bg-white px-4 py-2 outline-none focus:border-[#5b2d16]"
-        />
+        <div>
+          <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+            Correo electrónico
+          </label>
 
-        <a
-          routerLink="/recuperar-contrasena"
-          class="block text-xs underline text-[#5b2d16] hover:text-[#3d1f10]"
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="ejemplo@correo.com"
+            autocomplete="email"
+            class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+            Contraseña
+          </label>
+
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="Ingresa tu contraseña"
+            autocomplete="current-password"
+            class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+          />
+        </div>
+
+        <div class="flex justify-end">
+          <a
+            routerLink="/recuperar-contrasena"
+            class="text-xs underline text-[#5b2d16] hover:text-[#8b542f]"
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+
+        <p
+          *ngIf="error"
+          class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg"
         >
-          ¿Olvidaste tu contraseña?
-        </a>
+          {{ error }}
+        </p>
 
         <button
-          type="button"
-          (click)="login()"
-          class="w-full bg-[#8b542f] text-white py-3 text-sm hover:bg-[#6f4022] transition"
+          type="submit"
+          [disabled]="loading"
+          class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          INICIAR SESIÓN
+          {{ loading ? 'INICIANDO SESIÓN...' : 'INICIAR SESIÓN' }}
         </button>
+
+        <div class="relative py-2">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-[#d8c4a8]"></div>
+          </div>
+
+          <div class="relative flex justify-center">
+            <span class="bg-[#fff8ec] px-4 text-xs text-[#6b4a34]">
+              o
+            </span>
+          </div>
+        </div>
 
         <button
           type="button"
           routerLink="/registro"
-          class="w-full bg-[#8b542f] text-white py-3 text-sm hover:bg-[#6f4022] transition"
+          class="w-full h-12 rounded-lg border border-[#8b542f] bg-transparent text-[#5b2d16] text-sm font-bold tracking-wide hover:bg-[#f3e3cc] transition"
         >
           CREAR CUENTA
         </button>
+
       </div>
-    </div>
+    </form>
+
   </div>
+
 </section>
