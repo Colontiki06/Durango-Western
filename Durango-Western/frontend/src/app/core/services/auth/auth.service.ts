@@ -1,66 +1,101 @@
-import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable } from '@angular/core';
 
-import { ApiService } from '../api/api.service';
-import { StorageService } from '../storage/storage.service';
-
-interface LoginRequest {
+export interface UsuarioSesion {
   email: string;
-  password: string;
-}
-
-interface AuthResponse {
+  loggedIn: boolean;
+  loginAt: string;
   token: string;
-  user: {
-    id: string;
-    nombre: string;
-    email: string;
-    rol?: string;
-  };
+  nombre?: string;
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private apiService = inject(ApiService);
-  private storageService = inject(StorageService);
+  private readonly storageKey = 'durango_western_user';
+  private readonly tokenKey = 'durango_western_token';
 
-  private readonly TOKEN_KEY = 'dw_token';
-  private readonly USER_KEY = 'dw_user';
+  login(email: string, password: string): boolean {
+    const correo = email.trim();
 
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
-  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+    if (!correo || !password.trim()) {
+      return false;
+    }
 
-  login(data: LoginRequest) {
-    return this.apiService.post<AuthResponse>('auth/login', data);
-  }
+    const usuarioExistente = this.getUser();
+    const tokenTemporal = usuarioExistente?.token || `demo-token-${Date.now()}`;
 
-  saveSession(response: AuthResponse): void {
-    this.storageService.setItem(this.TOKEN_KEY, response.token);
-    this.storageService.setItem(this.USER_KEY, response.user);
-    this.isAuthenticatedSubject.next(true);
+    const usuario: UsuarioSesion = {
+      email: correo,
+      loggedIn: true,
+      loginAt: new Date().toISOString(),
+      token: tokenTemporal,
+      nombre: usuarioExistente?.nombre || 'Sin nombre registrado',
+    };
+
+    localStorage.setItem(this.storageKey, JSON.stringify(usuario));
+    localStorage.setItem(this.tokenKey, tokenTemporal);
+
+    return true;
   }
 
   logout(): void {
-    this.storageService.removeItem(this.TOKEN_KEY);
-    this.storageService.removeItem(this.USER_KEY);
-    this.isAuthenticatedSubject.next(false);
-  }
-
-  getToken(): string | null {
-    return this.storageService.getItem<string>(this.TOKEN_KEY);
-  }
-
-  getUser<T>(): T | null {
-    return this.storageService.getItem<T>(this.USER_KEY);
+    localStorage.removeItem(this.storageKey);
+    localStorage.removeItem(this.tokenKey);
   }
 
   isAuthenticated(): boolean {
-    return this.hasToken();
+    const usuarioGuardado = localStorage.getItem(this.storageKey);
+    const token = this.getToken();
+
+    if (!usuarioGuardado || !token) {
+      return false;
+    }
+
+    try {
+      const usuario = JSON.parse(usuarioGuardado) as UsuarioSesion;
+      return usuario.loggedIn === true;
+    } catch {
+      this.logout();
+      return false;
+    }
   }
 
-  private hasToken(): boolean {
-    return !!this.storageService.getItem<string>(this.TOKEN_KEY);
+  getUser(): UsuarioSesion | null {
+    const usuarioGuardado = localStorage.getItem(this.storageKey);
+
+    if (!usuarioGuardado) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(usuarioGuardado) as UsuarioSesion;
+    } catch {
+      this.logout();
+      return null;
+    }
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  updateUser(data: Partial<UsuarioSesion>): void {
+    const usuarioActual = this.getUser();
+
+    if (!usuarioActual) {
+      return;
+    }
+
+    const usuarioActualizado: UsuarioSesion = {
+      ...usuarioActual,
+      ...data,
+    };
+
+    localStorage.setItem(this.storageKey, JSON.stringify(usuarioActualizado));
+
+    if (usuarioActualizado.token) {
+      localStorage.setItem(this.tokenKey, usuarioActualizado.token);
+    }
   }
 }

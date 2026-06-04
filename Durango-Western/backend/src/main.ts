@@ -6,8 +6,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:4200',
-    methods: 'GET,POST,PUT,DELETE,PATCH',
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true,
   });
 
@@ -18,7 +19,10 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT || 4000);
-  console.log(`Backend Vortiz corriendo en puerto ${process.env.PORT || 4000}`);
+  const port = process.env.PORT || 4000;
+  await app.listen(port);
+
+  console.log(`Backend Vortiz corriendo en puerto ${port}`);
 }
+
 bootstrap();

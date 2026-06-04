@@ -42,6 +42,10 @@ import { ConfiguracionesModule } from './configuraciones/configuraciones.module'
 import { AuditoriaModule } from './auditoria/auditoria.module';
 import { TallasModule } from './tallas/tallas.module';
 import { CategoriasModule } from './categorias/categorias.module';
+import { TiendasModule } from './tiendas/tiendas.module';
+
+// GOOGLE MAPS CONFIG
+import { GoogleMapsConfigModule } from './google-maps-config/google-maps-config.module';
 
 @Module({
   imports: [
@@ -94,6 +98,10 @@ import { CategoriasModule } from './categorias/categorias.module';
     StorageModule,
 
     TallasModule,
+
+    TiendasModule,
+
+    GoogleMapsConfigModule,
 
   ],
 

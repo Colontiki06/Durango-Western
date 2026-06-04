@@ -1,21 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
-interface Address {
-  id: number;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-}
-
-interface CustomerProfile {
-  fullName: string;
-  email: string;
-  addresses: Address[];
-}
+import {
+  AuthService,
+  UsuarioSesion,
+} from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-perfil',
@@ -24,76 +15,91 @@ interface CustomerProfile {
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
-export class Perfil {
+export class Perfil implements OnInit {
+  usuario: UsuarioSesion | null = null;
 
-  customer: CustomerProfile = {
-    fullName: '',
-    email: '',
-    addresses: [],
-  };
+  editandoPerfil = false;
 
-  newAddress: Address = {
-    id: 0,
-    street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-  };
+  nombreEdit = '';
+  correoEdit = '';
 
-  editAddressData: Address = {
-    id: 0,
-    street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-  };
+  mensaje = '';
+  error = '';
 
-  showAddAddressModal = false;
-  showEditAddressModal = false;
-  showEditProfileModal = false;
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-  addAddress(): void {
-    this.customer.addresses.push({
-      ...this.newAddress,
-      id: Date.now(),
-    });
-
-    this.newAddress = {
-      id: 0,
-      street: '',
-      city: '',
-      state: '',
-      zipCode: '',
-    };
-
-    this.showAddAddressModal = false;
+  ngOnInit(): void {
+    this.cargarUsuario();
   }
 
-  openEditAddress(address: Address): void {
-    this.editAddressData = { ...address };
-    this.showEditAddressModal = true;
+  cargarUsuario(): void {
+    this.usuario = this.authService.getUser();
+
+    this.nombreEdit = this.usuario?.nombre || 'Sin nombre registrado';
+    this.correoEdit = this.usuario?.email || '';
   }
 
-  saveEditedAddress(): void {
-    const index = this.customer.addresses.findIndex(
-      address => address.id === this.editAddressData.id
-    );
+  activarEdicion(): void {
+    this.error = '';
+    this.mensaje = '';
+    this.editandoPerfil = true;
 
-    if (index !== -1) {
-      this.customer.addresses[index] = { ...this.editAddressData };
+    this.nombreEdit = this.usuario?.nombre || '';
+    this.correoEdit = this.usuario?.email || '';
+  }
+
+  cancelarEdicion(): void {
+    this.editandoPerfil = false;
+    this.error = '';
+    this.mensaje = '';
+
+    this.nombreEdit = this.usuario?.nombre || '';
+    this.correoEdit = this.usuario?.email || '';
+  }
+
+  guardarPerfil(): void {
+    this.error = '';
+    this.mensaje = '';
+
+    if (!this.nombreEdit.trim()) {
+      this.error = 'El nombre no puede estar vacío.';
+      return;
     }
 
-    this.showEditAddressModal = false;
+    if (!this.correoEdit.trim()) {
+      this.error = 'El correo no puede estar vacío.';
+      return;
+    }
+
+    this.authService.updateUser({
+      nombre: this.nombreEdit.trim(),
+      email: this.correoEdit.trim(),
+    });
+
+    this.cargarUsuario();
+
+    this.editandoPerfil = false;
+    this.mensaje = 'Perfil actualizado correctamente.';
   }
 
-  deleteAddress(id: number): void {
-    this.customer.addresses = this.customer.addresses.filter(
-      address => address.id !== id
-    );
+  cerrarSesion(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
-  saveProfile(): void {
-    this.showEditProfileModal = false;
+  irAPedidos(): void {
+    this.router.navigate(['/pedidos']);
   }
 
+  irAMetodosPago(): void {
+    this.mensaje = 'La sección de métodos de pago se agregará más adelante.';
+  }
+
+  obtenerInicial(): string {
+    const nombre = this.usuario?.nombre || this.usuario?.email || 'U';
+    return nombre.charAt(0).toUpperCase();
+  }
 }
