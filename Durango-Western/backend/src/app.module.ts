@@ -78,6 +78,7 @@ import { CategoriasModule } from './categorias/categorias.module';
     EnviosModule,
     PedidosModule,
     PagosModule,
+    EnviosModule,
 
     // MARKETING
     PromocionesModule,

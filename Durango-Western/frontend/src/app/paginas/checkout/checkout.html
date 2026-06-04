@@ -127,6 +127,7 @@
 
                 <input
                   [(ngModel)]="direccion.codigoPostal"
+                  (blur)="cotizarEnvio()"
                   class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
                   placeholder="Código postal"
                 >
@@ -277,45 +278,67 @@
 
           <div class="border-t border-[#d8c5aa] pt-5 space-y-3 text-[#2f1b12]">
 
-            <div class="flex justify-between">
-              <span>Subtotal</span>
-              <span class="font-bold">
-                {{ subtotal() | currency:'MXN':'symbol':'1.0-0' }}
-              </span>
-            </div>
+  <div class="flex justify-between">
+    <span>Subtotal</span>
+    <span class="font-bold">
+      {{ subtotal() | currency:'MXN':'symbol':'1.0-0' }}
+    </span>
+  </div>
 
-            <div class="flex justify-between text-sm text-[#8a542f]">
-              <span>Envío</span>
+  <div class="flex justify-between items-center">
+    <span>Envío</span>
 
-              @if(tipoEntrega === 'tienda') {
-                <span class="font-bold text-emerald-700">
-                  Sin costo
-                </span>
-              }
+    @if(tipoEntrega === 'tienda') {
 
-              @else if(subtotal() >= envioGratisMinimo) {
-                <span class="font-bold text-emerald-700">
-                  Gratis
-                </span>
-              }
+      <span class="font-bold text-emerald-700">
+        Sin costo
+      </span>
 
-              @else {
-                <span>Se calculará después</span>
-              }
-            </div>
+    } @else {
 
-            <div class="border-t-2 border-[#2f1b12] pt-4 flex justify-between text-lg">
-              <span>Total</span>
-              <span class="font-bold">
-                {{ total() | currency:'MXN':'symbol':'1.0-0' }}
-              </span>
-            </div>
+      @if(envioGratis) {
 
-            <p class="text-xs text-[#8a542f] mt-3">
-              El costo final de envío se calculará antes del pago.
-            </p>
+        <span class="font-bold text-emerald-700">
+          Gratis
+        </span>
 
-          </div>
+      } @else {
+
+        <span class="font-bold">
+          {{ envio() | currency:'MXN':'symbol':'1.0-0' }}
+        </span>
+
+      }
+
+    }
+  </div>
+
+  @if(mensajeEnvio) {
+    <div
+      class="text-xs px-3 py-2 rounded-lg"
+      [ngClass]="envioGratis
+        ? 'bg-emerald-50 text-emerald-700'
+        : 'bg-[#f5ede1] text-[#8a542f]'"
+    >
+      {{ mensajeEnvio }}
+    </div>
+  }
+
+  <div class="border-t-2 border-[#2f1b12] pt-4 flex justify-between text-lg">
+    <span>Total</span>
+
+    <span class="font-bold">
+      {{ total() | currency:'MXN':'symbol':'1.0-0' }}
+    </span>
+  </div>
+
+  @if(tipoEntrega === 'domicilio' && !direccion.codigoPostal) {
+    <p class="text-xs text-[#8a542f]">
+      Ingresa tu código postal para calcular el envío.
+    </p>
+  }
+
+</div>
 
         </aside>
 

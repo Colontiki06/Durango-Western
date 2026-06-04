@@ -657,6 +657,7 @@ model pagos {
   created_at      DateTime? @default(now()) @db.Timestamptz(6)
   pedidos         pedidos?  @relation(fields: [pedido_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
+  @@unique([proveedor, referencia_pago], map: "pagos_proveedor_referencia_unique")
   @@schema("public")
 }
 
@@ -709,6 +710,7 @@ model pedidos {
   notas        String?
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
   updated_at   DateTime?      @default(now()) @db.Timestamptz(6)
+  estado_envio String?        @default("pendiente")
   envios       envios[]
   pagos        pagos[]
   pedido_items pedido_items[]
@@ -755,6 +757,10 @@ model producto_variantes {
   precio_extra           Decimal?                 @default(0) @db.Decimal(10, 2)
   activo                 Boolean?                 @default(true)
   created_at             DateTime?                @default(now()) @db.Timestamptz(6)
+  peso_kg                Decimal?                 @default(1) @db.Decimal
+  largo_cm               Decimal?                 @default(30) @db.Decimal
+  ancho_cm               Decimal?                 @default(20) @db.Decimal
+  alto_cm                Decimal?                 @default(10) @db.Decimal
   carrito_items          carrito_items[]
   inventario_movimientos inventario_movimientos[]
   pedido_items           pedido_items[]
@@ -842,6 +848,26 @@ model tallas {
   created_at         DateTime?            @default(now()) @db.Timestamptz(6)
   producto_variantes producto_variantes[]
 
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model tiendas {
+  id          String   @id(map: "stores_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  address     String
+  city        String
+  state       String
+  postal_code String?
+  phone       String?
+  schedule    String?
+  lat         Decimal  @db.Decimal(10, 7)
+  lng         Decimal  @db.Decimal(10, 7)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([is_active], map: "idx_stores_is_active")
   @@schema("public")
 }
 
