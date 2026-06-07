@@ -276,7 +276,7 @@
 
           </div>
 
-          <div class="border-t border-[#d8c5aa] pt-5 space-y-3 text-[#2f1b12]">
+          <div class="border-t border-[#d8c5aa] pt-5 space-y-4 text-[#2f1b12]">
 
   <div class="flex justify-between">
     <span>Subtotal</span>
@@ -285,31 +285,58 @@
     </span>
   </div>
 
+  @if(tipoEntrega === 'domicilio' && !envioGratis && tarifasEnvio.length > 0) {
+  <div class="space-y-2">
+    <p class="text-sm font-bold text-[#2f1b12]">
+      Elige tu tipo de envío
+    </p>
+
+    @for(opcion of tarifasEnvio; track opcion.tipo) {
+      <button
+        type="button"
+        (click)="seleccionarTarifaEnvio(opcion)"
+        class="w-full text-left border rounded-xl p-3 transition hover:bg-[#f5ede1]"
+        [ngClass]="tarifaEnvioSeleccionada?.id === opcion.tarifa?.id
+          ? 'border-[#9b6235] bg-[#f5ede1]'
+          : 'border-[#d8c5aa] bg-white'"
+      >
+        <div class="flex justify-between gap-3">
+          <div>
+            <p class="font-bold">
+              {{ opcion.tipo }}
+            </p>
+
+            <p class="text-xs text-[#8a542f]">
+              {{ opcion.descripcion }}
+            </p>
+
+            <p class="text-xs text-[#4b2e1f] mt-1">
+              {{ opcion.tarifa?.paqueteria }} ·
+              {{ opcion.tarifa?.servicio }} ·
+              {{ opcion.tarifa?.dias }} día(s) hábil(es)
+            </p>
+          </div>
+
+          <span class="font-bold">
+            {{ opcion.tarifa?.total | currency:'MXN':'symbol':'1.0-0' }}
+          </span>
+        </div>
+      </button>
+    }
+  </div>
+}
+
   <div class="flex justify-between items-center">
     <span>Envío</span>
 
     @if(tipoEntrega === 'tienda') {
-
-      <span class="font-bold text-emerald-700">
-        Sin costo
-      </span>
-
+      <span class="font-bold text-emerald-700">Sin costo</span>
+    } @else if(envioGratis) {
+      <span class="font-bold text-emerald-700">Gratis</span>
     } @else {
-
-      @if(envioGratis) {
-
-        <span class="font-bold text-emerald-700">
-          Gratis
-        </span>
-
-      } @else {
-
-        <span class="font-bold">
-          {{ envio() | currency:'MXN':'symbol':'1.0-0' }}
-        </span>
-
-      }
-
+      <span class="font-bold">
+        {{ envio() | currency:'MXN':'symbol':'1.0-0' }}
+      </span>
     }
   </div>
 
@@ -326,17 +353,10 @@
 
   <div class="border-t-2 border-[#2f1b12] pt-4 flex justify-between text-lg">
     <span>Total</span>
-
     <span class="font-bold">
       {{ total() | currency:'MXN':'symbol':'1.0-0' }}
     </span>
   </div>
-
-  @if(tipoEntrega === 'domicilio' && !direccion.codigoPostal) {
-    <p class="text-xs text-[#8a542f]">
-      Ingresa tu código postal para calcular el envío.
-    </p>
-  }
 
 </div>
 

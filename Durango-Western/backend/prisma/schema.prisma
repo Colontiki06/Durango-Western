@@ -612,18 +612,27 @@ model direcciones {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model envios {
-  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  pedido_id      String?      @db.Uuid
-  paqueteria_id  String?      @db.Uuid
-  numero_guia    String?
-  estado         String?      @default("preparando")
-  fecha_envio    DateTime?    @db.Timestamptz(6)
-  fecha_estimada DateTime?    @db.Timestamptz(6)
-  fecha_entrega  DateTime?    @db.Timestamptz(6)
-  created_at     DateTime?    @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime?    @default(now()) @db.Timestamptz(6)
-  paqueterias    paqueterias? @relation(fields: [paqueteria_id], references: [id], onUpdate: NoAction)
-  pedidos        pedidos?     @relation(fields: [pedido_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                    String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pedido_id             String?      @db.Uuid
+  paqueteria_id         String?      @db.Uuid
+  numero_guia           String?
+  estado                String?      @default("preparando")
+
+  servicio              String?
+  costo                 Decimal?     @db.Decimal(10, 2)
+  dias_estimados        Int?
+  skydropx_rate_id      String?
+  skydropx_quotation_id String?
+
+  fecha_envio           DateTime?    @db.Timestamptz(6)
+  fecha_estimada        DateTime?    @db.Timestamptz(6)
+  fecha_entrega         DateTime?    @db.Timestamptz(6)
+
+  created_at            DateTime?    @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime?    @default(now()) @db.Timestamptz(6)
+
+  paqueterias           paqueterias? @relation(fields: [paqueteria_id], references: [id], onUpdate: NoAction)
+  pedidos               pedidos?     @relation(fields: [pedido_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -711,6 +720,7 @@ model pedidos {
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
   updated_at   DateTime?      @default(now()) @db.Timestamptz(6)
   estado_envio String?        @default("pendiente")
+  tipo_entrega String? @default("domicilio")
   envios       envios[]
   pagos        pagos[]
   pedido_items pedido_items[]

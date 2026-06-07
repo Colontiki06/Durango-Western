@@ -26,6 +26,8 @@ export class Checkout {
   costoEnvio = 0;
   envioGratis = false;
   mensajeEnvio = '';
+  tarifasEnvio: any[] = [];
+  tarifaEnvioSeleccionada: any = null;
 
   cliente = {
     nombre: '',
@@ -84,6 +86,7 @@ export class Checkout {
     }
   }
 
+  skydropxQuotationId = '';
   cotizarEnvio(): void {
     if (this.tipoEntrega !== 'domicilio') return;
 
@@ -108,15 +111,35 @@ export class Checkout {
   }))
 }).subscribe({
       next: (respuesta) => {
-        this.costoEnvio = Number(respuesta.costoEnvio ?? 0);
-        this.envioGratis = Boolean(respuesta.envioGratis);
+  this.skydropxQuotationId = respuesta.skydropxQuotationId ?? '';     
+  this.tarifasEnvio = [
+  {
+    tipo: 'Económico',
+    descripcion: 'La opción más barata',
+    tarifa: respuesta.opcionEconomica,
+  },
+  {
+    tipo: 'Recomendado',
+    descripcion: 'Balance entre precio y tiempo',
+    tarifa: respuesta.opcionRecomendada,
+  },
+  {
+    tipo: 'Express',
+    descripcion: 'La opción más rápida',
+    tarifa: respuesta.opcionExpress,
+  },
+];
+  this.tarifaEnvioSeleccionada = respuesta.tarifaSeleccionada ?? null;
 
-        this.mensajeEnvio = this.envioGratis
-          ? 'Tu compra tiene envío gratis'
-          : `Costo de envío calculado`;
+  this.costoEnvio = Number(respuesta.costoEnvio ?? 0);
+  this.envioGratis = Boolean(respuesta.envioGratis);
 
-        this.cotizandoEnvio = false;
-      },
+  this.mensajeEnvio = this.envioGratis
+    ? 'Tu compra tiene envío gratis'
+    : 'Selecciona la paquetería que prefieras';
+
+  this.cotizandoEnvio = false;
+},
       error: (error) => {
         console.error('Error cotizando envío:', error);
         this.costoEnvio = 0;
@@ -128,80 +151,118 @@ export class Checkout {
   }
 
   realizarPedido(): void {
-    if (this.carritoVacio()) {
-      alert('Tu carrito está vacío');
-      return;
-    }
-
-    if (!this.cliente.nombre || !this.cliente.correo || !this.cliente.telefono) {
-      alert('Completa tus datos de contacto');
-      return;
-    }
-
-    if (this.tipoEntrega === 'domicilio') {
-      if (
-        !this.direccion.codigoPostal ||
-        !this.direccion.calle ||
-        !this.direccion.numeroExterior ||
-        !this.direccion.colonia ||
-        !this.direccion.ciudad ||
-        !this.direccion.estado
-      ) {
-        alert('Completa tu dirección de envío');
-        return;
-      }
-    }
-
-    this.cargando = true;
-
-    const payload = {
-      cliente: this.cliente,
-      direccion: this.tipoEntrega === 'domicilio' ? this.direccion : null,
-      tipoEntrega: this.tipoEntrega,
-      envio: this.envio(),
-      subtotal: this.subtotal(),
-      total: this.total(),
-      items: this.items().map(item => ({
-        producto_id: item.producto_id || item.id,
-        variante_id: item.variante_id,
-        nombre: item.nombre,
-        codigo: item.codigo,
-        talla: item.talla,
-        precio: item.precio,
-        cantidad: item.cantidad
-      }))
-    };
-
-    this.api.post<any>('pedidos', payload).subscribe({
-      next: (pedido) => {
-        localStorage.setItem('pedido_actual', JSON.stringify(pedido));
-
-        this.api.post<any>('pagos/mercado-pago/preferencia', {
-          pedidoId: pedido.id
-        }).subscribe({
-          next: (respuesta) => {
-            const urlPago = respuesta.sandbox_init_point || respuesta.init_point;
-
-            if (!urlPago) {
-              alert('No se pudo generar la liga de pago.');
-              this.cargando = false;
-              return;
-            }
-
-            window.location.href = urlPago;
-          },
-          error: (error) => {
-            console.error('Error creando preferencia:', error);
-            alert('El pedido fue creado, pero no se pudo iniciar el pago.');
-            this.cargando = false;
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Error creando pedido:', error);
-        alert(error?.error?.message || 'No fue posible crear el pedido.');
-        this.cargando = false;
-      }
-    });
+  if (this.carritoVacio()) {
+    alert('Tu carrito está vacío');
+    return;
   }
+
+  if (!this.cliente.nombre || !this.cliente.correo || !this.cliente.telefono) {
+    alert('Completa tus datos de contacto');
+    return;
+  }
+
+  if (this.tipoEntrega === 'domicilio') {
+    if (
+      !this.direccion.codigoPostal ||
+      !this.direccion.calle ||
+      !this.direccion.numeroExterior ||
+      !this.direccion.colonia ||
+      !this.direccion.ciudad ||
+      !this.direccion.estado
+    ) {
+      alert('Completa tu dirección de envío');
+      return;
+    }
+  }
+
+  this.cargando = true;
+
+  const payload = {
+    cliente: this.cliente,
+    direccion: this.tipoEntrega === 'domicilio'
+      ? this.direccion
+      : null,
+    tipoEntrega: this.tipoEntrega,
+    envio: this.envio(),
+    subtotal: this.subtotal(),
+    total: this.total(),
+    tarifaEnvio: this.tarifaEnvioSeleccionada,
+    skydropxQuotationId: this.skydropxQuotationId,
+    items: this.items().map(item => ({
+      producto_id: item.producto_id || item.id,
+      variante_id: item.variante_id,
+      nombre: item.nombre,
+      codigo: item.codigo,
+      talla: item.talla,
+      precio: item.precio,
+      cantidad: item.cantidad
+    }))
+  };
+
+  this.api.post<any>('pedidos', payload).subscribe({
+    next: (pedido) => {
+      console.log('PEDIDO CREADO', pedido);
+
+      localStorage.setItem(
+        'pedido_actual',
+        JSON.stringify(pedido)
+      );
+
+      this.api.post<any>(
+        'pagos/mercado-pago/preferencia',
+        {
+          pedidoId: pedido.id
+        }
+      ).subscribe({
+        next: (respuesta) => {
+          console.log('RESPUESTA MP', respuesta);
+
+          const urlPago =
+            respuesta.sandbox_init_point ||
+            respuesta.init_point;
+
+          if (!urlPago) {
+            alert('No se pudo generar la liga de pago.');
+            this.cargando = false;
+            return;
+          }
+
+          window.location.href = urlPago;
+        },
+        error: (error) => {
+          console.error(
+            'Error creando preferencia:',
+            error
+          );
+
+          alert(
+            'El pedido fue creado, pero no se pudo iniciar el pago.'
+          );
+
+          this.cargando = false;
+        }
+      });
+    },
+    error: (error) => {
+      console.error('Error creando pedido:', error);
+
+      alert(
+        error?.error?.message ||
+        'No fue posible crear el pedido.'
+      );
+
+      this.cargando = false;
+    }
+  });
+}
+
+  seleccionarTarifaEnvio(opcion: any): void {
+  if (this.envioGratis) return;
+
+  const tarifa = opcion?.tarifa ?? opcion;
+
+  this.tarifaEnvioSeleccionada = tarifa;
+  this.costoEnvio = Number(tarifa?.total ?? 0);
+}
+
 }

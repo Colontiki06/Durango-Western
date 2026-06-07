@@ -108,20 +108,58 @@ export class PedidosService {
       });
     }
 
+    const envioCalculado = Number(data.envio ?? 0);
+    const totalCalculado = subtotal + envioCalculado;
+    const tarifaEnvio = data.tarifaEnvio ?? null;
+
     const pedido = await this.prisma.pedidos.create({
-      data: {
-        folio,
-        subtotal,
-        envio: 0,
-        total: subtotal,
-        estado: 'pendiente',
-        metodo_pago: 'mercado_pago',
-        direccion_id: direccionCreada?.id ?? null,
-        notas: data.tipoEntrega === 'tienda'
-          ? `Recolección en tienda. Cliente: ${data.cliente?.nombre ?? ''}, Tel: ${data.cliente?.telefono ?? ''}, Correo: ${data.cliente?.correo ?? ''}`
-          : `Cliente: ${data.cliente?.nombre ?? ''}, Tel: ${data.cliente?.telefono ?? ''}, Correo: ${data.cliente?.correo ?? ''}`,
+  data: {
+    folio,
+    subtotal,
+    envio: envioCalculado,
+    total: totalCalculado,
+    estado: 'pendiente',
+    metodo_pago: 'mercado_pago',
+    tipo_entrega: data.tipoEntrega ?? 'domicilio',
+    direccion_id: direccionCreada?.id ?? null,
+    notas: data.tipoEntrega === 'tienda'
+      ? `Recolección en tienda. Cliente: ${data.cliente?.nombre ?? ''}, Tel: ${data.cliente?.telefono ?? ''}, Correo: ${data.cliente?.correo ?? ''}`
+      : `Cliente: ${data.cliente?.nombre ?? ''}, Tel: ${data.cliente?.telefono ?? ''}, Correo: ${data.cliente?.correo ?? ''}`,
+  },
+});
+
+    if (data.tipoEntrega === 'domicilio' && tarifaEnvio) {
+  let paqueteriaId: string | null = null;
+
+  if (tarifaEnvio.paqueteria) {
+    const paqueteria = await this.prisma.paqueterias.findFirst({
+      where: {
+        nombre: {
+          equals: String(tarifaEnvio.paqueteria).trim(),
+          mode: 'insensitive',
+        },
+        activa: true,
       },
     });
+
+    if (paqueteria) {
+      paqueteriaId = paqueteria.id;
+    }
+  }
+
+  await this.prisma.envios.create({
+    data: {
+      pedido_id: pedido.id,
+      paqueteria_id: paqueteriaId,
+      estado: 'pendiente',
+      servicio: tarifaEnvio.servicio ?? null,
+      costo: Number(envioCalculado),
+      dias_estimados: tarifaEnvio.dias ?? null,
+      skydropx_rate_id: tarifaEnvio.id ?? null,
+      skydropx_quotation_id: data.skydropxQuotationId ?? null,
+    },
+  });
+}
 
     for (const item of data.items) {
       const cantidad = Number(item.cantidad);
@@ -151,7 +189,11 @@ export class PedidosService {
         pedido_items: true,
         direcciones: true,
         pagos: true,
-        envios: true,
+        envios: {
+  include: {
+    paqueterias: true,
+  },
+},
       },
       orderBy: {
         created_at: 'desc',
@@ -159,32 +201,130 @@ export class PedidosService {
     });
   }
 
-  async findOne(id: string) {
-    return this.prisma.pedidos.findUnique({
-      where: {
-        id,
+async findOne(id: string) {
+  return this.prisma.pedidos.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      pedido_items: true,
+      pagos: true,
+      envios: {
+        include: {
+          paqueterias: true,
+        },
       },
-      include: {
-        pedido_items: true,
-        pagos: true,
-        envios: true,
-        direcciones: true,
-      },
-    });
-  }
+      direcciones: true,
+    },
+  });
+}
 
- async actualizarEstadoEnvio(id: string, estado_envio: string) {
+async actualizarEstadoEnvio(id: string, estado_envio: string) {
   const estadosPermitidos = [
     'pendiente',
     'preparando',
     'empacado',
     'enviado',
+    'listo_recoger',
     'entregado',
     'cancelado',
   ];
 
   if (!estadosPermitidos.includes(estado_envio)) {
-    throw new Error('Estado de envío no válido');
+    throw new BadRequestException('Estado de envío no válido');
+  }
+
+  const pedidoActual: any = await this.prisma.pedidos.findUnique({
+    where: { id },
+    include: {
+      envios: true,
+    },
+  });
+
+  if (!pedidoActual) {
+    throw new BadRequestException('Pedido no encontrado');
+  }
+
+  const estadoActual = pedidoActual.estado_envio ?? 'pendiente';
+
+  const esRecoleccionTienda =
+    pedidoActual.tipo_entrega === 'tienda' ||
+    String(pedidoActual.notas ?? '').toLowerCase().includes('recolección en tienda') ||
+    String(pedidoActual.notas ?? '').toLowerCase().includes('recoleccion en tienda');
+
+  if (esRecoleccionTienda) {
+    const estadosTienda = [
+      'pendiente',
+      'preparando',
+      'listo_recoger',
+      'entregado',
+      'cancelado',
+    ];
+
+    if (!estadosTienda.includes(estado_envio)) {
+      throw new BadRequestException(
+        'Este pedido es para recolección en tienda y no puede usar estados de envío a domicilio',
+      );
+    }
+  }
+
+  if (!esRecoleccionTienda && estado_envio === 'listo_recoger') {
+    throw new BadRequestException(
+      'El estado listo para recoger solo aplica para recolección en tienda',
+    );
+  }
+
+  if (
+    estadoActual === 'enviado' &&
+    ['pendiente', 'preparando', 'empacado'].includes(estado_envio)
+  ) {
+    throw new BadRequestException(
+      'No puedes regresar un pedido enviado a pendiente, preparando o empacado',
+    );
+  }
+
+  if (estadoActual === 'entregado' && estado_envio !== 'entregado') {
+    throw new BadRequestException(
+      'No puedes cambiar el estado de un pedido que ya fue entregado',
+    );
+  }
+
+  const envio = pedidoActual.envios?.[0];
+
+  if (!esRecoleccionTienda && estado_envio === 'enviado') {
+    if (!envio) {
+      throw new BadRequestException('Este pedido no tiene envío registrado');
+    }
+
+    if (!envio.numero_guia || !envio.paqueteria_id) {
+      throw new BadRequestException(
+        'Debes guardar la paquetería y el número de guía antes de marcar como enviado',
+      );
+    }
+  }
+
+  if (envio) {
+    if (estado_envio === 'enviado' && estadoActual !== 'enviado') {
+      await this.prisma.envios.update({
+        where: { id: envio.id },
+        data: {
+          estado: 'enviado',
+          fecha_envio: new Date(),
+          updated_at: new Date(),
+        },
+      });
+    }
+
+    if (estado_envio === 'entregado' && estadoActual !== 'entregado') {
+      await this.prisma.envios.update({
+        where: { id: envio.id },
+        data: {
+          estado: 'entregado',
+          fecha_entrega: new Date(),
+          updated_at: new Date(),
+        },
+      });
+    }
   }
 
   return this.prisma.pedidos.update({
@@ -197,7 +337,11 @@ export class PedidosService {
       pedido_items: true,
       direcciones: true,
       pagos: true,
-      envios: true,
+      envios: {
+        include: {
+          paqueterias: true,
+        },
+      },
     },
   });
 }

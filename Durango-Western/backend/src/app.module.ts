@@ -46,6 +46,7 @@ import { TiendasModule } from './tiendas/tiendas.module';
 
 // GOOGLE MAPS CONFIG
 import { GoogleMapsConfigModule } from './google-maps-config/google-maps-config.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -103,6 +104,8 @@ import { GoogleMapsConfigModule } from './google-maps-config/google-maps-config.
     TiendasModule,
 
     GoogleMapsConfigModule,
+
+    DashboardModule,
 
   ],
 

@@ -1,103 +1,304 @@
 <div class="p-4 sm:p-5 md:p-8">
 
-  <div class="mb-8 md:mb-10">
-    <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
-      Dashboard
-    </h1>
+  <div class="mb-8 md:mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+        Dashboard
+      </h1>
 
-    <p class="text-[#8a542f] mt-2">
-      Resumen general de ventas, pedidos e inventario.
-    </p>
+      <p class="text-[#8a542f] mt-2">
+        Resumen general de ventas, pedidos e inventario.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      (click)="cargarDashboard()"
+      class="bg-[#9b6235] hover:bg-[#7d4e2a] text-white px-5 py-3 rounded-xl font-bold transition disabled:opacity-60"
+      [disabled]="loading()"
+    >
+      {{ loading() ? 'Actualizando...' : 'Actualizar' }}
+    </button>
   </div>
 
-  <!-- KPIs -->
-  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
-
-    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
-      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
-        Ventas del mes
+  @if(loading()) {
+    <div class="bg-white rounded-2xl p-8 shadow-md border border-[#eadcc7] text-center mb-6">
+      <p class="text-[#8a542f] font-semibold">
+        Cargando dashboard...
       </p>
+    </div>
+  }
 
+  <!-- KPIs principales -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
+
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">Ventas del mes</p>
       <h2 class="text-3xl md:text-4xl font-bold text-[#2f1b12] break-words">
-        $50,000
+        {{ resumen().ventasMes | currency:'MXN' }}
       </h2>
+      <p class="text-xs text-[#8a542f] mt-3">Ventas aprobadas del mes actual</p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
-      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
-        Pedidos
-      </p>
-
-      <h2 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
-        132
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">Ventas de hoy</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-[#2f1b12] break-words">
+        {{ resumen().ventasHoy | currency:'MXN' }}
       </h2>
+      <p class="text-xs text-[#8a542f] mt-3">Pagos aprobados durante el día</p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md sm:col-span-2 xl:col-span-1">
-      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
-        Productos activos
-      </p>
-
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">Pedidos pagados</p>
       <h2 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
-        86
+        {{ resumen().pedidosPagados }}
       </h2>
+      <p class="text-xs text-[#8a542f] mt-3">Pedidos confirmados</p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">Stock bajo</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+        {{ resumen().stockBajo }}
+      </h2>
+      <p class="text-xs text-[#8a542f] mt-3">Variantes con 3 piezas o menos</p>
+    </div>
+
+  </section>
+
+  <!-- Estado operativo -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
+
+    <div class="bg-white rounded-2xl p-5 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] text-sm">Pendientes</p>
+      <h3 class="text-3xl font-bold text-[#2f1b12] mt-2">
+        {{ resumen().pedidosPendientes }}
+      </h3>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] text-sm">Enviados</p>
+      <h3 class="text-3xl font-bold text-[#2f1b12] mt-2">
+        {{ resumen().pedidosEnviados }}
+      </h3>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] text-sm">Entregados</p>
+      <h3 class="text-3xl font-bold text-[#2f1b12] mt-2">
+        {{ resumen().pedidosEntregados }}
+      </h3>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-md border border-[#eadcc7]">
+      <p class="text-[#8a542f] text-sm">Productos activos</p>
+      <h3 class="text-3xl font-bold text-[#2f1b12] mt-2">
+        {{ resumen().productosActivos }}
+      </h3>
     </div>
 
   </section>
 
   <!-- Grid principal -->
-  <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8">
+  <section class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6 md:gap-8">
 
-    <!-- Gráfica -->
-    <div class="xl:col-span-2 bg-white rounded-2xl p-5 md:p-6 shadow-md">
+    <div class="space-y-6">
 
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12]">
-          Ventas del mes
-        </h2>
+      <!-- Gráfica -->
+      <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
 
-        <span class="bg-[#f5ede1] text-[#8a542f] px-4 py-2 rounded-full text-sm font-semibold w-fit">
-          Mayo 2026
-        </span>
-      </div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <div>
+            <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12]">
+              Ventas de junio 2026
+            </h2>
 
-      <div class="h-[220px] sm:h-[260px] md:h-[320px] bg-[#f5ede1] rounded-xl flex items-center justify-center text-center px-4 text-[#4b2e1f] font-semibold">
-        📊 Gráfica próximamente
-      </div>
+            <p class="text-sm text-[#8a542f] mt-1">
+              Comportamiento diario de ventas aprobadas.
+            </p>
+          </div>
 
-    </div>
-
-    <!-- Más vendido -->
-    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
-
-      <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-6">
-        Más vendido
-      </h2>
-
-      <div class="bg-[#f5ede1] p-4 rounded-xl">
-
-        <div class="h-[180px] sm:h-[220px] xl:h-[200px] bg-[#e7dccb] rounded-lg mb-4 flex items-center justify-center text-6xl">
-          🥾
+          <span class="bg-[#f5ede1] text-[#8a542f] px-4 py-2 rounded-full text-sm font-semibold w-fit">
+            Mes actual
+          </span>
         </div>
 
-        <h3 class="font-bold text-[#2f1b12] text-lg">
-          Bota Durango Clásica
-        </h3>
+        <div class="relative w-full h-[360px]">
+          <canvas id="ventasChartCanvas"></canvas>
+        </div>
 
-        <p class="text-[#8a542f] font-semibold mt-2">
-          $3,200 MXN
-        </p>
+      </div>
 
-        <button
-          type="button"
-          class="mt-5 w-full bg-[#4b2e1f] hover:bg-[#6b3f26] text-white py-3 rounded-xl font-semibold transition"
-        >
-          Ver producto
-        </button>
+      <!-- Resumen compacto -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div class="bg-[#fff8ec] rounded-xl p-5 border border-[#eadcc7]">
+          <p class="text-[#8a542f] text-sm">Ventas del mes</p>
+          <p class="text-2xl font-bold text-[#2f1b12] mt-2">
+            {{ resumen().ventasMes | currency:'MXN' }}
+          </p>
+        </div>
+
+        <div class="bg-[#fff8ec] rounded-xl p-5 border border-[#eadcc7]">
+          <p class="text-[#8a542f] text-sm">Pedidos pagados</p>
+          <p class="text-2xl font-bold text-[#2f1b12] mt-2">
+            {{ resumen().pedidosPagados }}
+          </p>
+        </div>
+
+        <div class="bg-[#fff8ec] rounded-xl p-5 border border-[#eadcc7]">
+          <p class="text-[#8a542f] text-sm">Productos activos</p>
+          <p class="text-2xl font-bold text-[#2f1b12] mt-2">
+            {{ resumen().productosActivos }}
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Últimos pedidos -->
+      <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+
+        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-6">
+          Últimos pedidos
+        </h2>
+
+        @if(resumen().ultimosPedidos.length === 0) {
+          <p class="text-[#8a542f]">
+            Aún no hay pedidos recientes.
+          </p>
+        } @else {
+          <div class="space-y-4">
+
+            @for(pedido of resumen().ultimosPedidos; track pedido.id) {
+              <a
+                [routerLink]="['/admin/pedidos', pedido.id]"
+                class="block bg-white border border-[#eadcc7] rounded-2xl p-4 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-2xl hover:border-[#9b6235] hover:bg-[#fffaf3] hover:scale-[1.02]"
+              >
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+                  <div>
+                    <p class="font-bold text-[#2f1b12] text-lg">
+                      {{ pedido.folio }}
+                    </p>
+
+                    <p class="text-sm text-[#8a542f]">
+                      {{ pedido.notas || 'Cliente no registrado' }}
+                    </p>
+                  </div>
+
+                  <div class="flex items-center gap-4 md:justify-end">
+
+                    <div class="text-left md:text-right">
+                      <p class="font-bold text-[#2f1b12]">
+                        {{ pedido.total | currency:'MXN' }}
+                      </p>
+
+                      <p class="text-xs text-[#8a542f]">
+                        {{ pedido.created_at | date:'d MMM y' }}
+                      </p>
+                    </div>
+
+                    <div class="w-10 h-10 rounded-full bg-[#f5ede1] flex items-center justify-center text-[#9b6235] font-bold">
+                      →
+                    </div>
+
+                  </div>
+
+                </div>
+              </a>
+            }
+
+          </div>
+        }
 
       </div>
 
     </div>
+
+    <!-- Lateral -->
+    <aside class="space-y-6">
+
+      <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+
+        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-6">
+          Más vendido
+        </h2>
+
+        @if(resumen().productoMasVendido) {
+          <div class="bg-[#f5ede1] p-4 rounded-xl">
+
+            <div class="h-[180px] bg-[#e7dccb] rounded-lg mb-4 overflow-hidden flex items-center justify-center">
+              @if(resumen().productoMasVendido?.imagen_url) {
+                <img
+                  [src]="resumen().productoMasVendido.imagen_url"
+                  [alt]="resumen().productoMasVendido.nombre_producto"
+                  class="w-full h-full object-cover"
+                >
+              } @else {
+                <span class="text-6xl">🥾</span>
+              }
+            </div>
+
+            <h3 class="font-bold text-[#2f1b12] text-lg">
+              {{ resumen().productoMasVendido.nombre_producto }}
+            </h3>
+
+            <p class="text-[#8a542f] font-semibold mt-2">
+              Vendidos: {{ resumen().productoMasVendido.cantidad_vendida }}
+            </p>
+
+          </div>
+        } @else {
+          <div class="bg-[#f5ede1] p-4 rounded-xl text-[#8a542f]">
+            Todavía no hay ventas suficientes.
+          </div>
+        }
+
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+
+        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-[#eadcc7]">
+
+  <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-4">
+    Alertas de stock
+  </h2>
+
+  @if(resumen().stockBajo > 0) {
+    <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl p-4 font-semibold mb-4">
+      Hay {{ resumen().stockBajo }} variante(s) con stock bajo.
+    </div>
+
+    <div class="space-y-3">
+      @for(item of resumen().productosStockBajo; track item.id) {
+        <div class="bg-[#fff8ec] border border-[#eadcc7] rounded-xl p-3">
+          <p class="font-bold text-[#2f1b12] text-sm">
+            {{ item.producto }}
+          </p>
+
+          <p class="text-xs text-[#8a542f] mt-1">
+            SKU: {{ item.sku }} · Talla: {{ item.talla }} · Color: {{ item.color }}
+          </p>
+
+          <p
+            class="mt-2 text-sm font-bold"
+            [ngClass]="item.stock <= 1 ? 'text-red-700' : 'text-yellow-700'"
+          >
+            Stock: {{ item.stock }}
+          </p>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl p-4 font-semibold">
+      Inventario en buen estado.
+    </div>
+  }
+
+</div>
+      </div>
+
+    </aside>
 
   </section>
 

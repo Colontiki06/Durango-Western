@@ -22,6 +22,7 @@ export class AgregarProducto implements OnInit {
   categorias = signal<any[]>([]);
   tallas = signal<any[]>([]);
 
+
   producto: any = {
   nombre: '',
   precio: 0,
@@ -33,10 +34,14 @@ export class AgregarProducto implements OnInit {
 };
 
   nuevaVariante = {
-    talla_id: '',
-    stock: 0,
-    precio_extra: 0
-  };
+  talla_id: '',
+  stock: 0,
+  precio_extra: 0,
+  peso_kg: 1,
+  largo_cm: 30,
+  ancho_cm: 20,
+  alto_cm: 10
+};
 
   imagenesSeleccionadas: File[] = [];
   previews: string[] = [];
@@ -82,14 +87,22 @@ export class AgregarProducto implements OnInit {
       talla_nombre: talla?.nombre ?? '',
       talla_tipo: talla?.tipo ?? '',
       stock: Number(this.nuevaVariante.stock ?? 0),
-      precio_extra: Number(this.nuevaVariante.precio_extra ?? 0)
+      precio_extra: Number(this.nuevaVariante.precio_extra ?? 0), 
+      peso_kg: Number(this.nuevaVariante.peso_kg ?? 1),
+      largo_cm: Number(this.nuevaVariante.largo_cm ?? 30),
+      ancho_cm: Number(this.nuevaVariante.ancho_cm ?? 20),
+      alto_cm: Number(this.nuevaVariante.alto_cm ?? 10),
     });
 
     this.nuevaVariante = {
-      talla_id: '',
-      stock: 0,
-      precio_extra: 0
-    };
+  talla_id: '',
+  stock: 0,
+  precio_extra: 0,
+  peso_kg: 1,
+  largo_cm: 30,
+  ancho_cm: 20,
+  alto_cm: 10
+};
   }
 
   eliminarVariante(index: number): void {
@@ -146,6 +159,10 @@ export class AgregarProducto implements OnInit {
       variantes: this.producto.variantes.map((v: any) => ({
         talla_id: v.talla_id,
         stock: Number(v.stock),
+        peso_kg: Number(v.peso_kg ?? 1),
+        largo_cm: Number(v.largo_cm ?? 30),
+        ancho_cm: Number(v.ancho_cm ?? 20),
+        alto_cm: Number(v.alto_cm ?? 10),
         precio_extra: Number(v.precio_extra ?? 0)
       }))
     };
@@ -179,6 +196,35 @@ export class AgregarProducto implements OnInit {
             this.router.navigate(['/admin/editar-producto', productoCreado.id]);
           }
         });
+
+        for (const variante of this.producto.variantes) {
+
+  if (Number(variante.stock) < 0) {
+    alert(`La talla ${variante.talla_nombre} tiene stock inválido`);
+    return;
+  }
+
+  if (!Number.isInteger(Number(variante.peso_kg)) || Number(variante.peso_kg) <= 0) {
+    alert(`La talla ${variante.talla_nombre} debe tener un peso válido`);
+    return;
+  }
+
+  if (!Number.isInteger(Number(variante.largo_cm)) || Number(variante.largo_cm) <= 0) {
+    alert(`La talla ${variante.talla_nombre} debe tener un largo válido`);
+    return;
+  }
+
+  if (!Number.isInteger(Number(variante.ancho_cm)) || Number(variante.ancho_cm) <= 0) {
+    alert(`La talla ${variante.talla_nombre} debe tener un ancho válido`);
+    return;
+  }
+
+  if (!Number.isInteger(Number(variante.alto_cm)) || Number(variante.alto_cm) <= 0) {
+    alert(`La talla ${variante.talla_nombre} debe tener un alto válido`);
+    return;
+  }
+}
+
       },
       error: error => {
         console.error('Error creando producto:', error);

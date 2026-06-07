@@ -33,13 +33,12 @@
             class="px-4 py-2 rounded-full text-sm font-bold"
             [ngClass]="claseEnvio(pedido.estado_envio ?? 'pendiente')"
           >
-            Envío: {{ pedido.estado_envio ?? 'pendiente' }}
+            Envío: {{ labelEstadoEnvio(pedido.estado_envio ?? 'pendiente') }}
           </span>
         </div>
       </div>
 
       <section class="bg-white rounded-2xl shadow-md p-6 border border-[#eadcc7] flex-1">
-
         <h2 class="text-2xl font-bold text-[#2f1b12]">
           Progreso del pedido
         </h2>
@@ -51,7 +50,7 @@
         <div class="overflow-x-auto">
           <div class="min-w-[1000px] flex items-center">
 
-            @for(paso of pasosTimeline; track paso.key; let i = $index) {
+            @for(paso of pasosTimeline(); track paso.key; let i = $index) {
 
               <div class="flex items-center flex-1">
 
@@ -80,7 +79,7 @@
 
                 </div>
 
-                @if(i < pasosTimeline.length - 1) {
+                @if(i < pasosTimeline().length - 1) {
                   <div
                     class="h-1 flex-1 mx-2 rounded-full"
                     [ngClass]="claseLineaTimeline(i)"
@@ -93,194 +92,385 @@
 
           </div>
         </div>
-
       </section>
-
     </div>
 
-    <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+    <section class="grid grid-cols-1 xl:grid-cols-[1fr_460px] gap-6 mb-8">
 
-      <div class="bg-white rounded-2xl shadow-md p-6 border border-[#eadcc7]">
-        <h2 class="font-bold text-xl text-[#2f1b12] mb-4">Cliente</h2>
+      <div class="space-y-6">
 
-        <p class="font-bold text-lg">
-          {{ pedido.direcciones?.nombre_recibe || 'Cliente invitado' }}
-        </p>
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <p class="text-[#8a542f] mt-1">
-          Tel: {{ pedido.direcciones?.telefono || 'N/A' }}
-        </p>
+          <div class="bg-white rounded-2xl shadow-md p-5 border border-[#eadcc7]">
+            <h2 class="font-bold text-xl text-[#2f1b12] mb-4">
+              Cliente
+            </h2>
 
-        <p class="text-[#8a542f] mt-3 text-sm">
-          {{ pedido.notas }}
-        </p>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-md p-6 border border-[#eadcc7]">
-        <h2 class="font-bold text-xl text-[#2f1b12] mb-4">
-          Dirección de entrega
-        </h2>
-
-        <p>{{ pedido.direcciones?.calle }} #{{ pedido.direcciones?.numero }}</p>
-        <p>{{ pedido.direcciones?.colonia }}</p>
-        <p>{{ pedido.direcciones?.ciudad }}, {{ pedido.direcciones?.estado }}</p>
-        <p>CP {{ pedido.direcciones?.codigo_postal }}</p>
-
-        <p class="text-[#8a542f] mt-3">
-          Referencias: {{ pedido.direcciones?.referencias || 'Sin referencias' }}
-        </p>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-md p-6 border border-[#eadcc7]">
-        <h2 class="font-bold text-xl text-[#2f1b12] mb-4">Estado de envío</h2>
-
-        <label class="block text-sm text-[#8a542f] mb-2">
-          Actualizar estado
-        </label>
-
-        <select
-          [(ngModel)]="nuevoEstadoEnvio"
-          class="w-full border border-[#d8c5aa] rounded-lg px-4 py-3 outline-none"
-        >
-          @for(estado of estadosEnvio; track estado) {
-            <option [value]="estado">{{ estado }}</option>
-          }
-        </select>
-
-        <button
-          type="button"
-          (click)="guardarEstadoEnvio()"
-          [disabled]="guardandoEstado"
-          class="w-full mt-4 bg-[#9b6235] hover:bg-[#7d4e2a] text-white py-3 rounded-lg font-bold disabled:opacity-60"
-        >
-          {{ guardandoEstado ? 'Guardando...' : 'Guardar estado' }}
-        </button>
-
-        @if(mensajeEstado) {
-          <p class="mt-3 text-sm font-semibold text-[#8a542f]">
-            {{ mensajeEstado }}
-          </p>
-        }
-
-        <div class="mt-5 border-t border-[#eadcc7] pt-4">
-          <h3 class="font-bold text-[#2f1b12] mb-3">
-            Información de envío
-          </h3>
-
-          <div class="grid grid-cols-1 gap-3">
-
-            <div>
-              <label class="block text-sm text-[#8a542f] mb-1">
-                Paquetería
-              </label>
-
-              <input
-                type="text"
-                placeholder="Ej. DHL, FedEx, Estafeta"
-                class="w-full border border-[#d8c5aa] rounded-lg px-4 py-2 outline-none"
-              >
-            </div>
-
-            <div>
-              <label class="block text-sm text-[#8a542f] mb-1">
-                Número de guía
-              </label>
-
-              <input
-                type="text"
-                placeholder="Ej. 123456789"
-                class="w-full border border-[#d8c5aa] rounded-lg px-4 py-2 outline-none"
-              >
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-    </section>
-
-    <section class="bg-white rounded-2xl shadow-md p-6 border border-[#eadcc7] mb-8">
-
-      <h2 class="font-bold text-2xl text-[#2f1b12] mb-6">
-        Productos a preparar
-      </h2>
-
-      <div class="space-y-4">
-
-        @for(item of pedido.pedido_items; track item.id) {
-
-          <div class="bg-[#fff8ec] border border-[#eadcc7] rounded-2xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-            <div>
-              <h3 class="font-bold text-[#2f1b12] text-lg">
-                {{ item.nombre_producto }}
-              </h3>
-
-              <p class="text-sm text-[#8a542f] mt-1">
-                SKU: {{ item.sku || 'N/A' }}
-              </p>
-
-              <p class="text-sm text-[#8a542f]">
-                Talla: {{ item.talla || 'N/A' }}
-              </p>
-            </div>
-
-            <div class="flex gap-8 text-sm">
+            <div class="space-y-3">
               <div>
-                <p class="text-[#8a542f]">Cantidad</p>
-                <p class="font-bold text-lg">{{ item.cantidad }}</p>
-              </div>
-
-              <div>
-                <p class="text-[#8a542f]">Subtotal</p>
-                <p class="font-bold text-lg">
-                  {{ item.subtotal | currency:'MXN' }}
+                <p class="text-sm text-[#8a542f]">Nombre</p>
+                <p class="font-bold text-lg text-[#2f1b12]">
+                  {{ pedido.direcciones?.nombre_recibe || 'Cliente invitado' }}
                 </p>
               </div>
-            </div>
 
+              <div>
+                <p class="text-sm text-[#8a542f]">Teléfono</p>
+                <p class="font-semibold text-[#2f1b12]">
+                  {{ pedido.direcciones?.telefono || 'N/A' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-sm text-[#8a542f]">Datos registrados</p>
+                <p class="text-sm text-[#2f1b12] leading-relaxed">
+                  {{ pedido.notas }}
+                </p>
+              </div>
+
+              <div class="pt-3 border-t border-[#eadcc7]">
+                <span class="px-3 py-1 rounded-full bg-[#fff8ec] text-[#8a542f] text-xs font-bold">
+                  Compra como invitado
+                </span>
+              </div>
+            </div>
           </div>
 
-        }
+          <div class="bg-white rounded-2xl shadow-md p-5 border border-[#eadcc7]">
+            <h2 class="font-bold text-xl text-[#2f1b12] mb-4">
+              Dirección de entrega
+            </h2>
+
+            <div class="space-y-2 text-[#2f1b12]">
+              <p>
+                {{ pedido.direcciones?.calle }} #{{ pedido.direcciones?.numero }}
+              </p>
+              <p>{{ pedido.direcciones?.colonia }}</p>
+              <p>{{ pedido.direcciones?.ciudad }}, {{ pedido.direcciones?.estado }}</p>
+              <p>CP {{ pedido.direcciones?.codigo_postal }}</p>
+            </div>
+
+            <p class="text-[#8a542f] mt-4">
+              Referencias: {{ pedido.direcciones?.referencias || 'Sin referencias' }}
+            </p>
+          </div>
+
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-md p-6 border border-[#eadcc7]">
+          <h2 class="font-bold text-2xl text-[#2f1b12] mb-6">
+            Productos a preparar
+          </h2>
+
+          <div class="space-y-4">
+
+            @for(item of pedido.pedido_items; track item.id) {
+
+              <div class="bg-[#fff8ec] border border-[#eadcc7] rounded-2xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+                <div>
+                  <h3 class="font-bold text-[#2f1b12] text-lg">
+                    {{ item.nombre_producto }}
+                  </h3>
+
+                  <p class="text-sm text-[#8a542f] mt-1">
+                    SKU: {{ item.sku || 'N/A' }}
+                  </p>
+
+                  <p class="text-sm text-[#8a542f]">
+                    Talla: {{ item.talla || 'N/A' }}
+                  </p>
+                </div>
+
+                <div class="flex gap-8 text-sm">
+                  <div>
+                    <p class="text-[#8a542f]">Cantidad</p>
+                    <p class="font-bold text-lg">{{ item.cantidad }}</p>
+                  </div>
+
+                  <div>
+                    <p class="text-[#8a542f]">Subtotal</p>
+                    <p class="font-bold text-lg">
+                      {{ item.subtotal | currency:'MXN' }}
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <div class="bg-white rounded-2xl shadow-md p-5 border border-[#eadcc7]">
+            <h2 class="font-bold text-xl text-[#2f1b12] mb-4">
+              Resumen
+            </h2>
+
+            <div class="flex justify-between mb-3">
+              <span>Subtotal</span>
+              <strong>{{ pedido.subtotal | currency:'MXN' }}</strong>
+            </div>
+
+            <div class="flex justify-between mb-3">
+              <span>Envío</span>
+              <strong>{{ pedido.envio | currency:'MXN' }}</strong>
+            </div>
+
+            <div class="flex justify-between text-2xl border-t pt-4 mt-4">
+              <span>Total</span>
+              <strong>{{ pedido.total | currency:'MXN' }}</strong>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-md p-5 border border-[#eadcc7]">
+            <h2 class="font-bold text-xl text-[#2f1b12] mb-4">
+              Pago
+            </h2>
+
+            @if(pagoPrincipal()) {
+              <div class="space-y-2 text-sm">
+                <p><strong>Proveedor:</strong> {{ pagoPrincipal().proveedor }}</p>
+                <p><strong>Estado:</strong> {{ pagoPrincipal().estado }}</p>
+                <p class="break-all"><strong>Referencia:</strong> {{ pagoPrincipal().referencia_pago }}</p>
+                <p><strong>Fecha:</strong> {{ pagoPrincipal().fecha_pago | date:'d MMMM y' }}</p>
+              </div>
+            } @else {
+              <p class="text-[#8a542f]">
+                Este pedido aún no tiene pago registrado.
+              </p>
+            }
+          </div>
+
+        </section>
 
       </div>
 
-    </section>
+      <div class="bg-white rounded-2xl shadow-md p-5 border border-[#eadcc7] h-fit xl:sticky xl:top-6">
 
-    <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h2 class="font-bold text-xl text-[#2f1b12]">
+  {{ esRecoleccionTienda() ? 'Recolección en tienda' : 'Logística de envío' }}
+</h2>
 
-      <div class="bg-white rounded-2xl shadow-md p-6 border border-[#eadcc7]">
-        <h2 class="font-bold text-xl text-[#2f1b12] mb-4">Pago</h2>
+<p class="text-sm text-[#8a542f] mt-1">
+  {{
+    esRecoleccionTienda()
+      ? 'Control operativo para pedidos con entrega en sucursal.'
+      : 'Control de guía, paquetería y estado operativo.'
+  }}
+</p>
+          </div>
 
-        @if(pagoPrincipal()) {
-          <p><strong>Proveedor:</strong> {{ pagoPrincipal().proveedor }}</p>
-          <p><strong>Estado:</strong> {{ pagoPrincipal().estado }}</p>
-          <p><strong>Referencia:</strong> {{ pagoPrincipal().referencia_pago }}</p>
-          <p><strong>Fecha:</strong> {{ pagoPrincipal().fecha_pago | date:'d MMMM y' }}</p>
+          <span
+            class="px-3 py-1 rounded-full text-xs font-bold"
+            [ngClass]="claseEnvio(pedido.estado_envio ?? 'pendiente')"
+          >
+            {{ labelEstadoEnvio(pedido.estado_envio ?? 'pendiente') }}
+          </span>
+        </div>
+
+       @if(esRecoleccionTienda()) {
+
+  <div class="bg-[#fff8ec] border border-[#eadcc7] rounded-2xl p-5 mb-5">
+    <div class="flex items-center justify-between gap-3 mb-4">
+      <h3 class="font-bold text-[#2f1b12]">
+        Recolección en tienda
+      </h3>
+
+      <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
+        Sin envío
+      </span>
+    </div>
+
+    <p class="text-sm text-[#8a542f] mb-4">
+      El cliente recogerá su pedido directamente en sucursal. No se requiere paquetería ni número de guía.
+    </p>
+
+    <div class="grid grid-cols-1 gap-3 text-sm">
+      <div>
+        <p class="text-[#8a542f]">Estado actual</p>
+        <p class="font-bold text-[#2f1b12]">
+          {{ labelEstadoEnvio(pedido.estado_envio ?? 'pendiente') }}
+        </p>
+      </div>
+
+      <div>
+        <p class="text-[#8a542f]">Cliente</p>
+        <p class="font-bold text-[#2f1b12]">
+          {{ pedido.direcciones?.nombre_recibe || 'Cliente invitado' }}
+        </p>
+      </div>
+
+      <div>
+        <p class="text-[#8a542f]">Teléfono</p>
+        <p class="font-bold text-[#2f1b12]">
+          {{ pedido.direcciones?.telefono || 'N/A' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+} @else if(pedido.envios?.length > 0) {
+          @let envio = pedido.envios[0];
+
+          <div class="bg-[#fff8ec] border border-[#eadcc7] rounded-2xl p-4 mb-5">
+
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-[#2f1b12]">
+                Información del envío
+              </h3>
+
+              @if(envio.numero_guia && envio.paqueterias?.nombre) {
+                <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
+                  Guía registrada
+                </span>
+              } @else {
+                <span class="text-xs font-bold text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full">
+                  Pendiente de guía
+                </span>
+              }
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+
+              <div>
+                <p class="text-[#8a542f]">Paquetería</p>
+                <p class="font-bold text-[#2f1b12]">
+                  {{ envio.paqueterias?.nombre || 'No registrada' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-[#8a542f]">Servicio</p>
+                <p class="font-bold text-[#2f1b12]">
+                  {{ envio.servicio || 'No registrado' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-[#8a542f]">Número de guía</p>
+                <p class="font-bold text-[#2f1b12]">
+                  {{ envio.numero_guia || 'No registrada' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-[#8a542f]">Entrega estimada</p>
+                <p class="font-bold text-[#2f1b12]">
+                  {{ envio.dias_estimados || 'N/A' }} día(s)
+                </p>
+              </div>
+
+              <div>
+                <p class="text-[#8a542f]">Costo envío</p>
+                <p class="font-bold text-[#2f1b12]">
+                  {{ envio.costo | currency:'MXN' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-[#8a542f]">Fecha de envío</p>
+                <p class="font-bold text-[#2f1b12]">
+                  {{ envio.fecha_envio ? (envio.fecha_envio | date:'d MMMM y') : 'Pendiente' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-[#8a542f]">Fecha de entrega</p>
+                <p class="font-bold text-[#2f1b12]">
+                  {{ envio.fecha_entrega ? (envio.fecha_entrega | date:'d MMMM y') : 'Pendiente' }}
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <h3 class="font-bold text-[#2f1b12] mb-3">
+              Capturar o editar guía
+            </h3>
+
+            <div class="grid grid-cols-1 gap-3">
+              <div>
+                <label class="block text-sm text-[#8a542f] mb-1">
+                  Número de guía
+                </label>
+
+                <input
+                  type="text"
+                  [(ngModel)]="numeroGuia"
+                  placeholder="Ej. 123456789"
+                  class="w-full border border-[#d8c5aa] rounded-lg px-4 py-2 outline-none"
+                >
+              </div>
+
+              <button
+                type="button"
+                (click)="guardarGuiaEnvio()"
+                [disabled]="guardandoGuia"
+                class="w-full bg-[#9b6235] hover:bg-[#7d4e2a] text-white py-3 rounded-lg font-bold disabled:opacity-60"
+              >
+                {{ guardandoGuia ? 'Guardando guía...' : 'Guardar guía' }}
+              </button>
+
+              @if(mensajeGuia) {
+                <div class="p-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-sm font-semibold">
+                  {{ mensajeGuia }}
+                </div>
+              }
+            </div>
+          </div>
+
         } @else {
-          <p class="text-[#8a542f]">
-            Este pedido aún no tiene pago registrado.
-          </p>
+          <div class="p-4 rounded-xl bg-yellow-50 border border-yellow-200 text-yellow-700 text-sm font-semibold mb-5">
+            Este pedido no tiene información de envío registrada.
+          </div>
         }
-      </div>
 
-      <div class="bg-white rounded-2xl shadow-md p-6 border border-[#eadcc7]">
-        <h2 class="font-bold text-xl text-[#2f1b12] mb-4">Resumen</h2>
+        <div class="border-t border-[#eadcc7] pt-5">
+          <h3 class="font-bold text-[#2f1b12] mb-3">
+            Actualizar estado
+          </h3>
 
-        <div class="flex justify-between mb-3">
-          <span>Subtotal</span>
-          <strong>{{ pedido.subtotal | currency:'MXN' }}</strong>
+          <label class="block text-sm text-[#8a542f] mb-2">
+            Estado del envío
+          </label>
+
+          <select
+            [(ngModel)]="nuevoEstadoEnvio"
+            class="w-full border border-[#d8c5aa] rounded-lg px-4 py-3 outline-none"
+          >
+            @for(estado of estadosDisponiblesEnvio(); track estado) {
+              <option [value]="estado">{{ labelEstadoEnvio(estado) }}</option>
+            }
+          </select>
+
+          <button
+            type="button"
+            (click)="guardarEstadoEnvio()"
+            [disabled]="guardandoEstado"
+            class="w-full mt-4 bg-[#9b6235] hover:bg-[#7d4e2a] text-white py-3 rounded-lg font-bold disabled:opacity-60"
+          >
+            {{ guardandoEstado ? 'Guardando...' : 'Guardar estado' }}
+          </button>
+
+          @if(mensajeEstado) {
+            <div
+              class="mt-4 p-3 rounded-lg border text-sm font-semibold"
+              [ngClass]="mensajeEstado.includes('correctamente')
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                : 'border-red-200 bg-red-50 text-red-700'"
+            >
+              {{ mensajeEstado }}
+            </div>
+          }
         </div>
 
-        <div class="flex justify-between mb-3">
-          <span>Envío</span>
-          <strong>{{ pedido.envio | currency:'MXN' }}</strong>
-        </div>
-
-        <div class="flex justify-between text-2xl border-t pt-4 mt-4">
-          <span>Total</span>
-          <strong>{{ pedido.total | currency:'MXN' }}</strong>
-        </div>
       </div>
 
     </section>
