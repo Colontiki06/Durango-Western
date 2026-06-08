@@ -23,6 +23,18 @@
 
     </div>
 
+    @if(error) {
+      <div class="mb-6 bg-red-100 border border-red-300 text-red-700 px-5 py-4 rounded-xl font-semibold">
+        {{ error }}
+      </div>
+    }
+
+    @if(mensaje) {
+      <div class="mb-6 bg-green-100 border border-green-300 text-green-700 px-5 py-4 rounded-xl font-semibold">
+        {{ mensaje }}
+      </div>
+    }
+
     @if(carritoVacio()) {
 
       <div class="bg-[#fff8ec] p-10 text-center rounded-xl shadow-sm">
@@ -92,24 +104,55 @@
 
             <div class="space-y-4">
 
-              <input
-                [(ngModel)]="cliente.nombre"
-                class="w-full h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                placeholder="Nombre completo"
-              >
+              <div>
+                <input
+                  [(ngModel)]="cliente.nombre"
+                  class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  [class.border-red-400]="erroresCliente.nombre"
+                  [class.border-[#cbb89d]]="!erroresCliente.nombre"
+                  placeholder="Nombre completo"
+                >
 
-              <input
-                [(ngModel)]="cliente.correo"
-                type="email"
-                class="w-full h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                placeholder="Correo electrónico"
-              >
+                @if(erroresCliente.nombre) {
+                  <p class="text-red-700 text-xs mt-2 font-semibold">
+                    {{ erroresCliente.nombre }}
+                  </p>
+                }
+              </div>
 
-              <input
-                [(ngModel)]="cliente.telefono"
-                class="w-full h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                placeholder="Número de teléfono"
-              >
+              <div>
+                <input
+                  [(ngModel)]="cliente.correo"
+                  type="email"
+                  class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  [class.border-red-400]="erroresCliente.correo"
+                  [class.border-[#cbb89d]]="!erroresCliente.correo"
+                  placeholder="Correo electrónico"
+                >
+
+                @if(erroresCliente.correo) {
+                  <p class="text-red-700 text-xs mt-2 font-semibold">
+                    {{ erroresCliente.correo }}
+                  </p>
+                }
+              </div>
+
+              <div>
+                <input
+                  [(ngModel)]="cliente.telefono"
+                  class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  [class.border-red-400]="erroresCliente.telefono"
+                  [class.border-[#cbb89d]]="!erroresCliente.telefono"
+                  placeholder="Número de teléfono"
+                  maxlength="14"
+                >
+
+                @if(erroresCliente.telefono) {
+                  <p class="text-red-700 text-xs mt-2 font-semibold">
+                    {{ erroresCliente.telefono }}
+                  </p>
+                }
+              </div>
 
             </div>
 
@@ -123,58 +166,205 @@
                 Dirección
               </h3>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              @if(cargandoDirecciones) {
+                <div class="bg-[#f5ede1] border border-[#d8c5aa] rounded-xl p-5 text-[#8a542f] font-semibold mb-5">
+                  Cargando tu dirección principal...
+                </div>
+              }
 
-                <input
-                  [(ngModel)]="direccion.codigoPostal"
-                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                  placeholder="Código postal"
-                >
+              @if(!cargandoDirecciones && direccionesGuardadas.length > 0) {
 
-                <input
-                  [(ngModel)]="direccion.estado"
-                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                  placeholder="Estado"
-                >
+                <div class="mb-6 space-y-3">
 
-                <input
-                  [(ngModel)]="direccion.ciudad"
-                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                  placeholder="Ciudad"
-                >
+                  <p class="text-sm text-[#8a542f] font-semibold">
+                    Selecciona una dirección guardada:
+                  </p>
 
-                <input
-                  [(ngModel)]="direccion.colonia"
-                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                  placeholder="Colonia"
-                >
+                  @for(direccionGuardada of direccionesGuardadas; track direccionGuardada.id) {
 
-                <input
-                  [(ngModel)]="direccion.calle"
-                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f] md:col-span-2"
-                  placeholder="Calle"
-                >
+                    <button
+                      type="button"
+                      (click)="seleccionarDireccionGuardada(direccionGuardada.id)"
+                      class="w-full text-left rounded-xl border p-4 transition"
+                      [class.bg-[#8a542f]]="direccionSeleccionadaId === direccionGuardada.id"
+                      [class.text-white]="direccionSeleccionadaId === direccionGuardada.id"
+                      [class.border-[#8a542f]]="direccionSeleccionadaId === direccionGuardada.id"
+                      [class.bg-white]="direccionSeleccionadaId !== direccionGuardada.id"
+                      [class.text-[#2f1b12]]="direccionSeleccionadaId !== direccionGuardada.id"
+                      [class.border-[#cbb89d]]="direccionSeleccionadaId !== direccionGuardada.id"
+                    >
+                      <div class="flex flex-wrap items-center gap-2 mb-1">
+                        <span class="font-bold">
+                          {{ direccionGuardada.nombre_recibe }}
+                        </span>
 
-                <input
-                  [(ngModel)]="direccion.numeroExterior"
-                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                  placeholder="Número exterior"
-                >
+                        @if(direccionGuardada.principal) {
+                          <span
+                            class="text-xs px-2 py-1 rounded-full font-bold"
+                            [class.bg-white]="direccionSeleccionadaId === direccionGuardada.id"
+                            [class.text-[#8a542f]]="direccionSeleccionadaId === direccionGuardada.id"
+                            [class.bg-[#4b2e1f]]="direccionSeleccionadaId !== direccionGuardada.id"
+                            [class.text-white]="direccionSeleccionadaId !== direccionGuardada.id"
+                          >
+                            Principal
+                          </span>
+                        }
+                      </div>
 
-                <input
-                  [(ngModel)]="direccion.numeroInterior"
-                  class="h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
-                  placeholder="Número interior opcional"
-                >
+                      <p class="text-sm">
+                        {{ obtenerDireccionCompleta(direccionGuardada) }}
+                      </p>
 
-                <textarea
-                  [(ngModel)]="direccion.referencias"
-                  rows="4"
-                  class="border border-[#cbb89d] px-3 py-3 bg-white rounded-lg outline-none resize-none focus:ring-2 focus:ring-[#8a542f] md:col-span-2"
-                  placeholder="Referencias de entrega"
-                ></textarea>
+                      @if(direccionGuardada.telefono) {
+                        <p class="text-xs mt-1">
+                          Tel. {{ direccionGuardada.telefono }}
+                        </p>
+                      }
+                    </button>
 
-              </div>
+                  }
+
+                  <button
+                    type="button"
+                    (click)="usarNuevaDireccion()"
+                    class="text-[#4b2e1f] border border-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-5 py-2 rounded-lg font-semibold transition"
+                  >
+                    Capturar otra dirección
+                  </button>
+
+                </div>
+
+              }
+
+              @if(direccionListaParaMostrar && !direccionSeleccionadaId) {
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.codigoPostal"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.codigoPostal"
+                      [class.border-[#cbb89d]]="!erroresDireccion.codigoPostal"
+                      placeholder="Código postal"
+                      maxlength="5"
+                    >
+
+                    @if(erroresDireccion.codigoPostal) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.codigoPostal }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.estado"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.estado"
+                      [class.border-[#cbb89d]]="!erroresDireccion.estado"
+                      placeholder="Estado"
+                    >
+
+                    @if(erroresDireccion.estado) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.estado }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.ciudad"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.ciudad"
+                      [class.border-[#cbb89d]]="!erroresDireccion.ciudad"
+                      placeholder="Ciudad"
+                    >
+
+                    @if(erroresDireccion.ciudad) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.ciudad }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.colonia"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.colonia"
+                      [class.border-[#cbb89d]]="!erroresDireccion.colonia"
+                      placeholder="Colonia"
+                    >
+
+                    @if(erroresDireccion.colonia) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.colonia }}
+                      </p>
+                    }
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <input
+                      [(ngModel)]="direccion.calle"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.calle"
+                      [class.border-[#cbb89d]]="!erroresDireccion.calle"
+                      placeholder="Calle"
+                    >
+
+                    @if(erroresDireccion.calle) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.calle }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.numeroExterior"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.numeroExterior"
+                      [class.border-[#cbb89d]]="!erroresDireccion.numeroExterior"
+                      placeholder="Número exterior"
+                    >
+
+                    @if(erroresDireccion.numeroExterior) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.numeroExterior }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.numeroInterior"
+                      class="w-full h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      placeholder="Número interior opcional"
+                    >
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <textarea
+                      [(ngModel)]="direccion.referencias"
+                      rows="4"
+                      class="w-full border px-3 py-3 bg-white rounded-lg outline-none resize-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.referencias"
+                      [class.border-[#cbb89d]]="!erroresDireccion.referencias"
+                      placeholder="Referencias de entrega"
+                    ></textarea>
+
+                    @if(erroresDireccion.referencias) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.referencias }}
+                      </p>
+                    }
+                  </div>
+
+                </div>
+
+              }
 
             </div>
 
@@ -207,13 +397,13 @@
           </div>
 
           <button
-  type="button"
-  (click)="realizarPedido()"
-  [disabled]="cargando"
-  class="cursor-pointer w-full bg-[#8a542f] hover:bg-[#6b3f26] active:scale-95 disabled:opacity-60 text-white py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
->
-  {{ cargando ? 'Creando pedido...' : 'Continuar al pago' }}
-</button>
+            type="button"
+            (click)="realizarPedido()"
+            [disabled]="cargando"
+            class="cursor-pointer w-full bg-[#8a542f] hover:bg-[#6b3f26] active:scale-95 disabled:opacity-60 text-white py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+          >
+            {{ cargando ? 'Creando pedido...' : 'Continuar al pago' }}
+          </button>
 
         </section>
 

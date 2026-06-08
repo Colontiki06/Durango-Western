@@ -1,13 +1,16 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Auth } from '../../core/services/auth/auth';
+
+import { AuthService } from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-registro',
-  imports: [RouterLink, FormsModule],
+  standalone: true,
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './registro.html',
-  styleUrl: './registro.css'
+  styleUrl: './registro.css',
 })
 export class Registro {
   fullName = '';
@@ -15,23 +18,72 @@ export class Registro {
   password = '';
   confirmPassword = '';
 
+  error = '';
+  loading = false;
+
   constructor(
     private router: Router,
-    private auth: Auth
+    private authService: AuthService
   ) {}
 
   register(): void {
-    if (!this.fullName || !this.email || !this.password || !this.confirmPassword) {
-      alert('Completa todos los campos');
+    this.error = '';
+
+    if (!this.fullName.trim()) {
+      this.error = 'Ingresa tu nombre completo.';
+      return;
+    }
+
+    if (!this.email.trim()) {
+      this.error = 'Ingresa tu correo electrónico.';
+      return;
+    }
+
+    if (!this.password.trim()) {
+      this.error = 'Ingresa una contraseña.';
+      return;
+    }
+
+    if (this.password.length < 8) {
+      this.error = 'La contraseña debe tener mínimo 8 caracteres.';
+      return;
+    }
+
+    if (!this.confirmPassword.trim()) {
+      this.error = 'Confirma tu contraseña.';
       return;
     }
 
     if (this.password !== this.confirmPassword) {
-      alert('Las contraseñas no coinciden');
+      this.error = 'Las contraseñas no coinciden.';
       return;
     }
 
-    this.auth.login();
-    this.router.navigate(['/perfil']);
+    this.loading = true;
+
+    this.authService
+      .register(this.fullName, this.email, this.password)
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.router.navigate(['/perfil']);
+        },
+        error: (error) => {
+          this.loading = false;
+
+          if (error.status === 400) {
+            this.error =
+              error.error?.message || 'Revisa los datos ingresados.';
+            return;
+          }
+
+          if (error.status === 0) {
+            this.error = 'No se pudo conectar con el servidor.';
+            return;
+          }
+
+          this.error = 'No se pudo crear la cuenta. Intenta nuevamente.';
+        },
+      });
   }
 }
