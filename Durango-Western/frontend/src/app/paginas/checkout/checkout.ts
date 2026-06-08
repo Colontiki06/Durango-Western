@@ -62,8 +62,13 @@ export class Checkout implements OnInit {
   cargando = false;
   cargandoDirecciones = false;
   direccionListaParaMostrar = false;
+  cotizandoEnvio = false;
 
   tipoEntrega: TipoEntrega = 'domicilio';
+
+  costoEnvio = 0;
+  envioGratis = false;
+  mensajeEnvio = '';
 
   direccionesGuardadas: DireccionUsuario[] = [];
   direccionSeleccionadaId = '';
@@ -104,7 +109,8 @@ export class Checkout implements OnInit {
   }
 
   envio(): number {
-    return 0;
+    if (this.tipoEntrega === 'tienda') return 0;
+    return this.costoEnvio;
   }
 
   total(): number {
@@ -124,6 +130,9 @@ export class Checkout implements OnInit {
     if (tipo === 'tienda') {
       this.direccionSeleccionadaId = '';
       this.direccionListaParaMostrar = true;
+      this.costoEnvio = 0;
+      this.envioGratis = true;
+      this.mensajeEnvio = 'Recolección en tienda sin costo';
       this.cdr.detectChanges();
       return;
     }
@@ -138,6 +147,7 @@ export class Checkout implements OnInit {
       }
 
       this.direccionListaParaMostrar = true;
+      this.cotizarEnvio();
       this.cdr.detectChanges();
     }
   }
@@ -176,6 +186,7 @@ export class Checkout implements OnInit {
 
             this.direccionSeleccionadaId = principal.id;
             this.aplicarDireccionGuardada(principal);
+            this.cotizarEnvio();
           }
 
           this.cargandoDirecciones = false;
@@ -204,6 +215,7 @@ export class Checkout implements OnInit {
     this.direccionSeleccionadaId = direccionEncontrada.id;
     this.aplicarDireccionGuardada(direccionEncontrada);
     this.erroresDireccion = {};
+    this.cotizarEnvio();
 
     this.cdr.detectChanges();
   }
@@ -213,8 +225,56 @@ export class Checkout implements OnInit {
     this.direccion = this.obtenerDireccionVacia();
     this.erroresDireccion = {};
     this.direccionListaParaMostrar = true;
+    this.cotizarEnvio();
 
     this.cdr.detectChanges();
+  }
+
+  cotizarEnvio(): void {
+    if (this.tipoEntrega !== 'domicilio') return;
+
+    if (!this.direccion.codigoPostal || this.direccion.codigoPostal.length < 5) {
+      this.costoEnvio = 0;
+      this.envioGratis = false;
+      this.mensajeEnvio = 'Ingresa tu código postal para calcular el envío';
+      return;
+    }
+
+    this.cotizandoEnvio = true;
+    this.mensajeEnvio = 'Calculando envío...';
+
+    this.api
+      .post<any>('envios/cotizar', {
+        codigoPostal: this.direccion.codigoPostal,
+        subtotal: this.subtotal(),
+        items: this.items()
+          .filter((item) => !!item.variante_id)
+          .map((item) => ({
+            variante_id: item.variante_id,
+            cantidad: item.cantidad,
+          })),
+      })
+      .subscribe({
+        next: (respuesta) => {
+          this.costoEnvio = Number(respuesta.costoEnvio ?? 0);
+          this.envioGratis = Boolean(respuesta.envioGratis);
+
+          this.mensajeEnvio = this.envioGratis
+            ? 'Tu compra tiene envío gratis'
+            : 'Costo de envío calculado';
+
+          this.cotizandoEnvio = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error cotizando envío:', error);
+          this.costoEnvio = 0;
+          this.envioGratis = false;
+          this.mensajeEnvio = 'No se pudo calcular el envío';
+          this.cotizandoEnvio = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   realizarPedido(): void {
@@ -266,6 +326,9 @@ export class Checkout implements OnInit {
             }
           : null,
       tipoEntrega: this.tipoEntrega,
+      envio: this.envio(),
+      subtotal: this.subtotal(),
+      total: this.total(),
       items: this.items().map((item) => ({
         producto_id: item.producto_id || item.id,
         variante_id: item.variante_id,

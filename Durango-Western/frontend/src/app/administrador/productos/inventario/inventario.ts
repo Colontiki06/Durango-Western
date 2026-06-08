@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject ,ChangeDetectorRef} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+
 
 import { ApiService } from '../../../core/services/api/api.service';
 
@@ -32,6 +33,7 @@ interface ProductoInventario {
 export class Inventario implements OnInit {
 
   private api = inject(ApiService);
+  private cdr = inject(ChangeDetectorRef);
 
   filtroActivo: FiltroInventario = 'todos';
 
@@ -55,6 +57,7 @@ export class Inventario implements OnInit {
       next: (data) => {
         this.productos = data.map(producto => this.mapearProducto(producto));
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error cargando inventario:', error);
