@@ -113,130 +113,235 @@
 
           @if(producto().variantes?.length > 0) {
 
-            <div class="md:col-span-2 border border-[#eadcc7] rounded-2xl overflow-hidden">
+  <div class="md:col-span-2 border border-[#eadcc7] rounded-2xl overflow-hidden">
 
-              <div class="bg-[#f5ede1] px-6 py-4 flex items-center justify-between">
-                <div>
-                  <h2 class="text-lg font-bold text-[#2f1b12]">
-                    Stock por variante
-                  </h2>
+    <div class="bg-[#f5ede1] px-6 py-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-[#2f1b12]">
+          Stock, peso y dimensiones
+        </h2>
 
-                  <p class="text-xs text-[#8a542f]">
-                    Edita el stock por talla y guarda todo al final.
-                  </p>
-                </div>
+        <p class="text-xs text-[#8a542f]">
+          Edita stock, peso y medidas por variante para calcular envíos.
+        </p>
+      </div>
 
-                <span class="bg-white px-4 py-2 rounded-full text-sm font-bold text-[#4b2e1f]">
-                  Total: {{ producto().stock }}
-                </span>
-              </div>
+      <span class="bg-white px-4 py-2 rounded-full text-sm font-bold text-[#4b2e1f]">
+        Total: {{ producto().stock }}
+      </span>
+    </div>
 
-              <div class="divide-y divide-[#eadcc7] bg-white">
+    <div class="divide-y divide-[#eadcc7] bg-white">
 
-                @for(variante of producto().variantes; track variante.id) {
+      @for(variante of producto().variantes; track variante.id) {
 
-                  <div class="grid grid-cols-[90px_1fr_120px] items-center gap-4 px-6 py-3">
+        <div class="px-6 py-4">
+  <div class="grid grid-cols-1 2xl:grid-cols-[1fr_100px_100px_100px_100px_100px] gap-4 items-end">
 
-                    <p class="font-bold text-[#2f1b12]">
-                      {{ variante.tallas?.nombre }}
-                    </p>
+    <div>
+      <p class="text-xs text-[#8a542f] mb-1">
+        Talla / SKU
+      </p>
 
-                    <p class="text-sm text-[#8a542f] truncate">
-                      {{ variante.sku }}
-                    </p>
+      <p class="font-bold text-[#2f1b12]">
+        {{ variante.tallas?.nombre }}
+      </p>
 
-                    <input
-                      type="number"
-                      min="0"
-                      [ngModel]="variante.stock"
-                      (ngModelChange)="actualizarStockLocal(variante.id, $event)"
-                      class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
-                    >
+      <p class="text-xs text-[#8a542f] truncate">
+        {{ variante.sku }}
+      </p>
+    </div>
 
-                  </div>
+    <div>
+      <label class="block text-xs text-[#8a542f] mb-1">
+        Stock
+      </label>
 
-                }
+      <input
+        type="number"
+        min="0"
+        step="1"
+        [ngModel]="variante.stock"
+        (ngModelChange)="actualizarDatoVariante(variante.id, 'stock', $event)"
+        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      >
+    </div>
 
-              </div>
+    <div>
+      <label class="block text-xs text-[#8a542f] mb-1">
+        Peso kg
+      </label>
 
-              <div class="bg-[#f5ede1] border-t border-[#eadcc7] p-6">
+      <input
+        type="number"
+        min="1"
+        step="1"
+        [ngModel]="variante.peso_kg"
+        (ngModelChange)="actualizarDatoVariante(variante.id, 'peso_kg', $event)"
+        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      >
+    </div>
 
-                <h3 class="font-bold text-[#2f1b12] mb-4">
-                  Agregar nueva talla
-                </h3>
+    <div>
+      <label class="block text-xs text-[#8a542f] mb-1">
+        Largo cm
+      </label>
 
-                <div class="grid md:grid-cols-[1fr_120px_150px] gap-4">
+      <input
+        type="number"
+        min="1"
+        step="1"
+        [ngModel]="variante.largo_cm"
+        (ngModelChange)="actualizarDatoVariante(variante.id, 'largo_cm', $event)"
+        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      >
+    </div>
 
-                  <select
-                    [(ngModel)]="nuevaVariante.talla_id"
-                    class="h-12 border border-[#d8c5aa] rounded-lg px-4"
-                  >
-                    <option value="">Selecciona una talla</option>
+    <div>
+      <label class="block text-xs text-[#8a542f] mb-1">
+        Ancho cm
+      </label>
 
-                    <optgroup label="Calzado niños">
-                      @for(talla of tallas(); track talla.id) {
-                        @if(talla.tipo === 'calzado_nino') {
-                          <option [value]="talla.id">{{ talla.nombre }}</option>
-                        }
-                      }
-                    </optgroup>
+      <input
+        type="number"
+        min="1"
+        step="1"
+        [ngModel]="variante.ancho_cm"
+        (ngModelChange)="actualizarDatoVariante(variante.id, 'ancho_cm', $event)"
+        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      >
+    </div>
 
-                    <optgroup label="Calzado">
-                      @for(talla of tallas(); track talla.id) {
-                        @if(talla.tipo === 'calzado') {
-                          <option [value]="talla.id">{{ talla.nombre }}</option>
-                        }
-                      }
-                    </optgroup>
+    <div>
+      <label class="block text-xs text-[#8a542f] mb-1">
+        Alto cm
+      </label>
 
-                    <optgroup label="Ropa niños">
-                      @for(talla of tallas(); track talla.id) {
-                        @if(talla.tipo === 'ropa_nino') {
-                          <option [value]="talla.id">{{ talla.nombre }}</option>
-                        }
-                      }
-                    </optgroup>
+      <input
+        type="number"
+        min="1"
+        step="1"
+        [ngModel]="variante.alto_cm"
+        (ngModelChange)="actualizarDatoVariante(variante.id, 'alto_cm', $event)"
+        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      >
+    </div>
 
-                    <optgroup label="Ropa">
-                      @for(talla of tallas(); track talla.id) {
-                        @if(talla.tipo === 'ropa') {
-                          <option [value]="talla.id">{{ talla.nombre }}</option>
-                        }
-                      }
-                    </optgroup>
+  </div>
+</div>
 
-                    <optgroup label="Sombrero">
-                      @for(talla of tallas(); track talla.id) {
-                        @if(talla.tipo === 'sombrero') {
-                          <option [value]="talla.id">{{ talla.nombre }}</option>
-                        }
-                      }
-                    </optgroup>
-                  </select>
+      }
 
-                  <input
-                    type="number"
-                    min="0"
-                    [(ngModel)]="nuevaVariante.stock"
-                    placeholder="Stock"
-                    class="h-12 border border-[#d8c5aa] rounded-lg px-4"
-                  >
+    </div>
 
-                  <button
-                    type="button"
-                    (click)="agregarVariante()"
-                    class="cursor-pointer bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
-                  >
-                    Agregar talla
-                  </button>
+    <div class="bg-[#f5ede1] border-t border-[#eadcc7] p-6">
 
-                </div>
+      <h3 class="font-bold text-[#2f1b12] mb-4">
+        Agregar nueva talla
+      </h3>
 
-              </div>
+      <div class="grid grid-cols-1 md:grid-cols-[1fr_120px_150px] gap-4">
 
-            </div>
+        <select
+          [(ngModel)]="nuevaVariante.talla_id"
+          class="h-12 border border-[#d8c5aa] rounded-lg px-4 bg-white"
+        >
+          <option value="">Selecciona una talla</option>
 
-          }
+          <optgroup label="Calzado niños">
+            @for(talla of tallas(); track talla.id) {
+              @if(talla.tipo === 'calzado_nino') {
+                <option [value]="talla.id">{{ talla.nombre }}</option>
+              }
+            }
+          </optgroup>
+
+          <optgroup label="Calzado">
+            @for(talla of tallas(); track talla.id) {
+              @if(talla.tipo === 'calzado') {
+                <option [value]="talla.id">{{ talla.nombre }}</option>
+              }
+            }
+          </optgroup>
+
+          <optgroup label="Ropa niños">
+            @for(talla of tallas(); track talla.id) {
+              @if(talla.tipo === 'ropa_nino') {
+                <option [value]="talla.id">{{ talla.nombre }}</option>
+              }
+            }
+          </optgroup>
+
+          <optgroup label="Ropa">
+            @for(talla of tallas(); track talla.id) {
+              @if(talla.tipo === 'ropa') {
+                <option [value]="talla.id">{{ talla.nombre }}</option>
+              }
+            }
+          </optgroup>
+
+          <optgroup label="Sombrero">
+            @for(talla of tallas(); track talla.id) {
+              @if(talla.tipo === 'sombrero') {
+                <option [value]="talla.id">{{ talla.nombre }}</option>
+              }
+            }
+          </optgroup>
+
+          <optgroup label="Cinturones">
+            @for(talla of tallas(); track talla.id) {
+              @if(talla.tipo === 'cinturon') {
+                <option [value]="talla.id">{{ talla.nombre }}</option>
+              }
+            }
+          </optgroup>
+
+          <optgroup label="Gorras">
+            @for(talla of tallas(); track talla.id) {
+              @if(talla.tipo === 'gorra') {
+                <option [value]="talla.id">{{ talla.nombre }}</option>
+              }
+            }
+          </optgroup>
+
+          <optgroup label="Accesorios">
+            @for(talla of tallas(); track talla.id) {
+              @if(talla.tipo === 'accesorio') {
+                <option [value]="talla.id">{{ talla.nombre }}</option>
+              }
+            }
+          </optgroup>
+
+        </select>
+
+        <input
+          type="number"
+          min="0"
+          step="1"
+          [(ngModel)]="nuevaVariante.stock"
+          placeholder="Stock"
+          class="h-12 border border-[#d8c5aa] rounded-lg px-4 bg-white"
+        >
+
+        <button
+          type="button"
+          (click)="agregarVariante()"
+          class="cursor-pointer bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+        >
+          Agregar talla
+        </button>
+
+      </div>
+
+      <p class="text-xs text-[#8a542f] mt-3">
+        La nueva talla se creará con medidas por defecto: peso 1 kg, 30 cm de largo, 20 cm de ancho y 10 cm de alto. Después puedes editarlas en la tabla.
+      </p>
+
+    </div>
+
+  </div>
+
+}
 
           <div>
             <label class="block text-[#2f1b12] mb-2 font-medium">

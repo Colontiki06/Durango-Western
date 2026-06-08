@@ -36,6 +36,7 @@ import { DireccionesModule } from './direcciones/direcciones.module';
 // MARKETING
 import { PromocionesModule } from './promociones/promociones.module';
 import { CuponesModule } from './cupones/cupones.module';
+import { PersonalizarInicioModule } from './personalizar-inicio/personalizar-inicio.module';
 
 // CORREOS
 import { CorreosModule } from './correos/correos.module';
@@ -53,6 +54,9 @@ import { TiendasModule } from './tiendas/tiendas.module';
 
 // GOOGLE MAPS CONFIG
 import { GoogleMapsConfigModule } from './google-maps-config/google-maps-config.module';
+
+// DASHBOARD
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -92,6 +96,7 @@ import { GoogleMapsConfigModule } from './google-maps-config/google-maps-config.
     // MARKETING
     PromocionesModule,
     CuponesModule,
+    PersonalizarInicioModule,
 
     // CORREOS
     CorreosModule,
@@ -112,6 +117,9 @@ import { GoogleMapsConfigModule } from './google-maps-config/google-maps-config.
 
     // GOOGLE MAPS CONFIG
     GoogleMapsConfigModule,
+
+    // DASHBOARD
+    DashboardModule,
   ],
 
   controllers: [AppController],

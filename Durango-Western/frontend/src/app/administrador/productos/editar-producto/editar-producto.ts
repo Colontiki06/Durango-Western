@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
 
 import { ApiService } from '../../../core/services/api/api.service';
 
@@ -29,7 +28,11 @@ export class EditarProducto implements OnInit {
   nuevaVariante = {
     talla_id: '',
     stock: 0,
-    precio_extra: 0
+    precio_extra: 0,
+    peso_kg: 1,
+    largo_cm: 30,
+    ancho_cm: 20,
+    alto_cm: 10,
   };
 
   producto = signal<any>({
@@ -59,18 +62,18 @@ export class EditarProducto implements OnInit {
   });
 
   ngOnInit(): void {
-  const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
 
-  if (!id) {
-    this.error.set('Producto no encontrado');
-    this.loading.set(false);
-    return;
+    if (!id) {
+      this.error.set('Producto no encontrado');
+      this.loading.set(false);
+      return;
+    }
+
+    this.cargarCategorias();
+    this.cargarTallas();
+    this.cargarProducto(id);
   }
-
-  this.cargarCategorias();
-  this.cargarTallas();
-  this.cargarProducto(id);
-}
 
   cargarProducto(id: string): void {
     this.loading.set(true);
@@ -78,17 +81,27 @@ export class EditarProducto implements OnInit {
 
     this.api.get<any>(`productos/${id}`).subscribe({
       next: (data) => {
-      const imagenesOrdenadas = [...(data.producto_imagenes ?? [])].sort(
-      (a: any, b: any) => {
-        if (a.principal && !b.principal) return -1;
-        if (!a.principal && b.principal) return 1;
-        return (a.orden ?? 0) - (b.orden ?? 0);
-      }
-      );
+        const imagenesOrdenadas = [...(data.producto_imagenes ?? [])].sort(
+          (a: any, b: any) => {
+            if (a.principal && !b.principal) return -1;
+            if (!a.principal && b.principal) return 1;
+            return (a.orden ?? 0) - (b.orden ?? 0);
+          }
+        );
+
         const imagenPrincipal =
-        imagenesOrdenadas.find((img: any) => img.principal)?.imagen_url ||
-        imagenesOrdenadas[0]?.imagen_url ||
-        '';
+          imagenesOrdenadas.find((img: any) => img.principal)?.imagen_url ||
+          imagenesOrdenadas[0]?.imagen_url ||
+          '';
+
+        const variantes = (data.producto_variantes ?? []).map((variante: any) => ({
+          ...variante,
+          stock: Number(variante.stock ?? 0),
+          peso_kg: Number(variante.peso_kg ?? 1),
+          largo_cm: Number(variante.largo_cm ?? 30),
+          ancho_cm: Number(variante.ancho_cm ?? 20),
+          alto_cm: Number(variante.alto_cm ?? 10),
+        }));
 
         this.producto.set({
           id: data.id,
@@ -98,12 +111,12 @@ export class EditarProducto implements OnInit {
           costo: Number(data.costo ?? 0),
           categoria_id: data.categoria_id ?? '',
           categoria: data.categorias?.nombre ?? 'Sin categoría',
-          stock: this.calcularStock(data),
+          stock: variantes.reduce((total: number, v: any) => total + Number(v.stock ?? 0), 0),
           estado: data.activo ? 'Activo' : 'Oculto',
           descripcion: data.descripcion ?? '',
           imagen: imagenPrincipal,
           imagenes: imagenesOrdenadas,
-          variantes: data.producto_variantes ?? [],
+          variantes,
 
           promocionActiva: false,
           porcentajeDescuento: 0,
@@ -147,23 +160,32 @@ export class EditarProducto implements OnInit {
     }));
   }
 
-  actualizarStockLocal(varianteId: string, stock: any): void {
-    this.producto.update(producto => {
-      const variantesActualizadas = producto.variantes.map((variante: any) =>
-        variante.id === varianteId
-          ? { ...variante, stock: Number(stock) }
-          : variante
-      );
+  actualizarDatoVariante(varianteId: string, campo: string, valor: any): void {
+    const productoActual = this.producto();
+
+    const variantes = productoActual.variantes.map((variante: any) => {
+      if (variante.id !== varianteId) return variante;
 
       return {
-        ...producto,
-        variantes: variantesActualizadas,
-        stock: variantesActualizadas.reduce(
-          (total: number, variante: any) => total + Number(variante.stock ?? 0),
-          0
-        )
+        ...variante,
+        [campo]: Number(valor),
       };
     });
+
+    const stockTotal = variantes.reduce(
+      (total: number, variante: any) => total + Number(variante.stock ?? 0),
+      0,
+    );
+
+    this.producto.set({
+      ...productoActual,
+      variantes,
+      stock: stockTotal,
+    });
+  }
+
+  actualizarStockLocal(varianteId: string, stock: any): void {
+    this.actualizarDatoVariante(varianteId, 'stock', stock);
   }
 
   agregarVariante(): void {
@@ -174,16 +196,49 @@ export class EditarProducto implements OnInit {
       return;
     }
 
+    if (!Number.isInteger(Number(this.nuevaVariante.stock)) || Number(this.nuevaVariante.stock) < 0) {
+      alert('El stock debe ser un número entero válido');
+      return;
+    }
+
+    if (!Number.isInteger(Number(this.nuevaVariante.peso_kg)) || Number(this.nuevaVariante.peso_kg) <= 0) {
+      alert('El peso debe ser un número entero mayor a 0');
+      return;
+    }
+
+    if (!Number.isInteger(Number(this.nuevaVariante.largo_cm)) || Number(this.nuevaVariante.largo_cm) <= 0) {
+      alert('El largo debe ser un número entero mayor a 0');
+      return;
+    }
+
+    if (!Number.isInteger(Number(this.nuevaVariante.ancho_cm)) || Number(this.nuevaVariante.ancho_cm) <= 0) {
+      alert('El ancho debe ser un número entero mayor a 0');
+      return;
+    }
+
+    if (!Number.isInteger(Number(this.nuevaVariante.alto_cm)) || Number(this.nuevaVariante.alto_cm) <= 0) {
+      alert('El alto debe ser un número entero mayor a 0');
+      return;
+    }
+
     this.api.post<any>(`productos/${producto.id}/variantes`, {
       talla_id: this.nuevaVariante.talla_id,
       stock: Number(this.nuevaVariante.stock ?? 0),
-      precio_extra: Number(this.nuevaVariante.precio_extra ?? 0)
+      precio_extra: Number(this.nuevaVariante.precio_extra ?? 0),
+      peso_kg: Number(this.nuevaVariante.peso_kg ?? 1),
+      largo_cm: Number(this.nuevaVariante.largo_cm ?? 30),
+      ancho_cm: Number(this.nuevaVariante.ancho_cm ?? 20),
+      alto_cm: Number(this.nuevaVariante.alto_cm ?? 10),
     }).subscribe({
       next: () => {
         this.nuevaVariante = {
           talla_id: '',
           stock: 0,
-          precio_extra: 0
+          precio_extra: 0,
+          peso_kg: 1,
+          largo_cm: 30,
+          ancho_cm: 20,
+          alto_cm: 10,
         };
 
         this.cargarProducto(producto.id);
@@ -302,6 +357,33 @@ export class EditarProducto implements OnInit {
   guardarCambios(): void {
     const producto = this.producto();
 
+    for (const variante of producto.variantes ?? []) {
+      if (!Number.isInteger(Number(variante.stock)) || Number(variante.stock) < 0) {
+        alert(`La talla ${variante.tallas?.nombre ?? ''} tiene stock inválido`);
+        return;
+      }
+
+      if (!Number.isInteger(Number(variante.peso_kg)) || Number(variante.peso_kg) <= 0) {
+        alert(`La talla ${variante.tallas?.nombre ?? ''} debe tener peso válido`);
+        return;
+      }
+
+      if (!Number.isInteger(Number(variante.largo_cm)) || Number(variante.largo_cm) <= 0) {
+        alert(`La talla ${variante.tallas?.nombre ?? ''} debe tener largo válido`);
+        return;
+      }
+
+      if (!Number.isInteger(Number(variante.ancho_cm)) || Number(variante.ancho_cm) <= 0) {
+        alert(`La talla ${variante.tallas?.nombre ?? ''} debe tener ancho válido`);
+        return;
+      }
+
+      if (!Number.isInteger(Number(variante.alto_cm)) || Number(variante.alto_cm) <= 0) {
+        alert(`La talla ${variante.tallas?.nombre ?? ''} debe tener alto válido`);
+        return;
+      }
+    }
+
     const payload = {
       nombre: producto.nombre,
       codigo: producto.codigo,
@@ -312,7 +394,11 @@ export class EditarProducto implements OnInit {
       categoria_id: producto.categoria_id,
       variantes: producto.variantes.map((variante: any) => ({
         id: variante.id,
-        stock: Number(variante.stock)
+        stock: Number(variante.stock),
+        peso_kg: Number(variante.peso_kg),
+        largo_cm: Number(variante.largo_cm),
+        ancho_cm: Number(variante.ancho_cm),
+        alto_cm: Number(variante.alto_cm),
       }))
     };
 
@@ -323,7 +409,14 @@ export class EditarProducto implements OnInit {
           categoria_id: data.categoria_id ?? productoActual.categoria_id,
           categoria: data.categorias?.nombre ?? productoActual.categoria,
           stock: this.calcularStock(data),
-          variantes: data.producto_variantes ?? [],
+          variantes: (data.producto_variantes ?? []).map((variante: any) => ({
+            ...variante,
+            stock: Number(variante.stock ?? 0),
+            peso_kg: Number(variante.peso_kg ?? 1),
+            largo_cm: Number(variante.largo_cm ?? 30),
+            ancho_cm: Number(variante.ancho_cm ?? 20),
+            alto_cm: Number(variante.alto_cm ?? 10),
+          })),
           imagenes: data.producto_imagenes ?? []
         }));
 
@@ -337,56 +430,56 @@ export class EditarProducto implements OnInit {
   }
 
   moverImagen(imagenId: string, direccion: 'arriba' | 'abajo'): void {
-  const producto = this.producto();
-  const imagenes = [...producto.imagenes];
+    const producto = this.producto();
+    const imagenes = [...producto.imagenes];
 
-  const index = imagenes.findIndex((img: any) => img.id === imagenId);
+    const index = imagenes.findIndex((img: any) => img.id === imagenId);
 
-  if (index === -1) return;
+    if (index === -1) return;
 
-  const nuevoIndex = direccion === 'arriba' ? index - 1 : index + 1;
+    const nuevoIndex = direccion === 'arriba' ? index - 1 : index + 1;
 
-  if (nuevoIndex < 0 || nuevoIndex >= imagenes.length) return;
+    if (nuevoIndex < 0 || nuevoIndex >= imagenes.length) return;
 
-  const temp = imagenes[index];
-  imagenes[index] = imagenes[nuevoIndex];
-  imagenes[nuevoIndex] = temp;
+    const temp = imagenes[index];
+    imagenes[index] = imagenes[nuevoIndex];
+    imagenes[nuevoIndex] = temp;
 
-  const imagenesReordenadas = imagenes.map((img: any, i: number) => ({
-    ...img,
-    orden: i + 1
-  }));
+    const imagenesReordenadas = imagenes.map((img: any, i: number) => ({
+      ...img,
+      orden: i + 1
+    }));
 
-  this.producto.update(productoActual => ({
-    ...productoActual,
-    imagenes: imagenesReordenadas
-  }));
+    this.producto.update(productoActual => ({
+      ...productoActual,
+      imagenes: imagenesReordenadas
+    }));
 
-  this.guardarOrdenImagenes(imagenesReordenadas);
-}
+    this.guardarOrdenImagenes(imagenesReordenadas);
+  }
 
-guardarOrdenImagenes(imagenes: any[]): void {
-  const producto = this.producto();
+  guardarOrdenImagenes(imagenes: any[]): void {
+    const producto = this.producto();
 
-  let completadas = 0;
+    let completadas = 0;
 
-  imagenes.forEach((imagen: any) => {
-    this.api.patch<any>(`productos/imagenes/${imagen.id}/orden`, {
-      orden: imagen.orden
-    }).subscribe({
-      next: () => {
-        completadas++;
+    imagenes.forEach((imagen: any) => {
+      this.api.patch<any>(`productos/imagenes/${imagen.id}/orden`, {
+        orden: imagen.orden
+      }).subscribe({
+        next: () => {
+          completadas++;
 
-        if (completadas === imagenes.length) {
-          this.cargarProducto(producto.id);
+          if (completadas === imagenes.length) {
+            this.cargarProducto(producto.id);
+          }
+        },
+        error: (error) => {
+          console.error('Error actualizando orden de imagen:', error);
+          alert('No se pudo actualizar el orden de las imágenes');
         }
-      },
-      error: (error) => {
-        console.error('Error actualizando orden de imagen:', error);
-        alert('No se pudo actualizar el orden de las imágenes');
-      }
+      });
     });
-  });
-}
+  }
 
 }

@@ -69,6 +69,9 @@ export class Checkout implements OnInit {
   costoEnvio = 0;
   envioGratis = false;
   mensajeEnvio = '';
+  tarifasEnvio: any[] = [];
+  tarifaEnvioSeleccionada: any = null;
+  skydropxQuotationId = '';
 
   direccionesGuardadas: DireccionUsuario[] = [];
   direccionSeleccionadaId = '';
@@ -132,12 +135,17 @@ export class Checkout implements OnInit {
       this.direccionListaParaMostrar = true;
       this.costoEnvio = 0;
       this.envioGratis = true;
+      this.tarifasEnvio = [];
+      this.tarifaEnvioSeleccionada = null;
+      this.skydropxQuotationId = '';
       this.mensajeEnvio = 'Recolección en tienda sin costo';
       this.cdr.detectChanges();
       return;
     }
 
     if (tipo === 'domicilio') {
+      this.envioGratis = false;
+
       if (this.direccionesGuardadas.length > 0) {
         const principal =
           this.direccionesGuardadas.find((direccion) => direccion.principal) ||
@@ -208,9 +216,7 @@ export class Checkout implements OnInit {
       (direccion) => direccion.id === direccionId
     );
 
-    if (!direccionEncontrada) {
-      return;
-    }
+    if (!direccionEncontrada) return;
 
     this.direccionSeleccionadaId = direccionEncontrada.id;
     this.aplicarDireccionGuardada(direccionEncontrada);
@@ -225,6 +231,10 @@ export class Checkout implements OnInit {
     this.direccion = this.obtenerDireccionVacia();
     this.erroresDireccion = {};
     this.direccionListaParaMostrar = true;
+    this.tarifasEnvio = [];
+    this.tarifaEnvioSeleccionada = null;
+    this.costoEnvio = 0;
+    this.skydropxQuotationId = '';
     this.cotizarEnvio();
 
     this.cdr.detectChanges();
@@ -232,6 +242,10 @@ export class Checkout implements OnInit {
 
   cotizarEnvio(): void {
     if (this.tipoEntrega !== 'domicilio') return;
+
+    this.tarifasEnvio = [];
+    this.tarifaEnvioSeleccionada = null;
+    this.skydropxQuotationId = '';
 
     if (!this.direccion.codigoPostal || this.direccion.codigoPostal.length < 5) {
       this.costoEnvio = 0;
@@ -256,12 +270,36 @@ export class Checkout implements OnInit {
       })
       .subscribe({
         next: (respuesta) => {
+          this.skydropxQuotationId = respuesta.skydropxQuotationId ?? '';
+
+          this.tarifasEnvio = [
+            {
+              tipo: 'Económico',
+              descripcion: 'La opción más barata',
+              tarifa: respuesta.opcionEconomica,
+            },
+            {
+              tipo: 'Recomendado',
+              descripcion: 'Balance entre precio y tiempo',
+              tarifa: respuesta.opcionRecomendada,
+            },
+            {
+              tipo: 'Express',
+              descripcion: 'La opción más rápida',
+              tarifa: respuesta.opcionExpress,
+            },
+          ].filter((opcion) => !!opcion.tarifa);
+
+          this.tarifaEnvioSeleccionada = respuesta.tarifaSeleccionada ?? null;
           this.costoEnvio = Number(respuesta.costoEnvio ?? 0);
           this.envioGratis = Boolean(respuesta.envioGratis);
 
-          this.mensajeEnvio = this.envioGratis
-            ? 'Tu compra tiene envío gratis'
-            : 'Costo de envío calculado';
+          if (this.envioGratis) {
+            this.tarifaEnvioSeleccionada = null;
+            this.mensajeEnvio = 'Tu compra tiene envío gratis';
+          } else {
+            this.mensajeEnvio = 'Selecciona la paquetería que prefieras';
+          }
 
           this.cotizandoEnvio = false;
           this.cdr.detectChanges();
@@ -270,11 +308,24 @@ export class Checkout implements OnInit {
           console.error('Error cotizando envío:', error);
           this.costoEnvio = 0;
           this.envioGratis = false;
+          this.tarifasEnvio = [];
+          this.tarifaEnvioSeleccionada = null;
           this.mensajeEnvio = 'No se pudo calcular el envío';
           this.cotizandoEnvio = false;
           this.cdr.detectChanges();
         },
       });
+  }
+
+  seleccionarTarifaEnvio(opcion: any): void {
+    if (this.envioGratis) return;
+
+    const tarifa = opcion?.tarifa ?? opcion;
+
+    this.tarifaEnvioSeleccionada = tarifa;
+    this.costoEnvio = Number(tarifa?.total ?? 0);
+
+    this.cdr.detectChanges();
   }
 
   realizarPedido(): void {
@@ -290,6 +341,15 @@ export class Checkout implements OnInit {
 
     if (!formularioValido) {
       this.error = 'Revisa los campos marcados antes de continuar.';
+      return;
+    }
+
+    if (
+      this.tipoEntrega === 'domicilio' &&
+      !this.envioGratis &&
+      !this.tarifaEnvioSeleccionada
+    ) {
+      this.error = 'Selecciona una opción de envío antes de continuar.';
       return;
     }
 
@@ -329,6 +389,8 @@ export class Checkout implements OnInit {
       envio: this.envio(),
       subtotal: this.subtotal(),
       total: this.total(),
+      tarifaEnvio: this.tarifaEnvioSeleccionada,
+      skydropxQuotationId: this.skydropxQuotationId,
       items: this.items().map((item) => ({
         producto_id: item.producto_id || item.id,
         variante_id: item.variante_id,
@@ -478,9 +540,7 @@ export class Checkout implements OnInit {
   private precargarCliente(): void {
     const usuario = this.authService.getUser();
 
-    if (!usuario) {
-      return;
-    }
+    if (!usuario) return;
 
     this.cliente = {
       nombre: usuario.nombre || '',

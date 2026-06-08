@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, Patch } from '@nestjs/common';
 import { EnviosService } from './envios.service';
 
 @Controller('envios')
@@ -41,6 +41,19 @@ obtenerDireccionesSkydropx() {
   return this.enviosService.obtenerDireccionesSkydropx();
 }
 
-
-
+@Patch(':id/guia')
+guardarGuia(
+  @Param('id') id: string,
+  @Body()
+  body: {
+    numero_guia: string;
+    paqueteria?: string;
+  },
+) {
+  return this.enviosService.guardarGuia(
+    id,
+    body.numero_guia,
+    body.paqueteria,
+  );
+}
 }

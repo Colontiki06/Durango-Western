@@ -31,13 +31,27 @@ export class PagosService {
         external_reference: pedido.id,
         notification_url: 'https://heaving-precision-saucy.ngrok-free.dev/api/pagos/mercado-pago/webhook',
         metadata: { pedido_id: pedido.id },
-        items: pedido.pedido_items.map((item) => ({
-          id: item.id,
-          title: item.nombre_producto,
-          quantity: item.cantidad,
-          unit_price: Number(item.precio_unitario),
+        items: [
+  ...pedido.pedido_items.map((item) => ({
+    id: item.id,
+    title: item.nombre_producto,
+    quantity: item.cantidad,
+    unit_price: Number(item.precio_unitario),
+    currency_id: 'MXN',
+  })),
+
+  ...(Number(pedido.envio ?? 0) > 0
+    ? [
+        {
+          id: 'envio',
+          title: 'Costo de envío',
+          quantity: 1,
+          unit_price: Number(pedido.envio),
           currency_id: 'MXN',
-        })),
+        },
+      ]
+    : []),
+],
         back_urls: {
           success: 'https://heaving-precision-saucy.ngrok-free.dev/pago-exitoso',
           failure: 'https://heaving-precision-saucy.ngrok-free.dev/pago-fallido',

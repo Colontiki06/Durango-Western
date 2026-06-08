@@ -21,17 +21,66 @@ export class DetallePedido implements OnInit {
   error = '';
   guardandoEstado = false;
   mensajeEstado = '';
+  guardandoGuia = false;
+  mensajeGuia = '';
+  paqueteriaGuia = '';
+  numeroGuia = '';
 
   estadosEnvio = [
+  'pendiente',
+  'preparando',
+  'empacado',
+  'enviado',
+  'listo_recoger',
+  'entregado',
+  'cancelado'
+];
+
+
+
+  nuevoEstadoEnvio = '';
+
+  esRecoleccionTienda(): boolean {
+  const tipoEntrega = this.pedido?.tipo_entrega;
+  const notas = String(this.pedido?.notas ?? '').toLowerCase();
+
+  return tipoEntrega === 'tienda' || notas.includes('recolección en tienda') || notas.includes('recoleccion en tienda');
+}
+
+estadosDisponiblesEnvio(): string[] {
+  if (this.esRecoleccionTienda()) {
+    return [
+      'pendiente',
+      'preparando',
+      'listo_recoger',
+      'entregado',
+      'cancelado',
+    ];
+  }
+
+  return [
     'pendiente',
     'preparando',
     'empacado',
     'enviado',
     'entregado',
-    'cancelado'
+    'cancelado',
   ];
+}
 
-  nuevoEstadoEnvio = '';
+labelEstadoEnvio(estado: string): string {
+  const labels: Record<string, string> = {
+    pendiente: 'Pendiente',
+    preparando: 'Preparando',
+    empacado: 'Empacado',
+    enviado: 'Enviado',
+    listo_recoger: 'Listo para recoger',
+    entregado: 'Entregado',
+    cancelado: 'Cancelado',
+  };
+
+  return labels[estado] ?? estado;
+}
 
   constructor(
     private route: ActivatedRoute,
@@ -52,9 +101,17 @@ export class DetallePedido implements OnInit {
 
   this.api.get<any>(`pedidos/${id}`).subscribe({
     next: (data) => {
-  this.pedido = data;
-  this.nuevoEstadoEnvio = data.estado_envio ?? 'pendiente';
-  this.loading = false;
+    console.log('PEDIDO DETALLE COMPLETO:', data);
+    this.pedido = data;
+    this.nuevoEstadoEnvio = data.estado_envio ?? 'pendiente';
+
+    const envio = data.envios?.[0];
+
+    this.numeroGuia = envio?.numero_guia ?? '';
+    this.paqueteriaGuia = envio?.paqueterias?.nombre ?? '';
+
+    this.loading = false;
+    this.pedido = data;
 
   this.cdr.detectChanges();
 },
@@ -87,13 +144,14 @@ export class DetallePedido implements OnInit {
 
 claseEnvio(estado: string): string {
   const clases: Record<string, string> = {
-    pendiente: 'bg-blue-100 text-blue-700',
-    preparando: 'bg-yellow-100 text-yellow-700',
-    empacado: 'bg-purple-100 text-purple-700',
-    enviado: 'bg-indigo-100 text-indigo-700',
-    entregado: 'bg-emerald-100 text-emerald-700',
-    cancelado: 'bg-red-100 text-red-700',
-  };
+  pendiente: 'bg-blue-100 text-blue-700',
+  preparando: 'bg-yellow-100 text-yellow-700',
+  empacado: 'bg-purple-100 text-purple-700',
+  enviado: 'bg-indigo-100 text-indigo-700',
+  listo_recoger: 'bg-amber-100 text-amber-700',
+  entregado: 'bg-emerald-100 text-emerald-700',
+  cancelado: 'bg-red-100 text-red-700',
+};
 
   return clases[estado] ?? 'bg-gray-100 text-gray-700';
 }
@@ -119,40 +177,80 @@ guardarEstadoEnvio(): void {
       this.cdr.detectChanges();
     },
     error: (error) => {
-      console.error('Error actualizando estado de envío:', error);
-      this.mensajeEstado = 'No se pudo actualizar el estado';
-      this.guardandoEstado = false;
+  console.error('Error actualizando estado de envío:', error);
+
+  this.mensajeEstado =
+    error?.error?.message ||
+    'Debes guardar la paquetería y el número de guía antes de marcar como enviado';
+
+  this.guardandoEstado = false;
+  this.cdr.detectChanges();
+}
+  });
+}
+
+pasosTimeline(): { key: string; label: string }[] {
+  if (this.esRecoleccionTienda()) {
+    return [
+      { key: 'recibido', label: 'Pedido recibido' },
+      { key: 'pagado', label: 'Pago aprobado' },
+      { key: 'preparando', label: 'Preparando' },
+      { key: 'listo_recoger', label: 'Listo para recoger' },
+      { key: 'entregado', label: 'Entregado' },
+    ];
+  }
+
+  return [
+    { key: 'recibido', label: 'Pedido recibido' },
+    { key: 'pagado', label: 'Pago aprobado' },
+    { key: 'preparando', label: 'Preparando' },
+    { key: 'empacado', label: 'Empacado' },
+    { key: 'enviado', label: 'Enviado' },
+    { key: 'entregado', label: 'Entregado' },
+  ];
+}
+
+guardarGuiaEnvio(): void {
+  const envio = this.pedido?.envios?.[0];
+
+  if (!envio?.id) {
+    this.mensajeGuia = 'Este pedido no tiene envío registrado';
+    return;
+  }
+
+  if (!this.numeroGuia.trim()) {
+    this.mensajeGuia = 'Captura el número de guía';
+    return;
+  }
+
+  this.guardandoGuia = true;
+  this.mensajeGuia = '';
+
+  this.api.patch<any>(`envios/${envio.id}/guia`, {
+    numero_guia: this.numeroGuia.trim(),
+  }).subscribe({
+    next: (envioActualizado) => {
+  const envioAnterior = this.pedido.envios[0];
+
+  this.pedido.envios[0] = {
+    ...envioAnterior,
+    ...envioActualizado,
+    paqueterias: envioActualizado.paqueterias ?? envioAnterior.paqueterias,
+  };
+
+  this.numeroGuia = envioActualizado.numero_guia ?? this.numeroGuia;
+  this.mensajeGuia = 'Guía guardada correctamente';
+  this.guardandoGuia = false;
+  this.cdr.detectChanges();
+},
+    error: (error) => {
+      console.error('Error guardando guía:', error);
+      this.mensajeGuia = 'No se pudo guardar la guía';
+      this.guardandoGuia = false;
       this.cdr.detectChanges();
     }
   });
 }
-
-pasosTimeline = [
-  {
-    key: 'recibido',
-    label: 'Pedido recibido',
-  },
-  {
-    key: 'pagado',
-    label: 'Pago aprobado',
-  },
-  {
-    key: 'preparando',
-    label: 'Preparando',
-  },
-  {
-    key: 'empacado',
-    label: 'Empacado',
-  },
-  {
-    key: 'enviado',
-    label: 'Enviado',
-  },
-  {
-    key: 'entregado',
-    label: 'Entregado',
-  },
-];
 
 indiceActualTimeline(): number {
   if (!this.pedido) return 0;
@@ -163,7 +261,18 @@ indiceActualTimeline(): number {
 
   const estadoEnvio = this.pedido.estado_envio ?? 'pendiente';
 
-  const mapa: Record<string, number> = {
+  if (this.esRecoleccionTienda()) {
+    const mapaTienda: Record<string, number> = {
+      pendiente: 1,
+      preparando: 2,
+      listo_recoger: 3,
+      entregado: 4,
+    };
+
+    return mapaTienda[estadoEnvio] ?? 1;
+  }
+
+  const mapaDomicilio: Record<string, number> = {
     pendiente: 1,
     preparando: 2,
     empacado: 3,
@@ -171,7 +280,7 @@ indiceActualTimeline(): number {
     entregado: 5,
   };
 
-  return mapa[estadoEnvio] ?? 1;
+  return mapaDomicilio[estadoEnvio] ?? 1;
 }
 
 clasePasoTimeline(index: number): string {
@@ -206,5 +315,6 @@ cambiarEstadoRapido(estado: string): void {
 puedeCambiarEstado(estado: string): boolean {
   return this.pedido?.estado_envio !== estado;
 }
+
 
 }

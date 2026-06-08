@@ -151,6 +151,10 @@ export class ProductosService {
               stock: Number(variante.stock ?? 0),
               precio_extra: String(variante.precio_extra ?? 0),
               activo: true,
+              peso_kg: String(variante.peso_kg ?? 1),
+              largo_cm: String(variante.largo_cm ?? 30),
+              ancho_cm: String(variante.ancho_cm ?? 20),
+              alto_cm: String(variante.alto_cm ?? 10),
             },
           });
         }
@@ -176,15 +180,19 @@ export class ProductosService {
     });
 
     if (Array.isArray(data.variantes)) {
-      for (const variante of data.variantes) {
-        await this.prisma.producto_variantes.update({
-          where: { id: variante.id },
-          data: {
-            stock: Number(variante.stock),
-          },
-        });
-      }
-    }
+  for (const variante of data.variantes) {
+    await this.prisma.producto_variantes.update({
+      where: { id: variante.id },
+      data: {
+        stock: Number(variante.stock),
+        peso_kg: Number(variante.peso_kg ?? 1),
+        largo_cm: Number(variante.largo_cm ?? 30),
+        ancho_cm: Number(variante.ancho_cm ?? 20),
+        alto_cm: Number(variante.alto_cm ?? 10),
+      },
+    });
+  }
+}
 
     return this.findOne(id);
   }
@@ -265,16 +273,20 @@ export class ProductosService {
     }
 
     return this.prisma.producto_variantes.create({
-      data: {
-        producto_id: productoId,
-        talla_id: data.talla_id,
-        color_id: data.color_id ?? null,
-        sku: `${producto.codigo}-${talla.nombre}`,
-        stock: Number(data.stock ?? 0),
-        precio_extra: String(data.precio_extra ?? 0),
-        activo: true,
-      },
-    });
+  data: {
+    producto_id: productoId,
+    talla_id: data.talla_id,
+    color_id: data.color_id ?? null,
+    sku: `${producto.codigo}-${talla.nombre}`,
+    stock: Number(data.stock ?? 0),
+    precio_extra: String(data.precio_extra ?? 0),
+    peso_kg: String(data.peso_kg ?? 1),
+    largo_cm: String(data.largo_cm ?? 30),
+    ancho_cm: String(data.ancho_cm ?? 20),
+    alto_cm: String(data.alto_cm ?? 10),
+    activo: true,
+  },
+});
   }
 
   async updateStockVariante(varianteId: string, stock: number) {
