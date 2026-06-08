@@ -32,7 +32,7 @@ import { EnviosModule } from './envios/envios.module';
 // MARKETING
 import { PromocionesModule } from './promociones/promociones.module';
 import { CuponesModule } from './cupones/cupones.module';
-
+import { PersonalizarInicioModule } from './personalizar-inicio/personalizar-inicio.module';
 // CMS
 import { BannersModule } from './banners/banners.module';
 import { PaginasModule } from './paginas/paginas.module';
@@ -88,6 +88,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     // MARKETING
     PromocionesModule,
     CuponesModule,
+    PersonalizarInicioModule,
 
     // CMS
     BannersModule,

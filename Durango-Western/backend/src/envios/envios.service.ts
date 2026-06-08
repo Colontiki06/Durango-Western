@@ -310,7 +310,7 @@ async guardarGuia(
     throw new BadRequestException('Envío no encontrado');
   }
 
-  let paqueteriaId: string | null = null;
+  let paqueteriaId: string | null = envio.paqueteria_id ?? null;
 
   if (paqueteriaNombre && paqueteriaNombre.trim()) {
     const paqueteria = await this.prisma.paqueterias.findFirst({

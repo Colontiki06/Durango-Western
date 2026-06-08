@@ -230,12 +230,19 @@ guardarGuiaEnvio(): void {
     numero_guia: this.numeroGuia.trim(),
   }).subscribe({
     next: (envioActualizado) => {
-      this.pedido.envios[0] = envioActualizado;
-      this.numeroGuia = envioActualizado.numero_guia ?? this.numeroGuia;
-      this.mensajeGuia = 'Guía guardada correctamente';
-      this.guardandoGuia = false;
-      this.cdr.detectChanges();
-    },
+  const envioAnterior = this.pedido.envios[0];
+
+  this.pedido.envios[0] = {
+    ...envioAnterior,
+    ...envioActualizado,
+    paqueterias: envioActualizado.paqueterias ?? envioAnterior.paqueterias,
+  };
+
+  this.numeroGuia = envioActualizado.numero_guia ?? this.numeroGuia;
+  this.mensajeGuia = 'Guía guardada correctamente';
+  this.guardandoGuia = false;
+  this.cdr.detectChanges();
+},
     error: (error) => {
       console.error('Error guardando guía:', error);
       this.mensajeGuia = 'No se pudo guardar la guía';

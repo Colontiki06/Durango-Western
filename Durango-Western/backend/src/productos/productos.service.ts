@@ -180,15 +180,19 @@ export class ProductosService {
     });
 
     if (Array.isArray(data.variantes)) {
-      for (const variante of data.variantes) {
-        await this.prisma.producto_variantes.update({
-          where: { id: variante.id },
-          data: {
-            stock: Number(variante.stock),
-          },
-        });
-      }
-    }
+  for (const variante of data.variantes) {
+    await this.prisma.producto_variantes.update({
+      where: { id: variante.id },
+      data: {
+        stock: Number(variante.stock),
+        peso_kg: Number(variante.peso_kg ?? 1),
+        largo_cm: Number(variante.largo_cm ?? 30),
+        ancho_cm: Number(variante.ancho_cm ?? 20),
+        alto_cm: Number(variante.alto_cm ?? 10),
+      },
+    });
+  }
+}
 
     return this.findOne(id);
   }
