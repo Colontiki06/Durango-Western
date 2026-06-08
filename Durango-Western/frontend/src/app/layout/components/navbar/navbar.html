@@ -11,41 +11,86 @@
 
     <div class="navbar-icons">
 
-      <button type="button" class="icon-button" aria-label="Buscar" (click)="toggleSearch()">
+      <button
+        type="button"
+        class="icon-button"
+        aria-label="Buscar"
+        (click)="toggleSearch()"
+      >
         <img src="/icons/lupa.svg" alt="Buscar" />
       </button>
 
       <div class="user-menu-wrapper">
-        <button type="button" class="icon-button" aria-label="Área de usuario">
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Área de usuario"
+          (click)="toggleUserMenu()"
+        >
           <img src="/icons/usuario.svg" alt="Usuario" />
         </button>
 
-        <div class="user-dropdown">
-          @if(auth.isLoggedIn()) {
-            <button type="button" (click)="goTo('/perfil')">Mi perfil</button>
-            <button type="button" (click)="goTo('/pedidos')">Mis compras</button>
-            <button type="button" (click)="goTo('/metodos-pago')">Métodos de pago</button>
-            <button type="button" (click)="logout()">Cerrar sesión</button>
-          } @else {
-            <div class="px-3 py-3 text-left">
-              <p class="text-[#2f1b12] font-bold mb-1">¿Ya tienes cuenta?</p>
-              <p class="text-[#8a542f] text-sm mb-3">
-                Inicia sesión para ver tu perfil, pedidos y métodos de pago.
-              </p>
+        @if(userMenuOpen) {
+          <div class="user-dropdown">
 
-              <button
-                type="button"
-                (click)="goTo('/login')"
-                class="w-full bg-[#4b2e1f] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#6b3f26] transition"
-              >
-                Iniciar sesión
-              </button>
-            </div>
-          }
-        </div>
+            @if(isLoggedIn()) {
+              <div class="px-3 py-3 text-left">
+                <p class="text-[#2f1b12] font-bold mb-1">
+                  Hola, {{ obtenerNombreUsuario() }}
+                </p>
+
+                <p class="text-[#8a542f] text-sm mb-3">
+                  Administra tu perfil, pedidos y direcciones.
+                </p>
+
+                <button type="button" (click)="goTo('/perfil')">
+                  Mi perfil
+                </button>
+
+                <button type="button" (click)="goTo('/pedidos')">
+                  Mis compras
+                </button>
+
+                <button type="button" (click)="goTo('/metodos-pago')">
+                  Métodos de pago
+                </button>
+
+                <button type="button" (click)="logout()">
+                  Cerrar sesión
+                </button>
+              </div>
+            }
+
+            @else {
+              <div class="px-3 py-3 text-left">
+                <p class="text-[#2f1b12] font-bold mb-1">
+                  ¿Ya tienes cuenta?
+                </p>
+
+                <p class="text-[#8a542f] text-sm mb-3">
+                  Inicia sesión para ver tu perfil, pedidos y métodos de pago.
+                </p>
+
+                <button
+                  type="button"
+                  (click)="goTo('/login')"
+                  class="w-full bg-[#4b2e1f] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#6b3f26] transition"
+                >
+                  Iniciar sesión
+                </button>
+              </div>
+            }
+
+          </div>
+        }
       </div>
 
-      <button type="button" class="icon-button cart-button" routerLink="/carrito" aria-label="Carrito">
+      <button
+        type="button"
+        class="icon-button cart-button"
+        routerLink="/carrito"
+        aria-label="Carrito"
+      >
         <img src="/icons/bolso.svg" alt="Carrito" />
 
         <span *ngIf="cartCount > 0" class="cart-badge">
@@ -179,7 +224,7 @@
   </div>
 
   <a routerLink="/ofertas" class="menu-link">
-  Ofertas
-</a>
+    Ofertas
+  </a>
 
 </div>

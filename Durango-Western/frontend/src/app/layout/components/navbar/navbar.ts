@@ -1,8 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 
-import { Auth } from '../../../core/services/auth/auth';
+import {
+  AuthService,
+  UsuarioSesion,
+} from '../../../core/services/auth/auth.service';
+
 import { CartService } from '../../../core/services/cart/cart.service';
 
 @Component({
@@ -10,23 +15,46 @@ import { CartService } from '../../../core/services/cart/cart.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css'
+  styleUrl: './navbar.css',
 })
-export class Navbar {
-
+export class Navbar implements OnInit, OnDestroy {
   cartCount = 0;
 
   searchOpen = false;
   userMenuOpen = false;
 
+  usuario: UsuarioSesion | null = null;
+
+  private cartSubscription?: Subscription;
+  private routerSubscription?: Subscription;
+
   constructor(
     private router: Router,
-    public auth: Auth,
+    private authService: AuthService,
     private cartService: CartService
-  ) {
-    this.cartService.cartItems$.subscribe(() => {
+  ) {}
+
+  ngOnInit(): void {
+    this.actualizarUsuario();
+
+    this.cartCount = this.cartService.getTotalItems();
+
+    this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
       this.cartCount = this.cartService.getTotalItems();
     });
+
+    this.routerSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.actualizarUsuario();
+        this.userMenuOpen = false;
+        this.searchOpen = false;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.cartSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
   }
 
   toggleSearch(): void {
@@ -34,24 +62,39 @@ export class Navbar {
     this.userMenuOpen = false;
   }
 
- goToUserArea(): void {
-  if (!this.auth.isLoggedIn()) {
-    this.router.navigate(['/login']);
-    return;
+  toggleUserMenu(): void {
+    this.actualizarUsuario();
+    this.userMenuOpen = !this.userMenuOpen;
+    this.searchOpen = false;
   }
 
-  this.userMenuOpen = !this.userMenuOpen;
-  this.searchOpen = false;
-}
+  isLoggedIn(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  actualizarUsuario(): void {
+    this.usuario = this.authService.getUser();
+  }
 
   goTo(path: string): void {
     this.userMenuOpen = false;
+    this.searchOpen = false;
     this.router.navigate([path]);
   }
 
- logout(): void {
-  this.auth.logout();
-  this.router.navigate(['/login']);
-}
+  logout(): void {
+    this.authService.logout();
+    this.usuario = null;
+    this.userMenuOpen = false;
+    this.searchOpen = false;
+    this.router.navigate(['/login']);
+  }
 
+  obtenerNombreUsuario(): string {
+    if (!this.usuario) {
+      return '';
+    }
+
+    return this.usuario.nombre || this.usuario.email || 'Cliente';
+  }
 }
