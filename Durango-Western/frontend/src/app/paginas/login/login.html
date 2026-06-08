@@ -2,102 +2,177 @@
 
   <div class="w-full max-w-[460px] bg-[#fff8ec] shadow-xl border border-[#d8c4a8] rounded-2xl overflow-hidden">
 
-    <!-- Encabezado -->
     <div class="bg-[#5b2d16] px-8 py-9 text-center">
       <h1 class="text-white text-3xl font-bold tracking-wide">
-        Iniciar sesión
+        {{ modoRecuperacion ? 'Recuperar contraseña' : 'Iniciar sesión' }}
       </h1>
 
       <p class="text-[#f3e3cc] text-sm mt-3">
-        Accede a tu cuenta Durango Western
+        {{
+          modoRecuperacion
+            ? 'Te enviaremos un enlace para cambiar tu contraseña'
+            : 'Accede a tu cuenta Durango Western'
+        }}
       </p>
     </div>
 
-    <!-- Formulario -->
-    <form class="px-8 py-9" (ngSubmit)="login()">
+    <form class="px-8 py-9">
 
-      <p class="text-center text-sm text-[#3b2618] leading-6 mb-8">
-        En caso de ya tener una cuenta existente, es necesario volver a registrar
-        para poder ingresar en nuestro nuevo sitio web.
-      </p>
+      <ng-container *ngIf="!modoRecuperacion">
 
-      <div class="space-y-5">
-
-        <div>
-          <label class="block text-sm font-semibold text-[#3b2618] mb-2">
-            Correo electrónico
-          </label>
-
-          <input
-            type="email"
-            name="email"
-            [(ngModel)]="email"
-            placeholder="ejemplo@correo.com"
-            autocomplete="email"
-            class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-[#3b2618] mb-2">
-            Contraseña
-          </label>
-
-          <input
-            type="password"
-            name="password"
-            [(ngModel)]="password"
-            placeholder="Ingresa tu contraseña"
-            autocomplete="current-password"
-            class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
-          />
-        </div>
-
-        <div class="flex justify-end">
-          <a
-            routerLink="/recuperar-contrasena"
-            class="text-xs underline text-[#5b2d16] hover:text-[#8b542f]"
-          >
-            ¿Olvidaste tu contraseña?
-          </a>
-        </div>
-
-        <p
-          *ngIf="error"
-          class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg"
-        >
-          {{ error }}
+        <p class="text-center text-sm text-[#3b2618] leading-6 mb-8">
+          En caso de ya tener una cuenta existente, es necesario volver a registrar
+          para poder ingresar en nuestro nuevo sitio web.
         </p>
 
-        <button
-          type="submit"
-          [disabled]="loading"
-          class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {{ loading ? 'INICIANDO SESIÓN...' : 'INICIAR SESIÓN' }}
-        </button>
+        <div class="space-y-5">
 
-        <div class="relative py-2">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-[#d8c4a8]"></div>
+          <div>
+            <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+              Correo electrónico
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              placeholder="ejemplo@correo.com"
+              autocomplete="email"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+            />
           </div>
 
-          <div class="relative flex justify-center">
-            <span class="bg-[#fff8ec] px-4 text-xs text-[#6b4a34]">
-              o
-            </span>
+          <div>
+            <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+              Contraseña
+            </label>
+
+            <input
+              type="password"
+              name="password"
+              [(ngModel)]="password"
+              placeholder="Ingresa tu contraseña"
+              autocomplete="current-password"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+            />
           </div>
+
+          <div class="flex justify-end">
+            <button
+              type="button"
+              (click)="abrirRecuperacion()"
+              class="text-xs underline text-[#5b2d16] hover:text-[#8b542f]"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
+
+          <p
+            *ngIf="error"
+            class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg"
+          >
+            {{ error }}
+          </p>
+
+          <p
+            *ngIf="mensaje"
+            class="bg-green-100 border border-green-300 text-green-700 px-4 py-3 text-sm rounded-lg"
+          >
+            {{ mensaje }}
+          </p>
+
+          <button
+            type="button"
+            (click)="login()"
+            [disabled]="loading"
+            class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {{ loading ? 'INICIANDO SESIÓN...' : 'INICIAR SESIÓN' }}
+          </button>
+
+          <div class="relative py-2">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-[#d8c4a8]"></div>
+            </div>
+
+            <div class="relative flex justify-center">
+              <span class="bg-[#fff8ec] px-4 text-xs text-[#6b4a34]">
+                o
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            routerLink="/registro"
+            class="w-full h-12 rounded-lg border border-[#8b542f] bg-transparent text-[#5b2d16] text-sm font-bold tracking-wide hover:bg-[#f3e3cc] transition"
+          >
+            CREAR CUENTA
+          </button>
+
         </div>
 
-        <button
-          type="button"
-          routerLink="/registro"
-          class="w-full h-12 rounded-lg border border-[#8b542f] bg-transparent text-[#5b2d16] text-sm font-bold tracking-wide hover:bg-[#f3e3cc] transition"
-        >
-          CREAR CUENTA
-        </button>
+      </ng-container>
 
-      </div>
+      <ng-container *ngIf="modoRecuperacion">
+
+        <div class="space-y-5">
+
+          <p class="text-center text-sm text-[#3b2618] leading-6 mb-6">
+            Ingresa el correo de tu cuenta. Si está registrado, recibirás un enlace para restablecer tu contraseña.
+          </p>
+
+          <div>
+            <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+              Correo electrónico
+            </label>
+
+            <input
+              type="email"
+              name="emailRecuperacion"
+              [(ngModel)]="emailRecuperacion"
+              placeholder="ejemplo@correo.com"
+              autocomplete="email"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+            />
+          </div>
+
+          <p
+            *ngIf="error"
+            class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg"
+          >
+            {{ error }}
+          </p>
+
+          <p
+            *ngIf="mensaje"
+            class="bg-green-100 border border-green-300 text-green-700 px-4 py-3 text-sm rounded-lg"
+          >
+            {{ mensaje }}
+          </p>
+
+          <button
+            type="button"
+            (click)="enviarCorreoRecuperacion()"
+            [disabled]="enviandoRecuperacion"
+            class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {{ enviandoRecuperacion ? 'ENVIANDO CORREO...' : 'ENVIAR ENLACE' }}
+          </button>
+
+          <button
+            type="button"
+            (click)="cancelarRecuperacion()"
+            [disabled]="enviandoRecuperacion"
+            class="w-full h-12 rounded-lg border border-[#8b542f] bg-transparent text-[#5b2d16] text-sm font-bold tracking-wide hover:bg-[#f3e3cc] transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            VOLVER AL LOGIN
+          </button>
+
+        </div>
+
+      </ng-container>
+
     </form>
 
   </div>

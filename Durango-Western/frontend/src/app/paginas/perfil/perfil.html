@@ -2,7 +2,6 @@
 
   <div class="max-w-7xl mx-auto">
 
-    <!-- Encabezado -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
       <div>
         <h1 class="text-4xl font-bold text-[#2b1a10]">
@@ -18,7 +17,8 @@
         <button
           type="button"
           (click)="activarEdicion()"
-          class="bg-[#4b2e1f] hover:bg-[#2f1b12] text-white px-8 py-4 rounded-xl font-bold transition"
+          [disabled]="editandoPerfil || guardando"
+          class="bg-[#4b2e1f] hover:bg-[#2f1b12] text-white px-8 py-4 rounded-xl font-bold transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
           Editar perfil
         </button>
@@ -33,7 +33,13 @@
       </div>
     </div>
 
-    <!-- Mensajes -->
+    <div
+      *ngIf="cargando && !usuario"
+      class="mb-6 bg-[#fff8ec] border border-[#d8c4a8] text-[#5b2d16] px-5 py-4 rounded-xl font-semibold"
+    >
+      Cargando perfil...
+    </div>
+
     <div
       *ngIf="mensaje"
       class="mb-6 bg-green-100 border border-green-300 text-green-700 px-5 py-4 rounded-xl font-semibold"
@@ -50,10 +56,8 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
 
-      <!-- Columna principal -->
       <div class="space-y-8">
 
-        <!-- Tarjeta de perfil -->
         <div class="bg-white rounded-2xl shadow-md border border-[#e0d2bd] p-6 md:p-8">
 
           <div class="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
@@ -74,7 +78,6 @@
 
           </div>
 
-          <!-- Vista normal -->
           <div *ngIf="!editandoPerfil" class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
             <div class="bg-[#f5ede1] rounded-xl p-5">
@@ -92,14 +95,33 @@
                 Correo
               </p>
 
-              <p class="text-lg font-bold text-[#2b1a10]">
+              <p class="text-lg font-bold text-[#2b1a10] break-all">
                 {{ usuario?.email || 'Sin correo registrado' }}
+              </p>
+            </div>
+
+            <div class="bg-[#f5ede1] rounded-xl p-5">
+              <p class="text-sm text-[#6b3f26] mb-2">
+                Teléfono
+              </p>
+
+              <p class="text-lg font-bold text-[#2b1a10]">
+                {{ usuario?.telefono || 'Sin teléfono registrado' }}
+              </p>
+            </div>
+
+            <div class="bg-[#f5ede1] rounded-xl p-5">
+              <p class="text-sm text-[#6b3f26] mb-2">
+                Tipo de cuenta
+              </p>
+
+              <p class="text-lg font-bold text-[#2b1a10]">
+                {{ usuario?.rol || 'cliente' }}
               </p>
             </div>
 
           </div>
 
-          <!-- Modo edición -->
           <div
             *ngIf="editandoPerfil"
             class="bg-[#f5ede1] border border-[#d8c4a8] rounded-2xl p-6"
@@ -109,6 +131,7 @@
             </h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
               <div>
                 <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
                   Nombre
@@ -119,38 +142,60 @@
                   name="nombreEdit"
                   [(ngModel)]="nombreEdit"
                   placeholder="Tu nombre"
-                  class="w-full h-12 rounded-lg border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [disabled]="guardando"
+                  class="w-full h-12 rounded-lg border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20 disabled:opacity-70 disabled:cursor-not-allowed"
                 />
               </div>
 
               <div>
                 <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
-                  Correo
+                  Teléfono
+                </label>
+
+                <input
+                  type="tel"
+                  name="telefonoEdit"
+                  [(ngModel)]="telefonoEdit"
+                  placeholder="Ej. 618 123 4567"
+                  [disabled]="guardando"
+                  class="w-full h-12 rounded-lg border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Correo electrónico
                 </label>
 
                 <input
                   type="email"
-                  name="correoEdit"
-                  [(ngModel)]="correoEdit"
-                  placeholder="tu-correo@email.com"
-                  class="w-full h-12 rounded-lg border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [value]="usuario?.email || ''"
+                  disabled
+                  class="w-full h-12 rounded-lg border border-[#d8c4a8] bg-[#eee2d0] px-4 text-[#6b3f26] outline-none cursor-not-allowed"
                 />
+
+                <p class="text-xs text-[#6b3f26] mt-2">
+                  El cambio de correo se habilitará después con verificación por email.
+                </p>
               </div>
+
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3 mt-6">
               <button
                 type="button"
                 (click)="guardarPerfil()"
-                class="bg-[#8b542f] hover:bg-[#6f4022] text-white px-6 py-3 rounded-lg font-bold transition"
+                [disabled]="guardando"
+                class="bg-[#8b542f] hover:bg-[#6f4022] text-white px-6 py-3 rounded-lg font-bold transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Guardar cambios
+                {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
               </button>
 
               <button
                 type="button"
                 (click)="cancelarEdicion()"
-                class="border border-[#8b542f] text-[#5b2d16] hover:bg-[#f3e3cc] px-6 py-3 rounded-lg font-bold transition"
+                [disabled]="guardando"
+                class="border border-[#8b542f] text-[#5b2d16] hover:bg-[#f3e3cc] px-6 py-3 rounded-lg font-bold transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Cancelar
               </button>
@@ -159,7 +204,6 @@
 
         </div>
 
-        <!-- Direcciones -->
         <div class="bg-white rounded-2xl shadow-md border border-[#e0d2bd] p-6 md:p-8">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
@@ -174,22 +218,346 @@
 
             <button
               type="button"
+              (click)="agregarDireccion()"
               class="bg-[#8b542f] hover:bg-[#6f4022] text-white px-6 py-3 rounded-lg font-bold transition"
             >
               Agregar dirección
             </button>
           </div>
 
-          <div class="bg-[#f5ede1] border border-dashed border-[#b89c7a] rounded-xl p-6 text-center">
+          <div
+            *ngIf="mostrarFormularioDireccion"
+            class="mb-8 bg-[#f5ede1] border border-[#d8c4a8] rounded-2xl p-6"
+          >
+            <h3 class="text-xl font-bold text-[#2b1a10] mb-5">
+              {{ direccionEditandoId ? 'Editar dirección' : 'Agregar dirección' }}
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              <div>
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Nombre de quien recibe *
+                </label>
+
+                <input
+                  type="text"
+                  name="nombre_recibe"
+                  [(ngModel)]="direccionForm.nombre_recibe"
+                  [disabled]="guardandoDireccion"
+                  placeholder="Ej. Armando Gómez"
+                  class="w-full h-12 rounded-lg border bg-white px-4 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [class.border-red-400]="erroresDireccion.nombre_recibe"
+                  [class.border-[#b89c7a]]="!erroresDireccion.nombre_recibe"
+                />
+
+                <p *ngIf="erroresDireccion.nombre_recibe" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.nombre_recibe }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Teléfono
+                </label>
+
+                <input
+                  type="tel"
+                  name="telefonoDireccion"
+                  [(ngModel)]="direccionForm.telefono"
+                  [disabled]="guardandoDireccion"
+                  placeholder="10 dígitos"
+                  maxlength="14"
+                  class="w-full h-12 rounded-lg border bg-white px-4 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [class.border-red-400]="erroresDireccion.telefono"
+                  [class.border-[#b89c7a]]="!erroresDireccion.telefono"
+                />
+
+                <p *ngIf="erroresDireccion.telefono" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.telefono }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Calle *
+                </label>
+
+                <input
+                  type="text"
+                  name="calle"
+                  [(ngModel)]="direccionForm.calle"
+                  [disabled]="guardandoDireccion"
+                  placeholder="Ej. Av. 20 de Noviembre"
+                  class="w-full h-12 rounded-lg border bg-white px-4 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [class.border-red-400]="erroresDireccion.calle"
+                  [class.border-[#b89c7a]]="!erroresDireccion.calle"
+                />
+
+                <p *ngIf="erroresDireccion.calle" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.calle }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Número
+                </label>
+
+                <input
+                  type="text"
+                  name="numero"
+                  [(ngModel)]="direccionForm.numero"
+                  [disabled]="guardandoDireccion"
+                  placeholder="Ej. 220"
+                  class="w-full h-12 rounded-lg border bg-white px-4 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [class.border-red-400]="erroresDireccion.numero"
+                  [class.border-[#b89c7a]]="!erroresDireccion.numero"
+                />
+
+                <p *ngIf="erroresDireccion.numero" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.numero }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Colonia
+                </label>
+
+                <input
+                  type="text"
+                  name="colonia"
+                  [(ngModel)]="direccionForm.colonia"
+                  [disabled]="guardandoDireccion"
+                  placeholder="Ej. Zona Centro"
+                  class="w-full h-12 rounded-lg border bg-white px-4 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [class.border-red-400]="erroresDireccion.colonia"
+                  [class.border-[#b89c7a]]="!erroresDireccion.colonia"
+                />
+
+                <p *ngIf="erroresDireccion.colonia" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.colonia }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Código postal *
+                </label>
+
+                <input
+                  type="text"
+                  name="codigo_postal"
+                  [(ngModel)]="direccionForm.codigo_postal"
+                  [disabled]="guardandoDireccion"
+                  placeholder="Ej. 34000"
+                  maxlength="5"
+                  class="w-full h-12 rounded-lg border bg-white px-4 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [class.border-red-400]="erroresDireccion.codigo_postal"
+                  [class.border-[#b89c7a]]="!erroresDireccion.codigo_postal"
+                />
+
+                <p *ngIf="erroresDireccion.codigo_postal" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.codigo_postal }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Ciudad *
+                </label>
+
+                <input
+                  type="text"
+                  name="ciudad"
+                  [(ngModel)]="direccionForm.ciudad"
+                  [disabled]="guardandoDireccion"
+                  placeholder="Ej. Durango"
+                  class="w-full h-12 rounded-lg border bg-white px-4 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [class.border-red-400]="erroresDireccion.ciudad"
+                  [class.border-[#b89c7a]]="!erroresDireccion.ciudad"
+                />
+
+                <p *ngIf="erroresDireccion.ciudad" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.ciudad }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Estado *
+                </label>
+
+                <input
+                  type="text"
+                  name="estado"
+                  [(ngModel)]="direccionForm.estado"
+                  [disabled]="guardandoDireccion"
+                  placeholder="Ej. Durango"
+                  class="w-full h-12 rounded-lg border bg-white px-4 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20"
+                  [class.border-red-400]="erroresDireccion.estado"
+                  [class.border-[#b89c7a]]="!erroresDireccion.estado"
+                />
+
+                <p *ngIf="erroresDireccion.estado" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.estado }}
+                </p>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-[#5b2d16] mb-2">
+                  Referencias
+                </label>
+
+                <textarea
+                  name="referencias"
+                  [(ngModel)]="direccionForm.referencias"
+                  [disabled]="guardandoDireccion"
+                  rows="3"
+                  placeholder="Ej. Frente a la plaza, portón negro, casa color café..."
+                  class="w-full rounded-lg border bg-white px-4 py-3 text-[#2b1a10] outline-none focus:ring-2 focus:ring-[#5b2d16]/20 resize-none"
+                  [class.border-red-400]="erroresDireccion.referencias"
+                  [class.border-[#b89c7a]]="!erroresDireccion.referencias"
+                ></textarea>
+
+                <p *ngIf="erroresDireccion.referencias" class="text-red-700 text-xs mt-2 font-semibold">
+                  {{ erroresDireccion.referencias }}
+                </p>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="flex items-center gap-3 text-[#2b1a10] font-semibold">
+                  <input
+                    type="checkbox"
+                    name="principal"
+                    [(ngModel)]="direccionForm.principal"
+                    [disabled]="guardandoDireccion"
+                    class="w-5 h-5"
+                  />
+                  Usar como dirección principal
+                </label>
+              </div>
+
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 mt-6">
+              <button
+                type="button"
+                (click)="guardarDireccion()"
+                [disabled]="guardandoDireccion"
+                class="bg-[#8b542f] hover:bg-[#6f4022] text-white px-6 py-3 rounded-lg font-bold transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {{
+                  guardandoDireccion
+                    ? 'Guardando dirección...'
+                    : direccionEditandoId
+                      ? 'Actualizar dirección'
+                      : 'Guardar dirección'
+                }}
+              </button>
+
+              <button
+                type="button"
+                (click)="cancelarAgregarDireccion()"
+                [disabled]="guardandoDireccion"
+                class="border border-[#8b542f] text-[#5b2d16] hover:bg-[#f3e3cc] px-6 py-3 rounded-lg font-bold transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+
+          <div
+            *ngIf="cargandoDirecciones"
+            class="bg-[#f5ede1] border border-[#d8c4a8] rounded-xl p-6 text-center"
+          >
+            <p class="text-[#6b3f26] font-semibold">
+              Cargando direcciones...
+            </p>
+          </div>
+
+          <div
+            *ngIf="!cargandoDirecciones && direcciones.length === 0"
+            class="bg-[#f5ede1] border border-dashed border-[#b89c7a] rounded-xl p-6 text-center"
+          >
             <p class="text-[#6b3f26]">
               Aún no tienes direcciones registradas.
             </p>
           </div>
+
+          <div
+            *ngIf="!cargandoDirecciones && direcciones.length > 0"
+            class="space-y-4"
+          >
+            <div
+              *ngFor="let direccion of direcciones"
+              class="bg-[#f5ede1] border border-[#d8c4a8] rounded-xl p-5"
+            >
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+
+                <div class="space-y-2">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-lg font-bold text-[#2b1a10]">
+                      {{ direccion.nombre_recibe }}
+                    </h3>
+
+                    <span
+                      *ngIf="direccion.principal"
+                      class="text-xs bg-[#4b2e1f] text-white px-3 py-1 rounded-full font-bold"
+                    >
+                      Principal
+                    </span>
+                  </div>
+
+                  <p class="text-[#2b1a10] font-semibold">
+                    {{ obtenerDireccionCompleta(direccion) }}
+                  </p>
+
+                  <p class="text-sm text-[#6b3f26]" *ngIf="direccion.telefono">
+                    Tel. {{ direccion.telefono }}
+                  </p>
+
+                  <p class="text-sm text-[#6b3f26]" *ngIf="direccion.referencias">
+                    Referencias: {{ direccion.referencias }}
+                  </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row md:flex-col gap-2 min-w-[160px]">
+                  <button
+                    *ngIf="!direccion.principal"
+                    type="button"
+                    (click)="marcarDireccionPrincipal(direccion)"
+                    class="border border-[#8b542f] text-[#5b2d16] hover:bg-[#eadcc8] px-4 py-2 rounded-lg text-sm font-bold transition"
+                  >
+                    Hacer principal
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="editarDireccion(direccion)"
+                    class="border border-[#8b542f] text-[#5b2d16] hover:bg-[#eadcc8] px-4 py-2 rounded-lg text-sm font-bold transition"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="eliminarDireccion(direccion)"
+                    class="border border-red-400 text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-bold transition"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>
 
-      <!-- Accesos rápidos -->
       <aside class="bg-white rounded-2xl shadow-md border border-[#e0d2bd] p-6 md:p-8 h-fit">
         <h2 class="text-2xl font-bold text-[#2b1a10] mb-6">
           Accesos rápidos

@@ -262,19 +262,37 @@
 
           <div class="mt-10 space-y-4">
 
-            <a
-              routerLink="/checkout"
-              class="block text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
-            >
-              Continuar como invitado
-            </a>
+            @if(estaLogueado()) {
+              <button
+                type="button"
+                (click)="continuarAlCheckout()"
+                class="block w-full text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+              >
+                Continuar al checkout
+              </button>
 
-            <a
-              routerLink="/login"
-              class="block text-center border border-[#8a542f] text-[#8a542f] hover:bg-[#8a542f] hover:text-white py-3 rounded-lg font-medium transition"
-            >
-              Iniciar sesión y comprar
-            </a>
+              <p class="text-xs text-[#8a542f] text-center">
+                Continuarás con tu cuenta y tus direcciones guardadas.
+              </p>
+            }
+
+            @else {
+              <button
+                type="button"
+                (click)="continuarComoInvitado()"
+                class="block w-full text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+              >
+                Continuar como invitado
+              </button>
+
+              <button
+                type="button"
+                (click)="iniciarSesionYComprar()"
+                class="block w-full text-center border border-[#8a542f] text-[#8a542f] hover:bg-[#8a542f] hover:text-white py-3 rounded-lg font-medium transition"
+              >
+                Iniciar sesión y comprar
+              </button>
+            }
 
           </div>
 

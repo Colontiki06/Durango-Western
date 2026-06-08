@@ -1,35 +1,43 @@
 import { Component } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { CartService, CartItem } from '../../core/services/cart/cart.service';
+import { AuthService } from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-carrito',
   standalone: true,
   imports: [CommonModule, RouterLink, CurrencyPipe],
   templateUrl: './carrito.html',
-  styleUrl: './carrito.css'
+  styleUrl: './carrito.css',
 })
 export class Carrito {
   readonly envioGratisMinimo = 4000;
 
-  constructor(private cartService: CartService) {}
+  mensajeError = '';
+
+  constructor(
+    private cartService: CartService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   items(): CartItem[] {
     return this.cartService.cartItems;
   }
 
-increase(item: CartItem): void {
-  const cantidadNueva = item.cantidad + 1;
+  increase(item: CartItem): void {
+    const cantidadNueva = item.cantidad + 1;
 
-  if (item.stock !== undefined && cantidadNueva > item.stock) {
-    this.mostrarError('No hay suficiente stock disponible para este producto.');
-    return;
+    if (item.stock !== undefined && cantidadNueva > item.stock) {
+      this.mostrarError('No hay suficiente stock disponible para este producto.');
+      return;
+    }
+
+    this.cartService.increaseQuantity(item.id, item.variante_id);
   }
 
-  this.cartService.increaseQuantity(item.id, item.variante_id);
-}
   decrease(item: CartItem): void {
     this.cartService.decreaseQuantity(item.id, item.variante_id);
   }
@@ -37,7 +45,9 @@ increase(item: CartItem): void {
   remove(item: CartItem): void {
     const confirmar = confirm(`¿Eliminar "${item.nombre}" del carrito?`);
 
-    if (!confirmar) return;
+    if (!confirmar) {
+      return;
+    }
 
     this.cartService.removeFromCart(item.id, item.variante_id);
   }
@@ -66,13 +76,46 @@ increase(item: CartItem): void {
     return this.subtotal() >= this.envioGratisMinimo;
   }
 
-  mensajeError = '';
+  estaLogueado(): boolean {
+    return this.authService.isAuthenticated();
+  }
 
-mostrarError(mensaje: string): void {
-  this.mensajeError = mensaje;
+  continuarAlCheckout(): void {
+    if (this.carritoVacio()) {
+      this.mostrarError('Tu carrito está vacío.');
+      return;
+    }
 
-  setTimeout(() => {
-    this.mensajeError = '';
-  }, 3000);
-}
+    this.router.navigate(['/checkout']);
+  }
+
+  continuarComoInvitado(): void {
+    if (this.carritoVacio()) {
+      this.mostrarError('Tu carrito está vacío.');
+      return;
+    }
+
+    this.router.navigate(['/checkout']);
+  }
+
+  iniciarSesionYComprar(): void {
+    if (this.carritoVacio()) {
+      this.mostrarError('Tu carrito está vacío.');
+      return;
+    }
+
+    this.router.navigate(['/login'], {
+      queryParams: {
+        redirect: '/checkout',
+      },
+    });
+  }
+
+  mostrarError(mensaje: string): void {
+    this.mensajeError = mensaje;
+
+    setTimeout(() => {
+      this.mensajeError = '';
+    }, 3000);
+  }
 }
