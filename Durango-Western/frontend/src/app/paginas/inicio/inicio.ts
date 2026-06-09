@@ -10,6 +10,7 @@ import {
 
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart/cart.service';
+import { ApiService } from '../../core/services/api/api.service';
 
 @Component({
   selector: 'app-inicio',
@@ -30,45 +31,110 @@ export class Inicio implements OnInit, OnDestroy {
   tallaSeleccionada = '23';
   productoVista: any = null;
 
-  categorias = [
-    { nombre: 'Botas Caballero', imagen: '/img/BotasCaballero.PNG', ruta: '/productos/botas-caballero' },
-    { nombre: 'Botas Dama', imagen: '/img/BotasDama.png', ruta: '/productos/botas-dama' },
-    { nombre: 'Sombreros', imagen: '/img/Sombreros.png', ruta: '/productos/sombreros' },
-    { nombre: 'Camisas', imagen: '/img/Camisas.png', ruta: '/productos/camisas' },
-    { nombre: 'Cintos', imagen: '/img/Cintos.png', ruta: '/productos/cintos' },
-    { nombre: 'Gorras', imagen: '/img/Gorras.PNG', ruta: '/productos/gorras' },
-    { nombre: 'Accesorios', imagen: '/img/Accesorios.png', ruta: '/productos/accesorios' },
-    { nombre: 'Pantalones', imagen: '/img/Pantalones.png', ruta: '/productos/pantalones' }
-  ];
-
-  banners = [
-    {
-      textoSuperior: 'NUEVA COLECCIÓN',
-      titulo: 'Estilo western auténtico',
-      descripcion: 'Primavera Verano 2026',
-      boton: 'Ver colección',
-      textoBoton: 'Ver colección',
-      enlaceBoton: '/productos/dama',
-      imagen: '/img/banner.png'
-    },
-    {
-      textoSuperior: 'OFERTAS ESPECIALES',
-      titulo: 'Promociones western',
-      descripcion: 'Hasta 50% de descuento',
-      boton: 'Ver ofertas',
-      textoBoton: 'Ver ofertas',
-      enlaceBoton: '/ofertas',
-      imagen: '/img/Sombreros.png'
-    }
-  ];
+  categorias: any[] = [];
+  banners: any[] = [];
 
   constructor(
     private cartService: CartService,
+    private api: ApiService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
+    this.cargarPersonalizacionInicio();
+  }
+
+  ngOnDestroy(): void {
+    if (this.intervaloBanner) {
+      clearInterval(this.intervaloBanner);
+    }
+  }
+
+  cargarPersonalizacionInicio(): void {
+    this.api.get<any>('personalizar-inicio').subscribe({
+      next: (data) => {
+        this.banners = (data.banners ?? [])
+          .filter((banner: any) => banner.activo)
+          .map((banner: any) => ({
+            textoSuperior: banner.texto_superior ?? '',
+            titulo: banner.titulo ?? '',
+            descripcion: banner.descripcion ?? '',
+            boton: banner.texto_boton ?? 'Ver colección',
+            textoBoton: banner.texto_boton ?? 'Ver colección',
+            enlaceBoton: banner.enlace_boton ?? '/productos',
+            imagen: banner.imagen_url ?? '/img/banner.png'
+          }));
+
+        this.categorias = (data.categorias ?? [])
+          .filter((categoria: any) => categoria.activa)
+          .map((categoria: any) => ({
+            nombre: categoria.nombre ?? '',
+            imagen: categoria.imagen_url ?? '/img/Sombreros.png',
+            ruta: categoria.enlace ?? '/productos'
+          }));
+
+        if (this.banners.length === 0) {
+          this.banners = [
+            {
+              textoSuperior: 'NUEVA COLECCIÓN',
+              titulo: 'Estilo western auténtico',
+              descripcion: 'Primavera Verano 2026',
+              boton: 'Ver colección',
+              textoBoton: 'Ver colección',
+              enlaceBoton: '/productos',
+              imagen: '/img/banner.png'
+            }
+          ];
+        }
+
+        if (this.categorias.length === 0) {
+          this.categorias = [
+            { nombre: 'Botas Caballero', imagen: '/img/BotasCaballero.PNG', ruta: '/productos' },
+            { nombre: 'Botas Dama', imagen: '/img/BotasDama.png', ruta: '/productos' },
+            { nombre: 'Sombreros', imagen: '/img/Sombreros.png', ruta: '/productos' },
+            { nombre: 'Camisas', imagen: '/img/Camisas.png', ruta: '/productos' }
+          ];
+        }
+
+        this.iniciarCarruselBanner();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error cargando inicio personalizado:', error);
+
+        this.banners = [
+          {
+            textoSuperior: 'NUEVA COLECCIÓN',
+            titulo: 'Estilo western auténtico',
+            descripcion: 'Primavera Verano 2026',
+            boton: 'Ver colección',
+            textoBoton: 'Ver colección',
+            enlaceBoton: '/productos',
+            imagen: '/img/banner.png'
+          }
+        ];
+
+        this.categorias = [
+          { nombre: 'Botas Caballero', imagen: '/img/BotasCaballero.PNG', ruta: '/productos' },
+          { nombre: 'Botas Dama', imagen: '/img/BotasDama.png', ruta: '/productos' },
+          { nombre: 'Sombreros', imagen: '/img/Sombreros.png', ruta: '/productos' },
+          { nombre: 'Camisas', imagen: '/img/Camisas.png', ruta: '/productos' }
+        ];
+
+        this.iniciarCarruselBanner();
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  iniciarCarruselBanner(): void {
+    if (this.intervaloBanner) {
+      clearInterval(this.intervaloBanner);
+    }
+
+    if (this.banners.length <= 1) return;
+
     this.intervaloBanner = setInterval(() => {
       this.ngZone.run(() => {
         this.siguienteBanner();
@@ -77,15 +143,14 @@ export class Inicio implements OnInit, OnDestroy {
     }, 3000);
   }
 
-  ngOnDestroy(): void {
-    clearInterval(this.intervaloBanner);
-  }
-
   siguienteBanner(): void {
+    if (this.banners.length === 0) return;
     this.bannerActual = (this.bannerActual + 1) % this.banners.length;
   }
 
   anteriorBanner(): void {
+    if (this.banners.length === 0) return;
+
     this.bannerActual =
       this.bannerActual === 0
         ? this.banners.length - 1
@@ -97,7 +162,8 @@ export class Inicio implements OnInit, OnDestroy {
   scrollCategorias(direction: 'left' | 'right', event?: Event): void {
     event?.stopPropagation();
 
-    const carousel = this.categoriasCarousel.nativeElement;
+    const carousel = this.categoriasCarousel?.nativeElement;
+    if (!carousel) return;
 
     carousel.scrollBy({
       left: direction === 'right' ? 320 : -320,
