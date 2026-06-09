@@ -208,7 +208,7 @@
 
                   <input
                     type="number"
-                    min="0"
+                    min="1"
                     [(ngModel)]="banner.orden"
                     class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
                   >
@@ -257,128 +257,298 @@
 
     </section>
 
-    <!-- Categorías -->
-    <section class="bg-white rounded-2xl shadow-md p-6">
+  <!-- Categorías -->
+<section class="bg-white rounded-2xl shadow-md p-6">
 
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+
+    <div>
+      <h2 class="text-2xl font-bold text-[#2f1b12]">
+        Categorías destacadas
+      </h2>
+
+      <p class="text-[#8a542f] mt-1">
+        Selecciona qué categorías del catálogo aparecerán en la página principal.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      (click)="abrirModalCategoria()"
+      class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-5 py-3 rounded-xl font-semibold transition"
+    >
+      + Agregar categoría
+    </button>
+
+  </div>
+
+  @if(categorias.length === 0) {
+    <div class="border border-dashed border-[#d8c5aa] rounded-2xl p-8 text-center text-[#8a542f]">
+      Todavía no hay categorías destacadas registradas.
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+      @for(categoria of categorias; track categoria.id; let i = $index) {
+
+        <div class="border border-[#eadcc7] rounded-2xl overflow-hidden">
+
+          <div class="h-[220px] bg-[#f5ede1] relative">
+
+  @if(categoria.imagen) {
+    <img
+      [src]="categoria.imagen"
+      [alt]="categoria.nombre"
+      class="w-full h-full object-contain p-4"
+    >
+  } @else {
+    <div class="w-full h-full flex items-center justify-center text-[#8a542f] font-semibold">
+      Sin imagen
+    </div>
+  }
+
+  @if(!categoria.activa) {
+    <div class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+      Inactiva
+    </div>
+  }
+
+</div>
+
+          <div class="p-5">
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Categoría del catálogo
+            </label>
+
+            <select
+              [(ngModel)]="categoria.categoria_id"
+              (change)="categoriaSeleccionadaCambio(categoria)"
+              class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] mb-4"
+            >
+              <option value="">Selecciona una categoría</option>
+
+              @for(cat of categoriasCatalogo; track cat.id) {
+                <option [value]="cat.id">
+                  {{ cat.nombre }}
+                </option>
+              }
+            </select>
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Nombre visible
+            </label>
+
+            <input
+              type="text"
+              [(ngModel)]="categoria.nombre"
+              readonly
+              class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 bg-gray-100 text-[#8a542f] mb-4"
+            >
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Imagen destacada
+            </label>
+
+            <div class="h-[120px] rounded-xl overflow-hidden border border-[#eadcc7] mb-3 bg-[#f5ede1] flex items-center justify-center">
+
+  @if(categoria.imagen) {
+    <img
+      [src]="categoria.imagen"
+      class="w-full h-full object-contain p-3"
+    >
+  } @else {
+    <span class="text-sm text-[#8a542f]">
+      Sin imagen
+    </span>
+  }
+
+</div>
+
+            <label
+              class="cursor-pointer block w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-2 rounded-lg font-semibold text-center transition mb-4"
+            >
+              {{ guardando ? 'Subiendo imagen...' : 'Cambiar imagen' }}
+
+              <input
+                type="file"
+                accept="image/*"
+                class="hidden"
+                (change)="subirImagenCategoriaExistente($event, categoria)"
+              >
+            </label>
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Orden
+            </label>
+
+            <input
+              type="number"
+              min="1"
+              [(ngModel)]="categoria.orden"
+              class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] mb-4"
+            >
+
+            <label class="flex items-center gap-3 text-[#2f1b12] font-semibold mb-5">
+              <input
+                type="checkbox"
+                [(ngModel)]="categoria.activa"
+                class="w-5 h-5"
+              >
+              Categoría activa
+            </label>
+
+            <p class="text-xs text-[#8a542f] mb-4">
+              Enlace: {{ categoria.enlace || '/productos' }}
+            </p>
+
+            <div class="flex gap-2">
+              <button
+                type="button"
+                (click)="guardarCategoria(categoria)"
+                [disabled]="guardando"
+                class="flex-1 bg-[#4b2e1f] hover:bg-[#6b3f26] disabled:opacity-60 text-white py-2 rounded-lg font-semibold transition"
+              >
+                Guardar
+              </button>
+
+              <button
+                type="button"
+                (click)="eliminarCategoria(i)"
+                class="flex-1 bg-red-100 text-red-700 hover:bg-red-600 hover:text-white py-2 rounded-lg font-semibold transition"
+              >
+                Eliminar
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      }
+
+    </div>
+  }
+
+</section>
+
+
+<!-- MODAL AGREGAR CATEGORIA -->
+@if(showAddCategoriaModal) {
+
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-5">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-8">
+
+      <h2 class="text-2xl font-bold text-[#2f1b12] mb-2">
+        Agregar nueva categoría
+      </h2>
+
+      <p class="text-[#8a542f] mb-6">
+        Selecciona una categoría del catálogo para mostrarla en la página principal.
+      </p>
+
+      <div class="space-y-4">
 
         <div>
-          <h2 class="text-2xl font-bold text-[#2f1b12]">
-            Categorías destacadas
-          </h2>
+          <label class="block mb-2 font-semibold text-[#2f1b12]">
+            Categoría del catálogo
+          </label>
 
-          <p class="text-[#8a542f] mt-1">
-            Administra las categorías visibles en la Home.
-          </p>
+          <select
+            [(ngModel)]="nuevaCategoria.categoria_id"
+            (change)="nuevaCategoriaSeleccionadaCambio()"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+          >
+            <option value="">Selecciona una categoría</option>
+
+            @for(categoria of categoriasCatalogo; track categoria.id) {
+              <option [value]="categoria.id">
+                {{ categoria.nombre }}
+              </option>
+            }
+          </select>
         </div>
+
+        <div>
+          <label class="block mb-2 font-semibold text-[#2f1b12]">
+            Nombre visible
+          </label>
+
+          <input
+            [(ngModel)]="nuevaCategoria.nombre"
+            type="text"
+            readonly
+            placeholder="Se llenará automáticamente"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 bg-gray-100 text-[#8a542f]"
+          >
+        </div>
+
+        <div>
+          <label class="block mb-2 font-semibold text-[#2f1b12]">
+            Imagen destacada
+          </label>
+
+          @if(nuevaCategoria.imagen) {
+            <div class="h-[160px] rounded-xl overflow-hidden border border-[#eadcc7] mb-3 bg-[#f5ede1] flex items-center justify-center">
+              <img
+                [src]="nuevaCategoria.imagen"
+                class="w-full h-full object-contain p-4"
+              >
+            </div>
+          }
+
+          <label
+            class="cursor-pointer block w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-semibold text-center transition"
+          >
+            {{ subiendoImagen ? 'Subiendo imagen...' : 'Cambiar imagen' }}
+
+            <input
+              type="file"
+              accept="image/*"
+              class="hidden"
+              (change)="subirImagenNuevaCategoria($event)"
+            >
+          </label>
+        </div>
+
+        <label class="flex items-center gap-3 text-[#2f1b12] font-semibold">
+          <input
+            type="checkbox"
+            [(ngModel)]="nuevaCategoria.activa"
+            class="w-5 h-5"
+          >
+          Categoría activa
+        </label>
+
+      </div>
+
+      <div class="flex justify-end gap-3 mt-8">
 
         <button
           type="button"
-          (click)="abrirModalCategoria()"
-          class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-5 py-3 rounded-xl font-semibold transition"
+          (click)="cerrarModalCategoria()"
+          class="border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:bg-[#4b2e1f] active:text-white active:scale-95 px-6 py-3 rounded-xl font-bold transition"
         >
-          + Agregar categoría
+          Cancelar
+        </button>
+
+        <button
+  type="button"
+  (click)="agregarCategoria()"
+  [disabled]="guardando || subiendoImagen"
+  class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 disabled:opacity-60 text-white px-6 py-3 rounded-xl font-bold transition"
+>
+  {{ guardando ? 'Guardando...' : 'Aceptar y agregar' }}
         </button>
 
       </div>
 
-      @if(categorias.length === 0) {
-        <div class="border border-dashed border-[#d8c5aa] rounded-2xl p-8 text-center text-[#8a542f]">
-          Todavía no hay categorías destacadas registradas.
-        </div>
-      } @else {
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    </div>
 
-          @for(categoria of categorias; track categoria.id; let i = $index) {
+  </div>
 
-            <div class="border border-[#eadcc7] rounded-2xl overflow-hidden">
-
-              <div class="h-[220px] bg-[#f5ede1] relative">
-                <img
-                  [src]="categoria.imagen"
-                  [alt]="categoria.nombre"
-                  class="w-full h-full object-cover"
-                >
-
-                @if(!categoria.activa) {
-                  <div class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    Inactiva
-                  </div>
-                }
-              </div>
-
-              <div class="p-5">
-
-                <label class="block mb-2 font-semibold text-[#2f1b12]">
-                  Nombre categoría
-                </label>
-
-                <input
-                  type="text"
-                  [(ngModel)]="categoria.nombre"
-                  class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] mb-4"
-                >
-
-                <label class="block mb-2 font-semibold text-[#2f1b12]">
-                  URL / ruta de imagen
-                </label>
-
-                <input
-                  type="text"
-                  [(ngModel)]="categoria.imagen"
-                  placeholder="/img/Camisas.png"
-                  class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] mb-4"
-                >
-
-                <label class="block mb-2 font-semibold text-[#2f1b12]">
-                  Orden
-                </label>
-
-                <input
-                  type="number"
-                  min="0"
-                  [(ngModel)]="categoria.orden"
-                  class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] mb-4"
-                >
-
-                <label class="flex items-center gap-3 text-[#2f1b12] font-semibold mb-5">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="categoria.activa"
-                    class="w-5 h-5"
-                  >
-                  Categoría activa
-                </label>
-
-                <div class="flex gap-2">
-                  <button
-                    type="button"
-                    (click)="guardarCategoria(categoria)"
-                    [disabled]="guardando"
-                    class="flex-1 bg-[#4b2e1f] hover:bg-[#6b3f26] disabled:opacity-60 text-white py-2 rounded-lg font-semibold transition"
-                  >
-                    Guardar
-                  </button>
-
-                  <button
-                    type="button"
-                    (click)="eliminarCategoria(i)"
-                    class="flex-1 bg-red-100 text-red-700 hover:bg-red-600 hover:text-white py-2 rounded-lg font-semibold transition"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-      }
-
-    </section>
+}
 
   }
 
@@ -498,75 +668,6 @@
         <button
           type="button"
           (click)="agregarBanner()"
-          [disabled]="guardando"
-          class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 disabled:opacity-60 text-white px-6 py-3 rounded-xl font-bold transition"
-        >
-          {{ guardando ? 'Guardando...' : 'Aceptar y agregar' }}
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-}
-
-<!-- MODAL AGREGAR CATEGORIA -->
-@if(showAddCategoriaModal) {
-
-  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-5">
-
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-8">
-
-      <h2 class="text-2xl font-bold text-[#2f1b12] mb-2">
-        Agregar nueva categoría
-      </h2>
-
-      <p class="text-[#8a542f] mb-6">
-        Configura una categoría destacada para la página principal.
-      </p>
-
-      <div class="space-y-4">
-
-        <input
-          [(ngModel)]="nuevaCategoria.nombre"
-          type="text"
-          placeholder="Nombre de la categoría"
-          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-        >
-
-        <input
-          [(ngModel)]="nuevaCategoria.imagen"
-          type="text"
-          placeholder="/img/Sombreros.png"
-          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-        >
-
-        <label class="flex items-center gap-3 text-[#2f1b12] font-semibold">
-          <input
-            type="checkbox"
-            [(ngModel)]="nuevaCategoria.activa"
-            class="w-5 h-5"
-          >
-          Categoría activa
-        </label>
-
-      </div>
-
-      <div class="flex justify-end gap-3 mt-8">
-
-        <button
-          type="button"
-          (click)="cerrarModalCategoria()"
-          class="border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:bg-[#4b2e1f] active:text-white active:scale-95 px-6 py-3 rounded-xl font-bold transition"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          (click)="agregarCategoria()"
           [disabled]="guardando"
           class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 disabled:opacity-60 text-white px-6 py-3 rounded-xl font-bold transition"
         >
