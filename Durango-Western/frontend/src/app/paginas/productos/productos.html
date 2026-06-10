@@ -22,13 +22,23 @@
 
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
 
-      <aside class="bg-[#fff8ec] p-5 h-fit">
+      <aside class="bg-[#fff8ec] p-5 h-fit border border-[#e0cdb1] shadow-sm">
 
-        <h2 class="text-[#2f1b12] font-bold mb-5">
-          Filtros
-        </h2>
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-[#2f1b12] font-bold">
+            Filtros
+          </h2>
+
+          <button
+            type="button"
+            class="text-xs text-[#6b3f26] underline"
+            (click)="limpiarFiltros()"
+          >
+            Limpiar
+          </button>
+        </div>
 
         <div class="mb-6">
 
@@ -38,24 +48,34 @@
 
           <div class="space-y-2 text-sm text-[#2f1b12]">
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="tipo" [checked]="tipo === 'botas'" (change)="filtrar('tipo', 'botas')">
               Botas
             </label>
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="tipo" [checked]="tipo === 'sombreros'" (change)="filtrar('tipo', 'sombreros')">
               Sombreros
             </label>
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="tipo" [checked]="tipo === 'camisas'" (change)="filtrar('tipo', 'camisas')">
               Camisas
             </label>
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="tipo" [checked]="tipo === 'pantalones'" (change)="filtrar('tipo', 'pantalones')">
               Pantalones
+            </label>
+
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="tipo" [checked]="tipo === 'cintos'" (change)="filtrar('tipo', 'cintos')">
+              Cintos
+            </label>
+
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="tipo" [checked]="tipo === 'bolsos'" (change)="filtrar('tipo', 'bolsos')">
+              Bolsos
             </label>
 
           </div>
@@ -70,18 +90,18 @@
 
           <div class="space-y-2 text-sm text-[#2f1b12]">
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="genero" [checked]="genero === 'caballero'" (change)="filtrar('genero', 'caballero')">
               Caballero
             </label>
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="genero" [checked]="genero === 'dama'" (change)="filtrar('genero', 'dama')">
               Dama
             </label>
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="genero" [checked]="genero === 'ninos'" (change)="filtrar('genero', 'ninos')">
               Niños
             </label>
 
@@ -97,29 +117,17 @@
 
           <div class="grid grid-cols-3 gap-2 text-sm">
 
-            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
-              25
-            </button>
-
-            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
-              26
-            </button>
-
-            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
-              27
-            </button>
-
-            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
-              28
-            </button>
-
-            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
-              29
-            </button>
-
-            <button class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white">
-              30
-            </button>
+            @for(t of tallasDisponibles; track t) {
+              <button
+                type="button"
+                (click)="filtrar('talla', t)"
+                [class.bg-[#4b2e1f]]="talla === t"
+                [class.text-white]="talla === t"
+                class="border border-[#cbb89d] py-1 hover:bg-[#4b2e1f] hover:text-white transition"
+              >
+                {{ t }}
+              </button>
+            }
 
           </div>
 
@@ -127,26 +135,105 @@
 
         <div>
 
-          <h3 class="text-[#4b2e1f] font-semibold mb-3">
+          <h3 class="text-[#4b2e1f] font-bold mb-4">
             Precio
           </h3>
 
-          <div class="space-y-2 text-sm text-[#2f1b12]">
+          <div class="bg-[#f8efe2] border border-[#cbb89d] rounded-xl p-4 shadow-sm">
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
-              $0 - $1,000
-            </label>
+            <div class="mb-4">
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
-              $1,000 - $2,500
-            </label>
+              <div class="flex items-center justify-between mb-2">
 
-            <label class="flex items-center gap-2">
-              <input type="checkbox">
-              $2,500+
-            </label>
+                <span class="text-xs uppercase tracking-widest text-[#8a6a52]">
+                  Rango de precio
+                </span>
+
+                <span class="text-xs font-bold text-[#6b3f26]">
+                  ${{ precioMin }} - ${{ precioMax }}
+                </span>
+
+              </div>
+
+              <div class="relative h-12">
+
+                <div
+                  class="absolute left-0 right-0 top-4 h-4 rounded-full
+                  bg-[repeating-linear-gradient(45deg,#8b5e3c_0px,#8b5e3c_4px,#d2a679_4px,#d2a679_8px)]
+                  opacity-40"
+                ></div>
+
+                <div
+                  class="absolute top-4 h-4 rounded-full
+                  bg-[repeating-linear-gradient(45deg,#5c351d_0px,#5c351d_4px,#d6a86b_4px,#d6a86b_8px)]
+                  shadow-inner"
+                  [style.left.%]="porcentajeMin"
+                  [style.right.%]="100 - porcentajeMax"
+                ></div>
+
+                <input
+                  type="range"
+                  [min]="precioMinimo"
+                  [max]="precioMaximo"
+                  step="100"
+                  [(ngModel)]="precioMin"
+                  (input)="actualizarPrecio()"
+                  class="range-western range-min absolute top-0 left-0 w-full"
+                >
+
+                <input
+                  type="range"
+                  [min]="precioMinimo"
+                  [max]="precioMaximo"
+                  step="100"
+                  [(ngModel)]="precioMax"
+                  (input)="actualizarPrecio()"
+                  class="range-western range-max absolute top-0 left-0 w-full"
+                >
+
+              </div>
+
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+
+              <div>
+                <label class="block text-sm font-semibold text-[#6b3f26] mb-1">
+                  Desde
+                </label>
+
+                <div class="flex items-center gap-1 border border-[#cbb89d] bg-white px-3 py-2 rounded-lg">
+                  <span class="text-[#6b3f26] font-bold">$</span>
+                  <input
+                    type="number"
+                    [(ngModel)]="precioMin"
+                    (input)="actualizarPrecio()"
+                    class="w-full outline-none text-[#2f1b12] bg-transparent text-sm"
+                    [min]="precioMinimo"
+                    [max]="precioMaximo"
+                  >
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-[#6b3f26] mb-1">
+                  Hasta
+                </label>
+
+                <div class="flex items-center gap-1 border border-[#cbb89d] bg-white px-3 py-2 rounded-lg">
+                  <span class="text-[#6b3f26] font-bold">$</span>
+                  <input
+                    type="number"
+                    [(ngModel)]="precioMax"
+                    (input)="actualizarPrecio()"
+                    class="w-full outline-none text-[#2f1b12] bg-transparent text-sm"
+                    [min]="precioMinimo"
+                    [max]="precioMaximo"
+                  >
+                </div>
+              </div>
+
+            </div>
 
           </div>
 
@@ -160,48 +247,52 @@
           {{ products.length }} productos encontrados
         </p>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        @if(products.length === 0) {
+          <div class="bg-[#fff8ec] p-8 text-center text-[#4b2e1f] border border-[#e0cdb1]">
+            No se encontraron productos con estos filtros.
+          </div>
+        }
 
-          @for(product of products; track product.id) {
+        @else {
+          <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            <a
-              [routerLink]="['/detalle-producto', product.slug]"
-              class="block bg-[#fff8ec] p-3 shadow-sm hover:shadow-lg transition"
-            >
+            @for(product of products; track product.id) {
 
-              <div class="aspect-square bg-[#e7dccb] overflow-hidden mb-3">
+              <a
+                [routerLink]="['/detalle-producto', product.slug]"
+                class="block bg-[#fff8ec] p-3 shadow-sm hover:shadow-lg transition"
+              >
 
-                <img
-  [src]="imagenProducto(product)"
-  [alt]="product.nombre"
-  class="w-full h-full object-cover"
-/>
+                <div class="aspect-square bg-[#e7dccb] overflow-hidden mb-3">
+                  <img
+                    [src]="imagenProducto(product)"
+                    [alt]="product.nombre"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
 
-</div>
+                <h3 class="text-[#2f1b12] text-sm font-semibold mb-2 line-clamp-2">
+                  {{ product.nombre }}
+                </h3>
 
-              <h3 class="text-[#2f1b12] text-sm font-semibold mb-2 line-clamp-2">
-                {{ product.nombre }}
-              </h3>
+                <p class="text-xs text-[#7b5a45] mb-2 line-clamp-2">
+                  {{ product.descripcion }}
+                </p>
 
-              <p class="text-xs text-[#7b5a45] mb-2 line-clamp-2">
-                {{ product.descripcion }}
-              </p>
+                <p class="text-[#2f1b12] font-bold mb-3">
+                  ${{ product.precio }} MXN
+                </p>
 
-              <p class="text-[#2f1b12] font-bold mb-3">
-                ${{ product.precio }} MXN
-              </p>
+                <div class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2 text-center">
+                  Ver producto
+                </div>
 
-            <div
-  class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2 text-center"
->
-  Ver producto
-</div>
+              </a>
 
-            </a>
+            }
 
-          }
-
-        </div>
+          </div>
+        }
 
       </section>
 
