@@ -174,7 +174,7 @@ export class ProductosService {
       where.destacado = true;
     }
 
-    return this.prisma.productos.findMany({
+    const productos = await this.prisma.productos.findMany({
       where,
       include: {
         producto_imagenes: {
@@ -199,6 +199,39 @@ export class ProductosService {
         created_at: 'desc',
       },
     });
+
+    const productosConVendidos = await Promise.all(
+      productos.map(async (producto) => {
+        const variantesIds = producto.producto_variantes.map(
+          (variante) => variante.id
+        );
+
+        if (variantesIds.length === 0) {
+          return {
+            ...producto,
+            vendidos: 0,
+          };
+        }
+
+        const totalVendido = await this.prisma.pedido_items.aggregate({
+          where: {
+            variante_id: {
+              in: variantesIds,
+            },
+          },
+          _sum: {
+            cantidad: true,
+          },
+        });
+
+        return {
+          ...producto,
+          vendidos: Number(totalVendido._sum.cantidad ?? 0),
+        };
+      })
+    );
+
+    return productosConVendidos;
   }
 
   async findBySlug(slug: string) {
