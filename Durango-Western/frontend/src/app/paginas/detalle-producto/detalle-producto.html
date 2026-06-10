@@ -1,197 +1,332 @@
-<div class="min-h-screen bg-[#f5ede1] px-4 md:px-8 py-8">
+<div class="min-h-screen bg-[#f5ede1] px-4 md:px-8 py-8 md:py-12">
 
   <div class="max-w-7xl mx-auto">
 
     @if(productoState$ | async; as state) {
 
       @if(state.loading) {
-        <div class="text-center text-[#2f1b12] font-semibold py-20">
-          Cargando producto...
+        <div class="min-h-[60vh] flex items-center justify-center">
+          <div class="text-center">
+            <div class="w-10 h-10 border-4 border-[#8a542f]/30 border-t-[#8a542f] rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-[#2f1b12] font-semibold">
+              Cargando producto...
+            </p>
+          </div>
         </div>
       }
 
       @if(state.error) {
-        <div class="text-center text-red-700 font-semibold py-20">
-          {{ state.error }}
+        <div class="min-h-[60vh] flex items-center justify-center">
+          <div class="bg-[#fff8ec] border border-red-200 rounded-2xl p-8 text-center max-w-md">
+            <h2 class="text-2xl font-bold text-[#2f1b12] mb-3">
+              No pudimos cargar el producto
+            </h2>
+
+            <p class="text-red-700 font-semibold mb-6">
+              {{ state.error }}
+            </p>
+
+            <a
+              routerLink="/"
+              class="inline-flex items-center justify-center bg-[#6b3f26] hover:bg-[#4b2e1f] text-white px-6 py-3 rounded-xl font-semibold transition"
+            >
+              Volver al inicio
+            </a>
+          </div>
         </div>
       }
 
       @if(state.producto) {
 
         <!-- DETALLE DEL PRODUCTO -->
-        <div class="grid grid-cols-1 lg:grid-cols-[120px_1fr_420px] gap-6 mb-14">
+        <section class="grid grid-cols-1 lg:grid-cols-[95px_minmax(0,1fr)_420px] xl:grid-cols-[105px_minmax(0,1fr)_430px] gap-5 lg:gap-8 items-start mb-14">
 
-          <!-- Miniaturas -->
-          <div class="hidden lg:flex flex-col gap-4">
+          <!-- Miniaturas escritorio -->
+          <div class="hidden lg:flex flex-col gap-4 sticky top-24">
 
             @for(img of imagenesProducto(state.producto); track img.id) {
-
-              <div
+              <button
+                type="button"
                 (click)="seleccionarImagen(img.imagen_url)"
-                class="aspect-square bg-[#e7dccb] overflow-hidden cursor-pointer border-2 transition"
+                class="w-[95px] h-[95px] xl:w-[105px] xl:h-[105px] bg-white overflow-hidden border transition hover:border-[#6b3f26]"
                 [class.border-[#4b2e1f]]="imagenPrincipal(state.producto) === img.imagen_url"
-                [class.border-transparent]="imagenPrincipal(state.producto) !== img.imagen_url"
+                [class.border-[#eadcc7]]="imagenPrincipal(state.producto) !== img.imagen_url"
               >
-
                 <img
                   [src]="img.imagen_url"
                   [alt]="state.producto.nombre"
                   class="w-full h-full object-cover"
-                >
-
-              </div>
-
+                />
+              </button>
             }
 
           </div>
 
           <!-- Imagen principal -->
-          <div class="bg-[#fff8ec] aspect-square overflow-hidden flex items-center justify-center">
+          <div class="space-y-4">
 
-            <img
-              [src]="imagenPrincipal(state.producto)"
-              [alt]="state.producto.nombre"
-              class="w-full h-full object-cover"
-            >
+            <div class="bg-white overflow-hidden flex items-center justify-center shadow-sm border border-[#eadcc7] h-[420px] sm:h-[540px] lg:h-[650px] xl:h-[720px]">
+              <img
+                [src]="imagenPrincipal(state.producto)"
+                [alt]="state.producto.nombre"
+                class="w-full h-full object-contain"
+              />
+            </div>
+
+            <!-- Miniaturas móvil/tablet -->
+            @if(imagenesProducto(state.producto).length > 1) {
+              <div class="lg:hidden flex gap-3 overflow-x-auto pb-2">
+                @for(img of imagenesProducto(state.producto); track img.id) {
+                  <button
+                    type="button"
+                    (click)="seleccionarImagen(img.imagen_url)"
+                    class="w-20 h-20 shrink-0 bg-white overflow-hidden border transition"
+                    [class.border-[#4b2e1f]]="imagenPrincipal(state.producto) === img.imagen_url"
+                    [class.border-[#eadcc7]]="imagenPrincipal(state.producto) !== img.imagen_url"
+                  >
+                    <img
+                      [src]="img.imagen_url"
+                      [alt]="state.producto.nombre"
+                      class="w-full h-full object-cover"
+                    />
+                  </button>
+                }
+              </div>
+            }
 
           </div>
 
           <!-- Información -->
-          <div class="bg-[#f5ede1] p-4">
+          <aside class="lg:sticky lg:top-24 bg-[#f5ede1] lg:pl-2">
 
-            <p class="text-sm text-[#8a542f] mb-2">
-              {{ state.producto.categorias?.nombre }}
+            <p class="text-sm text-[#8a542f] mb-3">
+              {{ state.producto.categorias?.nombre || 'Producto' }}
             </p>
 
-            <h1 class="text-2xl font-bold text-[#2f1b12] mb-2">
+            <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12] mb-4 leading-tight">
               {{ state.producto.nombre }}
             </h1>
 
-            <p class="text-xl font-bold text-[#2f1b12] mb-6">
-              {{ state.producto.precio | currency:'MXN':'symbol':'1.0-0' }}
+            <p class="text-2xl md:text-3xl font-bold text-[#2f1b12] mb-8">
+              {{ precioProducto(state.producto) | currency:'MXN':'symbol':'1.0-0' }}
             </p>
 
-            <p class="text-[#4b2e1f] text-sm leading-relaxed mb-8">
-              {{ state.producto.descripcion }}
-            </p>
-
-            <!-- Stock general -->
-            <div class="mb-6">
-
+            <!-- Stock -->
+            <div class="mb-8">
               @if(stockTotal(state.producto) > 0) {
-                <p class="text-sm text-emerald-700 font-semibold">
+                <p class="inline-flex items-center gap-3 text-base text-emerald-700 font-bold">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
                   Disponible: {{ stockTotal(state.producto) }} piezas
                 </p>
-              }
-
-              @else {
-                <p class="text-sm text-red-700 font-semibold">
+              } @else {
+                <p class="inline-flex items-center gap-3 text-base text-red-700 font-bold">
+                  <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
                   Producto agotado
                 </p>
               }
-
             </div>
 
-            <!-- Variantes / tallas reales -->
-            @if(variantesDisponibles(state.producto).length > 0) {
+            <!-- Variantes / tallas -->
+            @if(tieneVariantes(state.producto)) {
+              <div class="mb-8">
 
-              <div class="mb-6">
-
-                <h3 class="text-[#2f1b12] font-semibold mb-3">
-                  Talla:
+                <h3 class="text-[#2f1b12] font-bold mb-4">
+                  Tallas:
                 </h3>
 
-                <div class="grid grid-cols-4 gap-2">
+                <div class="flex flex-wrap gap-3">
 
                   @for(variante of variantesDisponibles(state.producto); track variante.id) {
-
                     <button
                       type="button"
                       (click)="seleccionarVariante(variante)"
                       [disabled]="variante.stock <= 0"
-                      class="border border-[#cbb89d] py-2 text-sm hover:bg-[#4b2e1f] hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-inherit"
+                      class="min-w-14 px-4 py-3 border text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#2f1b12]"
                       [class.bg-[#4b2e1f]]="selectedVariant?.id === variante.id"
                       [class.text-white]="selectedVariant?.id === variante.id"
+                      [class.border-[#4b2e1f]]="selectedVariant?.id === variante.id"
+                      [class.bg-transparent]="selectedVariant?.id !== variante.id"
+                      [class.text-[#2f1b12]]="selectedVariant?.id !== variante.id"
+                      [class.border-[#cbb89d]]="selectedVariant?.id !== variante.id"
                     >
-                      {{ variante.tallas?.nombre }}
+                      {{ nombreTalla(variante) }}
                     </button>
-
                   }
 
                 </div>
 
                 @if(selectedVariant) {
-                  <p class="text-xs text-[#8a542f] mt-3">
-                    Stock en talla {{ selectedVariant.tallas?.nombre }}:
+                  <p class="text-sm text-[#8a542f] mt-4">
+                    Stock en talla {{ nombreTalla(selectedVariant) }}:
                     {{ selectedVariant.stock }} piezas
                   </p>
                 }
 
               </div>
+            } @else {
+              <div class="mb-8">
+                <h3 class="text-[#2f1b12] font-bold mb-4">
+                  Talla:
+                </h3>
 
+                <span class="inline-flex border border-[#cbb89d] px-5 py-3 text-sm text-[#2f1b12] bg-[#fff8ec]">
+                  Unitalla
+                </span>
+              </div>
             }
 
+            <!-- Botón carrito -->
             <button
               type="button"
               (click)="addToCart(state.producto)"
               [disabled]="stockTotal(state.producto) <= 0"
-              class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 font-semibold mb-4 transition"
+              class="w-full bg-[#7a4527] hover:bg-[#4b2e1f] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 font-bold tracking-wide transition mb-5"
             >
               AGREGAR AL CARRITO
             </button>
 
-          </div>
+            @if(mensajeCarrito) {
+              <p
+                class="text-sm font-semibold mb-5"
+                [class.text-emerald-700]="mensajeCarrito.includes('agregado')"
+                [class.text-red-700]="!mensajeCarrito.includes('agregado')"
+              >
+                {{ mensajeCarrito }}
+              </p>
+            }
 
-        </div>
+            <!-- Acordeón producto -->
+            <div class="border-t border-[#cbb89d]">
+
+              <button
+                type="button"
+                (click)="toggleAcordeonProducto()"
+                class="w-full flex items-center justify-between py-5 text-left text-base font-bold text-[#2f1b12]"
+              >
+                <span>Conoce más de este producto</span>
+
+                <span
+                  class="text-3xl leading-none transition-transform duration-300"
+                  [class.rotate-45]="acordeonProductoAbierto"
+                >
+                  +
+                </span>
+              </button>
+
+              <div
+                class="grid transition-all duration-500 ease-in-out"
+                [class.grid-rows-[1fr]]="acordeonProductoAbierto"
+                [class.grid-rows-[0fr]]="!acordeonProductoAbierto"
+              >
+                <div class="overflow-hidden">
+                  <div class="pb-6 text-sm leading-7 text-[#4b2e1f]">
+                    @if(state.producto.descripcion) {
+                      <p>
+                        {{ state.producto.descripcion }}
+                      </p>
+                    } @else {
+                      <p>
+                        Producto seleccionado por Durango Western por su calidad,
+                        diseño y estilo western.
+                      </p>
+                    }
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Acordeón envíos -->
+            <div class="border-t border-b border-[#cbb89d]">
+
+              <button
+                type="button"
+                (click)="toggleAcordeonEnvios()"
+                class="w-full flex items-center justify-between py-5 text-left text-base font-bold text-[#2f1b12]"
+              >
+                <span>Envíos y devoluciones</span>
+
+                <span
+                  class="text-3xl leading-none transition-transform duration-300"
+                  [class.rotate-45]="acordeonEnviosAbierto"
+                >
+                  +
+                </span>
+              </button>
+
+              <div
+                class="grid transition-all duration-500 ease-in-out"
+                [class.grid-rows-[1fr]]="acordeonEnviosAbierto"
+                [class.grid-rows-[0fr]]="!acordeonEnviosAbierto"
+              >
+                <div class="overflow-hidden">
+                  <div class="pb-6 text-sm leading-7 text-[#4b2e1f] space-y-3">
+                    <p>
+                      Realizamos envíos a diferentes zonas de México. El costo y tiempo
+                      de entrega se calculan durante el checkout según tu dirección.
+                    </p>
+
+                    <p>
+                      En compras mayores a $4,000 MXN el envío puede aplicar como gratis,
+                      según las condiciones de la tienda.
+                    </p>
+
+                    <p>
+                      Para cambios o devoluciones, conserva tu comprobante de compra y
+                      contáctanos para revisar tu caso.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </aside>
+
+        </section>
 
         <!-- PRODUCTOS RELACIONADOS -->
         @if(state.relacionados.length > 0) {
+          <section class="mt-12 md:mt-20">
 
-          <section class="mt-16">
-
-            <h2 class="text-center text-2xl font-bold text-[#2f1b12] mb-8">
-              También te puede interesar
+            <h2 class="text-center text-3xl md:text-4xl font-normal text-[#2f1b12] mb-10">
+              Productos Relacionados
             </h2>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-7">
 
               @for(producto of state.relacionados; track producto.id) {
-
                 <a
                   [routerLink]="['/detalle-producto', producto.slug]"
-                  class="block bg-[#fff8ec] p-3 shadow-sm hover:shadow-lg transition"
+                  class="group block"
                 >
 
-                  <div class="aspect-square bg-[#e7dccb] overflow-hidden mb-3">
-
+                  <div class="aspect-square bg-[#fff8ec] overflow-hidden mb-4">
                     <img
                       [src]="imagenProducto(producto)"
                       [alt]="producto.nombre"
-                      class="w-full h-full object-cover"
-                    >
-
+                      class="w-full h-full object-contain bg-white group-hover:scale-105 transition duration-300"
+                    />
                   </div>
 
-                  <h3 class="text-sm font-semibold text-[#2f1b12] mb-2 line-clamp-2">
+                  <h3 class="text-sm text-[#2f1b12] mb-2 line-clamp-2 min-h-[40px]">
                     {{ producto.nombre }}
                   </h3>
 
-                  <p class="font-bold text-[#2f1b12] mb-3">
+                  <p class="font-bold text-[#2f1b12] mb-4 text-sm">
                     {{ producto.precio | currency:'MXN':'symbol':'1.0-0' }}
                   </p>
 
-                  <div class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2 text-center">
+                  <div class="w-full bg-[#7a4527] hover:bg-[#4b2e1f] text-white text-sm py-2 text-center transition">
                     Ver producto
                   </div>
 
                 </a>
-
               }
 
             </div>
 
           </section>
-
         }
 
       }
