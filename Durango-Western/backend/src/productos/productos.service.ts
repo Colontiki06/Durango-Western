@@ -22,12 +22,38 @@ export class ProductosService {
     const texto = nombre.toLowerCase();
 
     if (texto.includes('bota')) return 'BOTA';
-    if (texto.includes('sombrero')) return 'SOMB';
+    if (texto.includes('sombrero') || texto.includes('tejana')) return 'SOMB';
     if (texto.includes('camisa')) return 'CAM';
-    if (texto.includes('pantalon') || texto.includes('pantalón')) return 'PANT';
+    if (texto.includes('pantalon') || texto.includes('pantalón') || texto.includes('tejano')) return 'PANT';
     if (texto.includes('cinto') || texto.includes('cinturon') || texto.includes('cinturón')) return 'CINTO';
+    if (texto.includes('bolso') || texto.includes('mochila')) return 'BOLSO';
 
     return 'PROD';
+  }
+
+  private detectarSlugTipoProducto(nombre: string): string | null {
+    const texto = nombre.toLowerCase();
+
+    if (texto.includes('bota')) return 'botas';
+    if (texto.includes('sombrero') || texto.includes('tejana')) return 'sombreros';
+    if (texto.includes('camisa')) return 'camisas';
+    if (texto.includes('pantalon') || texto.includes('pantalón') || texto.includes('tejano')) return 'pantalones';
+    if (texto.includes('cinto') || texto.includes('cinturon') || texto.includes('cinturón')) return 'cintos';
+    if (texto.includes('bolso') || texto.includes('mochila')) return 'bolsos';
+
+    return null;
+  }
+
+  private async obtenerTipoProductoId(nombre: string): Promise<string | null> {
+    const slug = this.detectarSlugTipoProducto(nombre);
+
+    if (!slug) return null;
+
+    const tipoProducto = await this.prisma.tipos_producto.findUnique({
+      where: { slug },
+    });
+
+    return tipoProducto?.id ?? null;
   }
 
   private prefijoCategoria(slug: string): string {
@@ -52,17 +78,117 @@ export class ProductosService {
     return `DW-${prefijo}-${tipo}-${consecutivo}`;
   }
 
-  async findAll() {
+  async findAll(filtros: any = {}) {
+    const where: any = {
+      activo: true,
+    };
+
+    if (filtros.genero) {
+      where.categorias = {
+        is: {
+          slug: filtros.genero,
+        },
+      };
+    }
+
+    if (filtros.tipo) {
+      where.tipos_producto = {
+        is: {
+          slug: filtros.tipo,
+        },
+      };
+    }
+
+    if (filtros.categoria && filtros.categoria !== 'todos') {
+      const tiposProducto = [
+        'botas',
+        'sombreros',
+        'camisas',
+        'pantalones',
+        'cintos',
+        'bolsos',
+      ];
+
+      const categorias = [
+        'caballero',
+        'dama',
+        'ninos',
+        'niños',
+        'accesorios',
+      ];
+
+      if (tiposProducto.includes(filtros.categoria)) {
+        where.tipos_producto = {
+          is: {
+            slug: filtros.categoria,
+          },
+        };
+      }
+
+      if (categorias.includes(filtros.categoria)) {
+        where.categorias = {
+          is: {
+            slug: filtros.categoria,
+          },
+        };
+      }
+    }
+
+    if (filtros.talla) {
+      where.producto_variantes = {
+        some: {
+          activo: true,
+          stock: {
+            gt: 0,
+          },
+          tallas: {
+            is: {
+              nombre: filtros.talla,
+            },
+          },
+        },
+      };
+    }
+
+    if (
+      filtros.precioMin !== undefined &&
+      filtros.precioMin !== ''
+    ) {
+      where.precio = {
+        ...where.precio,
+        gte: String(filtros.precioMin),
+      };
+    }
+
+    if (
+      filtros.precioMax !== undefined &&
+      filtros.precioMax !== ''
+    ) {
+      where.precio = {
+        ...where.precio,
+        lte: String(filtros.precioMax),
+      };
+    }
+
+    if (filtros.destacado) {
+      where.destacado = true;
+    }
+
     return this.prisma.productos.findMany({
-      where: {
-        activo: true,
-      },
+      where,
       include: {
         producto_imagenes: {
           orderBy: { orden: 'asc' },
         },
         categorias: true,
+        tipos_producto: true,
         producto_variantes: {
+          where: {
+            activo: true,
+            stock: {
+              gt: 0,
+            },
+          },
           include: {
             tallas: true,
             colores: true,
@@ -83,6 +209,7 @@ export class ProductosService {
           orderBy: { orden: 'asc' },
         },
         categorias: true,
+        tipos_producto: true,
         producto_variantes: {
           include: {
             tallas: true,
@@ -101,6 +228,7 @@ export class ProductosService {
           orderBy: { orden: 'asc' },
         },
         categorias: true,
+        tipos_producto: true,
         producto_variantes: {
           include: {
             tallas: true,
@@ -119,11 +247,12 @@ export class ProductosService {
       data.categoria_id,
     );
 
-    
+    const tipoProductoId = await this.obtenerTipoProductoId(data.nombre);
 
     const producto = await this.prisma.productos.create({
       data: {
         categoria_id: data.categoria_id,
+        tipo_producto_id: tipoProductoId,
         nombre: data.nombre,
         slug: `${slugBase}-${Date.now()}`,
         codigo: codigoGenerado,
@@ -165,6 +294,8 @@ export class ProductosService {
   }
 
   async update(id: string, data: any) {
+    const tipoProductoId = await this.obtenerTipoProductoId(data.nombre);
+
     await this.prisma.productos.update({
       where: { id },
       data: {
@@ -174,25 +305,26 @@ export class ProductosService {
         precio: String(data.precio),
         costo: String(data.costo ?? 0),
         categoria_id: data.categoria_id,
+        tipo_producto_id: tipoProductoId,
         activo: data.estado === 'Activo',
         updated_at: new Date(),
       },
     });
 
     if (Array.isArray(data.variantes)) {
-  for (const variante of data.variantes) {
-    await this.prisma.producto_variantes.update({
-      where: { id: variante.id },
-      data: {
-        stock: Number(variante.stock),
-        peso_kg: Number(variante.peso_kg ?? 1),
-        largo_cm: Number(variante.largo_cm ?? 30),
-        ancho_cm: Number(variante.ancho_cm ?? 20),
-        alto_cm: Number(variante.alto_cm ?? 10),
-      },
-    });
-  }
-}
+      for (const variante of data.variantes) {
+        await this.prisma.producto_variantes.update({
+          where: { id: variante.id },
+          data: {
+            stock: Number(variante.stock),
+            peso_kg: Number(variante.peso_kg ?? 1),
+            largo_cm: Number(variante.largo_cm ?? 30),
+            ancho_cm: Number(variante.ancho_cm ?? 20),
+            alto_cm: Number(variante.alto_cm ?? 10),
+          },
+        });
+      }
+    }
 
     return this.findOne(id);
   }
@@ -227,6 +359,7 @@ export class ProductosService {
       select: {
         id: true,
         categoria_id: true,
+        tipo_producto_id: true,
       },
     });
 
@@ -246,6 +379,8 @@ export class ProductosService {
         producto_imagenes: {
           orderBy: { orden: 'asc' },
         },
+        categorias: true,
+        tipos_producto: true,
       },
       take: 4,
       orderBy: {
@@ -273,20 +408,20 @@ export class ProductosService {
     }
 
     return this.prisma.producto_variantes.create({
-  data: {
-    producto_id: productoId,
-    talla_id: data.talla_id,
-    color_id: data.color_id ?? null,
-    sku: `${producto.codigo}-${talla.nombre}`,
-    stock: Number(data.stock ?? 0),
-    precio_extra: String(data.precio_extra ?? 0),
-    peso_kg: String(data.peso_kg ?? 1),
-    largo_cm: String(data.largo_cm ?? 30),
-    ancho_cm: String(data.ancho_cm ?? 20),
-    alto_cm: String(data.alto_cm ?? 10),
-    activo: true,
-  },
-});
+      data: {
+        producto_id: productoId,
+        talla_id: data.talla_id,
+        color_id: data.color_id ?? null,
+        sku: `${producto.codigo}-${talla.nombre}`,
+        stock: Number(data.stock ?? 0),
+        precio_extra: String(data.precio_extra ?? 0),
+        peso_kg: String(data.peso_kg ?? 1),
+        largo_cm: String(data.largo_cm ?? 30),
+        ancho_cm: String(data.ancho_cm ?? 20),
+        alto_cm: String(data.alto_cm ?? 10),
+        activo: true,
+      },
+    });
   }
 
   async updateStockVariante(varianteId: string, stock: number) {

@@ -11,22 +11,12 @@
 
     <div class="navbar-icons">
 
-      <button
-        type="button"
-        class="icon-button"
-        aria-label="Buscar"
-        (click)="toggleSearch()"
-      >
+      <button type="button" class="icon-button" aria-label="Buscar" (click)="toggleSearch()">
         <img src="/icons/lupa.svg" alt="Buscar" />
       </button>
 
       <div class="user-menu-wrapper">
-        <button
-          type="button"
-          class="icon-button"
-          aria-label="Área de usuario"
-          (click)="toggleUserMenu()"
-        >
+        <button type="button" class="icon-button" aria-label="Área de usuario" (click)="toggleUserMenu()">
           <img src="/icons/usuario.svg" alt="Usuario" />
         </button>
 
@@ -43,21 +33,10 @@
                   Administra tu perfil, pedidos y direcciones.
                 </p>
 
-                <button type="button" (click)="goTo('/perfil')">
-                  Mi perfil
-                </button>
-
-                <button type="button" (click)="goTo('/pedidos')">
-                  Mis compras
-                </button>
-
-                <button type="button" (click)="goTo('/metodos-pago')">
-                  Métodos de pago
-                </button>
-
-                <button type="button" (click)="logout()">
-                  Cerrar sesión
-                </button>
+                <button type="button" (click)="goTo('/perfil')">Mi perfil</button>
+                <button type="button" (click)="goTo('/pedidos')">Mis compras</button>
+                <button type="button" (click)="goTo('/metodos-pago')">Métodos de pago</button>
+                <button type="button" (click)="logout()">Cerrar sesión</button>
               </div>
             }
 
@@ -85,12 +64,7 @@
         }
       </div>
 
-      <button
-        type="button"
-        class="icon-button cart-button"
-        routerLink="/carrito"
-        aria-label="Carrito"
-      >
+      <button type="button" class="icon-button cart-button" routerLink="/carrito" aria-label="Carrito">
         <img src="/icons/bolso.svg" alt="Carrito" />
 
         <span *ngIf="cartCount > 0" class="cart-badge">
@@ -122,7 +96,7 @@
 <div class="menu-bar">
 
   <div class="mega-item">
-    <a routerLink="/productos/botas-caballero" class="menu-link">
+    <a routerLink="/productos" [queryParams]="{ genero: 'caballero' }" class="menu-link">
       Caballero
     </a>
 
@@ -132,19 +106,19 @@
         <div>
           <h3>Caballero</h3>
 
-          <a routerLink="/productos/botas-caballero">Botas</a>
-          <a routerLink="/productos/sombreros">Sombreros</a>
-          <a routerLink="/productos/camisas">Camisas</a>
-          <a routerLink="/productos/pantalones">Pantalones</a>
-          <a routerLink="/productos/cintos">Cintos</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'botas' }">Botas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'sombreros' }">Sombreros</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'camisas' }">Camisas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'pantalones' }">Pantalones</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'cintos' }">Cintos</a>
         </div>
 
         <div>
           <h3>Destacado</h3>
 
-          <a routerLink="/productos/botas-caballero">Botas vaqueras</a>
-          <a routerLink="/productos/camisas">Camisas western</a>
-          <a routerLink="/productos/accesorios">Accesorios</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'botas' }">Botas vaqueras</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'camisas' }">Camisas western</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero' }">Todo caballero</a>
         </div>
 
         <div class="mega-promo">
@@ -157,7 +131,7 @@
   </div>
 
   <div class="mega-item">
-    <a routerLink="/productos/dama" class="menu-link">
+    <a routerLink="/productos" [queryParams]="{ genero: 'dama' }" class="menu-link">
       Dama
     </a>
 
@@ -167,18 +141,18 @@
         <div>
           <h3>Dama</h3>
 
-          <a routerLink="/productos/botas-dama">Botas</a>
-          <a routerLink="/productos/sombreros">Sombreros</a>
-          <a routerLink="/productos/camisas">Blusas / Camisas</a>
-          <a routerLink="/productos/accesorios">Accesorios</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'botas' }">Botas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'sombreros' }">Sombreros</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'camisas' }">Blusas / Camisas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'cintos' }">Cintos</a>
         </div>
 
         <div>
           <h3>Destacado</h3>
 
-          <a routerLink="/productos/botas-dama">Botas bordadas</a>
-          <a routerLink="/productos/accesorios">Bolsos</a>
-          <a routerLink="/productos/cintos">Cintos</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'botas' }">Botas bordadas</a>
+          <a routerLink="/productos" [queryParams]="{ tipo: 'bolsos' }">Bolsos</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama' }">Todo dama</a>
         </div>
 
         <div class="mega-promo">
@@ -191,7 +165,7 @@
   </div>
 
   <div class="mega-item">
-    <a routerLink="/productos/ninos" class="menu-link">
+    <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }" class="menu-link">
       Niños
     </a>
 
@@ -201,17 +175,17 @@
         <div>
           <h3>Niños</h3>
 
-          <a routerLink="/productos/ninos">Botas infantiles</a>
-          <a routerLink="/productos/camisas">Camisas</a>
-          <a routerLink="/productos/sombreros">Sombreros</a>
-          <a routerLink="/productos/accesorios">Accesorios</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos', tipo: 'botas' }">Botas infantiles</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos', tipo: 'camisas' }">Camisas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos', tipo: 'sombreros' }">Sombreros</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }">Todo niños</a>
         </div>
 
         <div>
           <h3>Destacado</h3>
 
-          <a routerLink="/productos/ninos">Colección infantil</a>
-          <a routerLink="/productos/ofertas">Promociones</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }">Colección infantil</a>
+          <a routerLink="/productos" [queryParams]="{ oferta: true }">Promociones</a>
         </div>
 
         <div class="mega-promo">
@@ -223,7 +197,7 @@
     </div>
   </div>
 
-  <a routerLink="/ofertas" class="menu-link">
+  <a routerLink="/productos" [queryParams]="{ oferta: true }" class="menu-link">
     Ofertas
   </a>
 

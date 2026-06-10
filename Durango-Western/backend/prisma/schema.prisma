@@ -515,15 +515,15 @@ model banners {
 
 model categorias_home {
   id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  categoria_id String?   @db.Uuid
   nombre       String
-  slug         String?
-  enlace       String?
   imagen_url   String
   orden        Int       @default(0)
   activa       Boolean   @default(true)
   created_at   DateTime? @default(now()) @db.Timestamptz(6)
   updated_at   DateTime? @default(now()) @db.Timestamptz(6)
+  categoria_id String?   @db.Uuid
+  enlace       String?
+  slug         String?
 
   @@schema("public")
 }
@@ -806,6 +806,7 @@ model productos {
   destacado              Boolean?                 @default(false)
   created_at             DateTime?                @default(now()) @db.Timestamptz(6)
   updated_at             DateTime?                @default(now()) @db.Timestamptz(6)
+  tipo_producto_id       String?                  @db.Uuid
   carrito_items          carrito_items[]
   inventario_movimientos inventario_movimientos[]
   pedido_items           pedido_items[]
@@ -813,6 +814,7 @@ model productos {
   producto_promociones   producto_promociones[]
   producto_variantes     producto_variantes[]
   categorias             categorias?              @relation(fields: [categoria_id], references: [id], onUpdate: NoAction)
+  tipos_producto         tipos_producto?          @relation(fields: [tipo_producto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -903,6 +905,16 @@ model password_reset_tokens {
 
   @@index([token_hash], map: "idx_password_reset_tokens_token_hash")
   @@index([user_id], map: "idx_password_reset_tokens_user_id")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model tipos_producto {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nombre    String
+  slug      String      @unique
+  productos productos[]
+
   @@schema("public")
 }
 
