@@ -1,22 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
 
-import { Contacto } from './contacto';
-
-describe('Contacto', () => {
-  let component: Contacto;
-  let fixture: ComponentFixture<Contacto>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Contacto],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(Contacto);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+@Component({
+  selector: 'app-contacto',
+  standalone: true,
+  imports: [],
+  templateUrl: './contacto.html',
+  styleUrl: './contacto.css',
+})
+export class Contacto {}

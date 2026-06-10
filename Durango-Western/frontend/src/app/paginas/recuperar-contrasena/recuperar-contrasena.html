@@ -9,17 +9,46 @@
       </h1>
 
       <p class="text-[#f3e3cc] text-sm mt-3">
-        Recupera el acceso a tu cuenta Durango Western
+        Te enviaremos un enlace para cambiar tu contraseña
       </p>
     </div>
 
     <!-- Formulario -->
-    <form class="px-8 py-9">
+    <form
+      class="px-8 py-9"
+      (ngSubmit)="enviarEnlace()"
+      autocomplete="off"
+      novalidate
+    >
 
       <p class="text-center text-sm text-[#3b2618] leading-6 mb-8">
-        Ingresa el correo electrónico asociado a tu cuenta y te enviaremos
-        instrucciones para restablecer tu contraseña.
+        Ingresa el correo de tu cuenta. Si está registrado, recibirás un
+        enlace para restablecer tu contraseña.
       </p>
+
+      <!-- Confirmación -->
+      @if(mensajeExito()) {
+        <div class="mb-5 rounded-xl border border-green-300 bg-green-100 text-green-700 px-4 py-4 text-sm text-center">
+          <div class="w-12 h-12 mx-auto rounded-full bg-green-200 flex items-center justify-center text-2xl mb-3">
+            ✓
+          </div>
+
+          <p class="font-bold text-base">
+            Solicitud enviada
+          </p>
+
+          <p class="mt-1 leading-6">
+            {{ mensajeExito() }}
+          </p>
+        </div>
+      }
+
+      <!-- Error -->
+      @if(error()) {
+        <div class="mb-5 rounded-xl border border-red-300 bg-red-100 text-red-700 px-4 py-3 text-sm text-center">
+          {{ error() }}
+        </div>
+      }
 
       <div class="space-y-5">
 
@@ -30,18 +59,32 @@
 
           <input
             type="email"
-            name="email"
+            name="correo_recuperacion"
+            [(ngModel)]="email"
+            (input)="limpiarAlertas()"
             placeholder="ejemplo@correo.com"
-            autocomplete="email"
-            class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            inputmode="email"
+            [disabled]="cargando()"
+            class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
         </div>
 
         <button
-          type="button"
-          class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition"
+          type="submit"
+          [disabled]="cargando()"
+          class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          ENVIAR ENLACE
+          @if(cargando()) {
+            <span class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+          }
+
+          <span>
+            {{ cargando() ? 'ENVIANDO CORREO...' : 'ENVIAR ENLACE' }}
+          </span>
         </button>
 
         <div class="relative py-2">
@@ -61,7 +104,7 @@
           routerLink="/login"
           class="w-full h-12 rounded-lg border border-[#8b542f] bg-transparent text-[#5b2d16] text-sm font-bold tracking-wide hover:bg-[#f3e3cc] transition"
         >
-          REGRESAR A INICIO DE SESIÓN
+          VOLVER AL LOGIN
         </button>
 
       </div>

@@ -16,7 +16,12 @@
       </p>
     </div>
 
-    <form class="px-8 py-9">
+    <form
+      class="px-8 py-9"
+      autocomplete="off"
+      novalidate
+      (ngSubmit)="modoRecuperacion ? enviarCorreoRecuperacion() : login()"
+    >
 
       <ng-container *ngIf="!modoRecuperacion">
 
@@ -36,9 +41,15 @@
               type="email"
               name="email"
               [(ngModel)]="email"
+              (input)="limpiarAlertas()"
               placeholder="ejemplo@correo.com"
               autocomplete="email"
-              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              inputmode="email"
+              [disabled]="loading"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -51,9 +62,11 @@
               type="password"
               name="password"
               [(ngModel)]="password"
+              (input)="limpiarAlertas()"
               placeholder="Ingresa tu contraseña"
               autocomplete="current-password"
-              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+              [disabled]="loading"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -67,27 +80,43 @@
             </button>
           </div>
 
-          <p
+          <div
             *ngIf="error"
-            class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg"
+            class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg text-center"
           >
             {{ error }}
-          </p>
+          </div>
 
-          <p
+          <div
             *ngIf="mensaje"
-            class="bg-green-100 border border-green-300 text-green-700 px-4 py-3 text-sm rounded-lg"
+            class="bg-green-100 border border-green-300 text-green-700 px-4 py-4 text-sm rounded-lg text-center"
           >
-            {{ mensaje }}
-          </p>
+            <div class="w-10 h-10 mx-auto rounded-full bg-green-200 flex items-center justify-center text-xl mb-2">
+              ✓
+            </div>
+
+            <p class="font-bold">
+              Solicitud enviada
+            </p>
+
+            <p class="mt-1 leading-6">
+              {{ mensaje }}
+            </p>
+          </div>
 
           <button
-            type="button"
-            (click)="login()"
+            type="submit"
             [disabled]="loading"
-            class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed"
+            class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {{ loading ? 'INICIANDO SESIÓN...' : 'INICIAR SESIÓN' }}
+            <span
+              *ngIf="loading"
+              class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
+            ></span>
+
+            <span>
+              {{ loading ? 'INICIANDO SESIÓN...' : 'INICIAR SESIÓN' }}
+            </span>
           </button>
 
           <div class="relative py-2">
@@ -131,33 +160,55 @@
               type="email"
               name="emailRecuperacion"
               [(ngModel)]="emailRecuperacion"
+              (input)="limpiarAlertas()"
               placeholder="ejemplo@correo.com"
-              autocomplete="email"
-              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              inputmode="email"
+              [disabled]="enviandoRecuperacion"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
-          <p
+          <div
             *ngIf="error"
-            class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg"
+            class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg text-center"
           >
             {{ error }}
-          </p>
+          </div>
 
-          <p
+          <div
             *ngIf="mensaje"
-            class="bg-green-100 border border-green-300 text-green-700 px-4 py-3 text-sm rounded-lg"
+            class="bg-green-100 border border-green-300 text-green-700 px-4 py-4 text-sm rounded-lg text-center"
           >
-            {{ mensaje }}
-          </p>
+            <div class="w-10 h-10 mx-auto rounded-full bg-green-200 flex items-center justify-center text-xl mb-2">
+              ✓
+            </div>
+
+            <p class="font-bold">
+              Solicitud enviada
+            </p>
+
+            <p class="mt-1 leading-6">
+              {{ mensaje }}
+            </p>
+          </div>
 
           <button
-            type="button"
-            (click)="enviarCorreoRecuperacion()"
+            type="submit"
             [disabled]="enviandoRecuperacion"
-            class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed"
+            class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {{ enviandoRecuperacion ? 'ENVIANDO CORREO...' : 'ENVIAR ENLACE' }}
+            <span
+              *ngIf="enviandoRecuperacion"
+              class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
+            ></span>
+
+            <span>
+              {{ enviandoRecuperacion ? 'ENVIANDO CORREO...' : 'ENVIAR ENLACE' }}
+            </span>
           </button>
 
           <button

@@ -174,20 +174,25 @@ export const routes: Routes = [
   },
 
   {
-  path: 'pago-exitoso',
-  loadComponent: () => import('./paginas/confirmacion-compra/confirmacion-compra')
-    .then(m => m.ConfirmacionCompra)
-},
-{
-  path: 'pago-pendiente',
-  loadComponent: () => import('./paginas/confirmacion-compra/confirmacion-compra')
-    .then(m => m.ConfirmacionCompra)
-},
-{
-  path: 'pago-fallido',
-  loadComponent: () => import('./paginas/confirmacion-compra/confirmacion-compra')
-    .then(m => m.ConfirmacionCompra)
-},
+    path: 'pago-exitoso',
+    loadComponent: () =>
+      import('./paginas/confirmacion-compra/confirmacion-compra')
+        .then(m => m.ConfirmacionCompra)
+  },
+
+  {
+    path: 'pago-pendiente',
+    loadComponent: () =>
+      import('./paginas/confirmacion-compra/confirmacion-compra')
+        .then(m => m.ConfirmacionCompra)
+  },
+
+  {
+    path: 'pago-fallido',
+    loadComponent: () =>
+      import('./paginas/confirmacion-compra/confirmacion-compra')
+        .then(m => m.ConfirmacionCompra)
+  },
 
   {
     path: 'metodos-pago',
@@ -208,6 +213,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./paginas/recuperar-contrasena/recuperar-contrasena')
         .then(m => m.RecuperarContrasena)
+  },
+
+  {
+    path: 'restablecer-password',
+    loadComponent: () =>
+      import('./paginas/restablecer-contrasena/restablecer-contrasena')
+        .then(m => m.RestablecerContrasena)
   },
 
   {

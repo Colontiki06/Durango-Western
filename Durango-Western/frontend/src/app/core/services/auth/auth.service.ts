@@ -100,6 +100,7 @@ export class AuthService {
       `${this.apiAuthUrl}/forgot-password`,
       {
         email: email.trim().toLowerCase(),
+        frontendUrl: this.obtenerFrontendUrlActual(),
       }
     );
   }
@@ -288,6 +289,14 @@ export class AuthService {
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  private obtenerFrontendUrlActual(): string {
+    if (typeof window === 'undefined') {
+      return '';
+    }
+
+    return window.location.origin;
   }
 
   private storageDisponible(): boolean {

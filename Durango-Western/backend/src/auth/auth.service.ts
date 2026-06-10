@@ -261,13 +261,11 @@ export class AuthService {
       )
     `;
 
-    const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+    const frontendUrl = this.obtenerFrontendUrl(dto.frontendUrl);
 
-    const resetUrl = `${frontendUrl.replace(
-      /\/$/,
-      '',
-    )}/restablecer-password?token=${token}`;
+    const resetUrl = `${frontendUrl}/restablecer-password?token=${encodeURIComponent(
+      token,
+    )}`;
 
     try {
       const respuestaCorreo =
@@ -386,6 +384,15 @@ export class AuthService {
         avatar_url: usuario.avatar_url || null,
       },
     };
+  }
+
+  private obtenerFrontendUrl(frontendUrlDesdeCliente?: string): string {
+    const frontendUrl =
+      frontendUrlDesdeCliente ||
+      this.configService.get<string>('FRONTEND_URL') ||
+      'http://localhost:4200';
+
+    return frontendUrl.replace(/\/$/, '');
   }
 
   private hashToken(token: string): string {
