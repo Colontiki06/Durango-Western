@@ -144,7 +144,13 @@ export class PedidosService {
     const totalCalculado = subtotal + envioCalculado;
     const tarifaEnvio = data.tarifaEnvio ?? null;
 
-    if (data.tipoEntrega === 'domicilio' && !tarifaEnvio) {
+    const envioGratis = envioCalculado === 0;
+
+if (
+  data.tipoEntrega === 'domicilio' &&
+  !envioGratis &&
+  !tarifaEnvio
+) {
   throw new BadRequestException(
     'Debes seleccionar una paquetería antes de finalizar la compra',
   );
@@ -186,38 +192,38 @@ export class PedidosService {
       throw new BadRequestException('No se pudo generar el pedido');
     }
 
-    if (data.tipoEntrega === 'domicilio' && tarifaEnvio) {
-      let paqueteriaId: string | null = null;
+    if (data.tipoEntrega === 'domicilio') {
+  let paqueteriaId: string | null = null;
 
-      if (tarifaEnvio.paqueteria) {
-        const paqueteria = await this.prisma.paqueterias.findFirst({
-          where: {
-            nombre: {
-              equals: String(tarifaEnvio.paqueteria).trim(),
-              mode: 'insensitive',
-            },
-            activa: true,
-          },
-        });
-
-        if (paqueteria) {
-          paqueteriaId = paqueteria.id;
-        }
-      }
-
-      await this.prisma.envios.create({
-        data: {
-          pedido_id: pedido.id,
-          paqueteria_id: paqueteriaId,
-          estado: 'pendiente',
-          servicio: tarifaEnvio.servicio ?? null,
-          costo: Number(envioCalculado),
-          dias_estimados: tarifaEnvio.dias ?? null,
-          skydropx_rate_id: tarifaEnvio.id ?? null,
-          skydropx_quotation_id: data.skydropxQuotationId ?? null,
+  if (tarifaEnvio?.paqueteria) {
+    const paqueteria = await this.prisma.paqueterias.findFirst({
+      where: {
+        nombre: {
+          equals: String(tarifaEnvio.paqueteria).trim(),
+          mode: 'insensitive',
         },
-      });
+        activa: true,
+      },
+    });
+
+    if (paqueteria) {
+      paqueteriaId = paqueteria.id;
     }
+  }
+
+  await this.prisma.envios.create({
+    data: {
+      pedido_id: pedido.id,
+      paqueteria_id: paqueteriaId,
+      estado: 'pendiente',
+      servicio: tarifaEnvio?.servicio ?? null,
+      costo: Number(envioCalculado),
+      dias_estimados: tarifaEnvio?.dias ?? null,
+      skydropx_rate_id: tarifaEnvio?.id ?? null,
+      skydropx_quotation_id: data.skydropxQuotationId ?? null,
+    },
+  });
+}
 
     for (const item of data.items) {
       const cantidad = Number(item.cantidad);

@@ -57,7 +57,7 @@ type ErroresDireccion = Partial<Record<keyof DireccionCheckout, string>>;
   styleUrl: './checkout.css',
 })
 export class Checkout implements OnInit {
-  readonly envioGratisMinimo = 4000;
+  envioGratisMinimo = 4000;
 
   cargando = false;
   cargandoDirecciones = false;
@@ -99,8 +99,23 @@ export class Checkout implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.cargarConfiguracionTienda();
     this.precargarCliente();
     this.cargarDireccionesGuardadas();
+  }
+
+  cargarConfiguracionTienda(): void {
+    this.api.get<any>('configuraciones').subscribe({
+      next: (config) => {
+        this.envioGratisMinimo = Number(config?.envio_gratis_desde ?? 4000);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error cargando configuración de tienda:', error);
+        this.envioGratisMinimo = 4000;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   items(): CartItem[] {
@@ -205,7 +220,6 @@ export class Checkout implements OnInit {
         error: () => {
           this.cargandoDirecciones = false;
           this.direccionListaParaMostrar = true;
-
           this.cdr.detectChanges();
         },
       });
@@ -251,16 +265,19 @@ export class Checkout implements OnInit {
       this.costoEnvio = 0;
       this.envioGratis = false;
       this.mensajeEnvio = 'Ingresa tu código postal para calcular el envío';
+      this.cdr.detectChanges();
       return;
     }
 
     this.cotizandoEnvio = true;
     this.mensajeEnvio = 'Calculando envío...';
+    this.cdr.detectChanges();
 
     this.api
       .post<any>('envios/cotizar', {
         codigoPostal: this.direccion.codigoPostal,
         subtotal: this.subtotal(),
+        envioGratisMinimo: this.envioGratisMinimo,
         items: this.items()
           .filter((item) => !!item.variante_id)
           .map((item) => ({
@@ -295,9 +312,9 @@ export class Checkout implements OnInit {
           this.envioGratis = Boolean(respuesta.envioGratis);
 
           if (this.envioGratis) {
-            this.tarifaEnvioSeleccionada = null;
-            this.mensajeEnvio = 'Tu compra tiene envío gratis';
-          } else {
+  this.tarifaEnvioSeleccionada = respuesta.tarifaSeleccionada ?? null;
+  this.mensajeEnvio = `Tu compra tiene envío gratis`;
+} else {
             this.mensajeEnvio = 'Selecciona la paquetería que prefieras';
           }
 
@@ -364,6 +381,7 @@ export class Checkout implements OnInit {
     }
 
     this.cargando = true;
+    this.cdr.detectChanges();
 
     const payload = {
       cliente: {
@@ -389,7 +407,9 @@ export class Checkout implements OnInit {
       envio: this.envio(),
       subtotal: this.subtotal(),
       total: this.total(),
-      tarifaEnvio: this.tarifaEnvioSeleccionada,
+      tarifaEnvio: this.envioGratis
+  ? null
+  : this.tarifaEnvioSeleccionada,
       skydropxQuotationId: this.skydropxQuotationId,
       items: this.items().map((item) => ({
         producto_id: item.producto_id || item.id,
@@ -570,12 +590,37 @@ export class Checkout implements OnInit {
       calle: '',
       numeroExterior: '',
       numeroInterior: '',
-      colonia: '',
+      colonia: 'Durango',
       ciudad: 'Durango',
       estado: 'Durango',
       referencias: '',
     };
   }
+
+  codigoPostalCambio(valor: string): void {
+  if (this.tipoEntrega !== 'domicilio') return;
+
+  const cp = String(valor ?? '').replace(/\D/g, '').slice(0, 5);
+
+  this.direccion.codigoPostal = cp;
+
+  this.tarifasEnvio = [];
+  this.tarifaEnvioSeleccionada = null;
+  this.costoEnvio = 0;
+  this.envioGratis = false;
+  this.skydropxQuotationId = '';
+
+  if (cp.length < 5) {
+    this.mensajeEnvio = 'Ingresa tu código postal para calcular el envío';
+    this.cdr.detectChanges();
+    return;
+  }
+
+  console.log('Cotizando envío con CP:', cp);
+
+  this.cotizarEnvio();
+  this.cdr.detectChanges();
+}
 
   private limpiarTelefono(telefono: string): string {
     return telefono.replace(/\D/g, '');

@@ -395,7 +395,28 @@
               Capturar o editar guía
             </h3>
 
+
             <div class="grid grid-cols-1 gap-3">
+
+               @if(!envio.paqueterias?.nombre) {
+  <div>
+    <label class="block text-sm text-[#8a542f] mb-1">
+      Paquetería
+    </label>
+
+    <select
+      [(ngModel)]="paqueteriaGuia"
+      class="w-full border border-[#d8c5aa] rounded-lg px-4 py-2 outline-none"
+    >
+      <option value="">Selecciona paquetería</option>
+      <option value="DHL">DHL</option>
+      <option value="FedEx">FedEx</option>
+      <option value="Estafeta">Estafeta</option>
+      <option value="Paquetexpress">Paquetexpress</option>
+    </select>
+  </div>
+}
+
               <div>
                 <label class="block text-sm text-[#8a542f] mb-1">
                   Número de guía

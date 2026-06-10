@@ -1,293 +1,219 @@
 <div class="p-4 sm:p-5 md:p-8">
 
-  <div class="mb-8 md:mb-10">
-    <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
-      Configuración
-    </h1>
+  @if(loading) {
 
-    <p class="text-[#8a542f] mt-2 text-sm md:text-base">
-      Administra la información general del sistema y preferencias del panel.
-    </p>
-  </div>
+    <div class="flex items-center justify-center py-24">
+      <div class="text-center">
+        <div class="w-12 h-12 border-4 border-[#8a542f] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
 
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
-
-    <!-- Información tienda -->
-    <section class="bg-white rounded-2xl shadow-md p-5 md:p-8">
-
-      <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-6">
-        Información de la tienda
-      </h2>
-
-      <div class="space-y-5">
-
-        <div>
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Nombre de la tienda
-          </label>
-
-          <input
-            [(ngModel)]="config.nombreTienda"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-        </div>
-
-        <div>
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Correo de contacto
-          </label>
-
-          <input
-            [(ngModel)]="config.correo"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-        </div>
-
-        <div>
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Teléfono
-          </label>
-
-          <input
-            [(ngModel)]="config.telefono"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-        </div>
-
-        <div>
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Dirección principal
-          </label>
-
-          <textarea
-            [(ngModel)]="config.direccion"
-            rows="4"
-            class="w-full border border-[#d8c5aa] rounded-lg p-4 outline-none resize-none focus:ring-2 focus:ring-[#8a542f]"
-          ></textarea>
-        </div>
-
+        <p class="text-[#8a542f] font-semibold">
+          Cargando configuración...
+        </p>
       </div>
+    </div>
 
-    </section>
+  } @else {
 
-    <!-- Configuración tienda -->
-    <section class="bg-white rounded-2xl shadow-md p-5 md:p-8">
+    <div class="mb-8 md:mb-10">
+      <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+        Configuración
+      </h1>
 
-      <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-6">
-        Configuración de tienda
-      </h2>
+      <p class="text-[#8a542f] mt-2 text-sm md:text-base">
+        Ajusta las reglas operativas principales de la tienda.
+      </p>
+    </div>
 
-      <div class="space-y-5">
-
-        <div>
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Envío gratis desde
-          </label>
-
-          <input
-            type="number"
-            [(ngModel)]="config.envioGratisDesde"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-        </div>
-
-        <div>
-          <label class="block text-[#2f1b12] mb-2 font-medium">
-            Estado de la tienda
-          </label>
-
-          <select
-            [(ngModel)]="config.estadoTienda"
-            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-          >
-            <option>Activa</option>
-            <option>Modo mantenimiento</option>
-          </select>
-        </div>
-
-        <div class="space-y-3 pt-2">
-
-          <label class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[#f5ede1] rounded-xl p-4">
-
-            <span>
-              <strong class="block text-[#2f1b12]">
-                Permitir compras como invitado
-              </strong>
-
-              <small class="text-[#8a542f]">
-                Los clientes podrán comprar sin iniciar sesión.
-              </small>
-            </span>
-
-            <input
-              type="checkbox"
-              [(ngModel)]="config.comprasInvitado"
-              class="w-5 h-5 shrink-0"
-            >
-
-          </label>
-
-          <label class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[#f5ede1] rounded-xl p-4">
-
-            <span>
-              <strong class="block text-[#2f1b12]">
-                Mostrar productos agotados
-              </strong>
-
-              <small class="text-[#8a542f]">
-                Los productos sin stock seguirán visibles.
-              </small>
-            </span>
-
-            <input
-              type="checkbox"
-              [(ngModel)]="config.mostrarAgotados"
-              class="w-5 h-5 shrink-0"
-            >
-
-          </label>
-
-          <label class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[#f5ede1] rounded-xl p-4">
-
-            <span>
-              <strong class="block text-[#2f1b12]">
-                Carrito persistente
-              </strong>
-
-              <small class="text-[#8a542f]">
-                Guarda el carrito aunque el cliente cierre la página.
-              </small>
-            </span>
-
-            <input
-              type="checkbox"
-              [(ngModel)]="config.carritoPersistente"
-              class="w-5 h-5 shrink-0"
-            >
-
-          </label>
-
-        </div>
-
+    @if(mensaje) {
+      <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-xl font-semibold">
+        {{ mensaje }}
       </div>
+    }
 
-    </section>
+    @if(error) {
+      <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl font-semibold">
+        {{ error }}
+      </div>
+    }
 
-    <!-- Cuenta admin -->
-    <section class="bg-white rounded-2xl shadow-md p-5 md:p-8 xl:col-span-2">
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
 
-      <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-6">
-        Cuenta administrador
-      </h2>
+      <section class="bg-white rounded-2xl shadow-md p-5 md:p-8 border border-[#eadcc7]">
+        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-2">
+          Operación de ventas
+        </h2>
 
-      <div class="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 md:gap-8 items-start">
-
-        <div class="bg-[#f5ede1] rounded-2xl p-6 text-center">
-
-          <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#d6a15d] text-[#4b2e1f] flex items-center justify-center text-3xl md:text-4xl font-bold mx-auto mb-4">
-            M
-          </div>
-
-          <h3 class="font-bold text-[#2f1b12]">
-            {{ config.adminNombre }}
-          </h3>
-
-          <p class="text-[#8a542f] text-sm">
-            {{ config.rol }}
-          </p>
-
-          <p class="text-[#8a542f] text-xs mt-3">
-            Último acceso: {{ config.ultimoAcceso }}
-          </p>
-
-        </div>
+        <p class="text-[#8a542f] text-sm mb-6">
+          Configura las reglas básicas que afectan el proceso de compra.
+        </p>
 
         <div class="space-y-5">
 
           <div>
-            <label class="block text-[#2f1b12] mb-2 font-medium">
-              Nombre
+            <label class="block text-[#2f1b12] mb-2 font-semibold">
+              Envío gratis desde
             </label>
 
-            <input
-              [(ngModel)]="config.adminNombre"
-              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-            >
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#8a542f] font-bold">
+                MX$
+              </span>
+
+              <input
+                type="number"
+                min="0"
+                [(ngModel)]="config.envioGratisDesde"
+                class="w-full h-12 border border-[#d8c5aa] rounded-lg pl-14 pr-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+              >
+            </div>
           </div>
 
-          <div>
-            <label class="block text-[#2f1b12] mb-2 font-medium">
-              Correo administrador
-            </label>
+          <label class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-[#f5ede1] rounded-xl p-4">
+            <span>
+              <strong class="block text-[#2f1b12]">Permitir compras como invitado</strong>
+              <small class="text-[#8a542f]">Los clientes podrán comprar sin iniciar sesión.</small>
+            </span>
 
-            <input
-              [(ngModel)]="config.adminCorreo"
-              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-            >
-          </div>
+            <input type="checkbox" [(ngModel)]="config.comprasInvitado" class="w-5 h-5 shrink-0">
+          </label>
 
-          <div>
-            <label class="block text-[#2f1b12] mb-2 font-medium">
-              Rol
-            </label>
+          <label class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-[#f5ede1] rounded-xl p-4">
+            <span>
+              <strong class="block text-[#2f1b12]">Mostrar productos agotados</strong>
+              <small class="text-[#8a542f]">Si está desactivado, los productos sin stock no se mostrarán al cliente.</small>
+            </span>
 
-            <input
-              [(ngModel)]="config.rol"
-              class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-            >
-          </div>
+            <input type="checkbox" [(ngModel)]="config.mostrarAgotados" class="w-5 h-5 shrink-0">
+          </label>
 
-          <button class="w-full sm:w-auto bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-6 py-3 rounded-xl font-semibold transition">
-            Cambiar contraseña
-          </button>
+          <label class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-[#f5ede1] rounded-xl p-4">
+            <span>
+              <strong class="block text-[#2f1b12]">Carrito persistente</strong>
+              <small class="text-[#8a542f]">Guarda el carrito aunque el cliente cierre la página.</small>
+            </span>
+
+            <input type="checkbox" [(ngModel)]="config.carritoPersistente" class="w-5 h-5 shrink-0">
+          </label>
 
         </div>
+      </section>
 
-      </div>
+      <section class="bg-white rounded-2xl shadow-md p-5 md:p-8 border border-[#eadcc7]">
+        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-2">
+          Estado de la tienda
+        </h2>
 
-    </section>
+        <p class="text-[#8a542f] text-sm mb-6">
+          Controla si la tienda está disponible para los clientes.
+        </p>
 
-    <!-- Zona de riesgo -->
-    <section class="bg-white rounded-2xl shadow-md p-5 md:p-8 xl:col-span-2 border border-red-100">
+        <label class="block text-[#2f1b12] mb-2 font-semibold">
+          Estado actual
+        </label>
 
-      <h2 class="text-xl md:text-2xl font-bold text-red-700 mb-2">
-        Zona de riesgo
-      </h2>
+        <select
+          [(ngModel)]="config.estadoTienda"
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+          <option>Activa</option>
+          <option>Modo mantenimiento</option>
+        </select>
 
-      <p class="text-[#8a542f] mb-6 text-sm md:text-base">
-        Acciones sensibles que pueden afectar la operación de la tienda.
-      </p>
+        @if(config.estadoTienda === 'Modo mantenimiento') {
+          <div class="mt-5 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl p-4 text-sm font-semibold">
+            La tienda pública mostrará la pantalla de mantenimiento. El panel administrativo seguirá disponible.
+          </div>
+        } @else {
+          <div class="mt-5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl p-4 text-sm font-semibold">
+            La tienda está activa y disponible para los clientes.
+          </div>
+        }
+      </section>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section class="bg-white rounded-2xl shadow-md p-5 md:p-8 border border-[#eadcc7]">
+        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-2">
+          Métodos de entrega
+        </h2>
 
-        <button class="w-full bg-[#f5ede1] text-[#4b2e1f] hover:bg-[#8a542f] hover:text-white active:bg-[#8a542f] active:text-white active:scale-95 px-6 py-3 rounded-xl font-bold transition">
-          Restablecer configuración
-        </button>
+        <p class="text-[#8a542f] text-sm mb-6">
+          Opciones disponibles para entregar pedidos.
+        </p>
 
-        <button class="w-full bg-[#f5ede1] text-[#4b2e1f] hover:bg-[#8a542f] hover:text-white active:bg-[#8a542f] active:text-white active:scale-95 px-6 py-3 rounded-xl font-bold transition">
-          Limpiar caché
-        </button>
+        <div class="space-y-3">
+          <label class="flex items-center justify-between gap-4 bg-[#f5ede1] rounded-xl p-4">
+            <span>
+              <strong class="block text-[#2f1b12]">Entrega a domicilio</strong>
+              <small class="text-[#8a542f]">Permite cotizar envío y entregar por paquetería.</small>
+            </span>
 
-        <button class="w-full bg-[#f5ede1] text-[#4b2e1f] hover:bg-[#8a542f] hover:text-white active:bg-[#8a542f] active:text-white active:scale-95 px-6 py-3 rounded-xl font-bold transition">
-          Reiniciar banners
-        </button>
+            <input type="checkbox" checked disabled class="w-5 h-5 shrink-0">
+          </label>
 
-      </div>
+          <label class="flex items-center justify-between gap-4 bg-[#f5ede1] rounded-xl p-4">
+            <span>
+              <strong class="block text-[#2f1b12]">Recolección en tienda</strong>
+              <small class="text-[#8a542f]">Permite que el cliente recoja su pedido en sucursal.</small>
+            </span>
 
-    </section>
+            <input type="checkbox" checked disabled class="w-5 h-5 shrink-0">
+          </label>
+        </div>
+      </section>
 
-  </div>
+      <section class="bg-white rounded-2xl shadow-md p-5 md:p-8 border border-[#eadcc7]">
+        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-2">
+          Paqueterías permitidas
+        </h2>
 
-  <div class="mt-10 flex flex-col sm:flex-row gap-4">
+        <p class="text-[#8a542f] text-sm mb-6">
+          Paqueterías autorizadas para cotizar y enviar pedidos.
+        </p>
 
-    <button class="w-full sm:w-auto bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-8 py-3 rounded-xl font-semibold transition">
-      Guardar configuración
-    </button>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+            <span class="font-bold text-[#2f1b12]">DHL</span>
+            <input type="checkbox" checked disabled class="w-5 h-5">
+          </div>
 
-    <button class="w-full sm:w-auto border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:bg-[#4b2e1f] active:text-white active:scale-95 px-8 py-3 rounded-xl font-semibold transition">
-      Cancelar
-    </button>
+          <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+            <span class="font-bold text-[#2f1b12]">FedEx</span>
+            <input type="checkbox" checked disabled class="w-5 h-5">
+          </div>
 
-  </div>
+          <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+            <span class="font-bold text-[#2f1b12]">Estafeta</span>
+            <input type="checkbox" checked disabled class="w-5 h-5">
+          </div>
+
+          <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+            <span class="font-bold text-[#2f1b12]">Paquetexpress</span>
+            <input type="checkbox" checked disabled class="w-5 h-5">
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="mt-10 flex flex-col sm:flex-row gap-4">
+      <button
+  type="button"
+  (click)="guardarConfiguracion()"
+  [disabled]="guardando"
+  class="w-full sm:w-auto bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 disabled:opacity-60 text-white px-8 py-3 rounded-xl font-semibold transition"
+>
+  {{ guardando ? 'Guardando...' : 'Guardar configuración' }}
+</button>
+
+      <button
+        type="button"
+        (click)="cargarConfiguracion()"
+        [disabled]="guardando || loading"
+        class="w-full sm:w-auto border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:bg-[#4b2e1f] active:text-white active:scale-95 disabled:opacity-60 px-8 py-3 rounded-xl font-semibold transition"
+      >
+        Cancelar
+      </button>
+    </div>
+
+  }
 
 </div>

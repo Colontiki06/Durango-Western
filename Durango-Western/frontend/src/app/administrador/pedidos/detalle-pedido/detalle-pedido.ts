@@ -218,6 +218,11 @@ guardarGuiaEnvio(): void {
     return;
   }
 
+  if (!envio.paqueterias?.nombre && !this.paqueteriaGuia.trim()) {
+    this.mensajeGuia = 'Selecciona la paquetería';
+    return;
+  }
+
   if (!this.numeroGuia.trim()) {
     this.mensajeGuia = 'Captura el número de guía';
     return;
@@ -225,27 +230,41 @@ guardarGuiaEnvio(): void {
 
   this.guardandoGuia = true;
   this.mensajeGuia = '';
+  this.cdr.detectChanges();
 
   this.api.patch<any>(`envios/${envio.id}/guia`, {
     numero_guia: this.numeroGuia.trim(),
+    paqueteria_nombre: this.paqueteriaGuia.trim() || undefined,
   }).subscribe({
     next: (envioActualizado) => {
-  const envioAnterior = this.pedido.envios[0];
+      const envioAnterior = this.pedido.envios[0];
 
-  this.pedido.envios[0] = {
-    ...envioAnterior,
-    ...envioActualizado,
-    paqueterias: envioActualizado.paqueterias ?? envioAnterior.paqueterias,
-  };
+      this.pedido.envios[0] = {
+        ...envioAnterior,
+        ...envioActualizado,
+        paqueterias:
+          envioActualizado.paqueterias ??
+          envioAnterior.paqueterias,
+      };
 
-  this.numeroGuia = envioActualizado.numero_guia ?? this.numeroGuia;
-  this.mensajeGuia = 'Guía guardada correctamente';
-  this.guardandoGuia = false;
-  this.cdr.detectChanges();
-},
+      this.numeroGuia =
+        envioActualizado.numero_guia ?? this.numeroGuia;
+
+      this.paqueteriaGuia =
+        envioActualizado.paqueterias?.nombre ??
+        this.paqueteriaGuia;
+
+      this.mensajeGuia = 'Guía guardada correctamente';
+      this.guardandoGuia = false;
+      this.cdr.detectChanges();
+    },
     error: (error) => {
       console.error('Error guardando guía:', error);
-      this.mensajeGuia = 'No se pudo guardar la guía';
+
+      this.mensajeGuia =
+        error?.error?.message ||
+        'No se pudo guardar la guía';
+
       this.guardandoGuia = false;
       this.cdr.detectChanges();
     }
