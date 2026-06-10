@@ -262,39 +262,75 @@
 
           <div class="mt-10 space-y-4">
 
-            @if(estaLogueado()) {
-              <button
-                type="button"
-                (click)="continuarAlCheckout()"
-                class="block w-full text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
-              >
-                Continuar al checkout
-              </button>
+  @if(cargandoConfiguracion) {
 
-              <p class="text-xs text-[#8a542f] text-center">
-                Continuarás con tu cuenta y tus direcciones guardadas.
-              </p>
-            }
+    <button
+      type="button"
+      disabled
+      class="block w-full text-center bg-[#8a542f] opacity-60 text-white py-3 rounded-lg font-medium"
+    >
+      Cargando opciones...
+    </button>
 
-            @else {
-              <button
-                type="button"
-                (click)="continuarComoInvitado()"
-                class="block w-full text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
-              >
-                Continuar como invitado
-              </button>
+  }
 
-              <button
-                type="button"
-                (click)="iniciarSesionYComprar()"
-                class="block w-full text-center border border-[#8a542f] text-[#8a542f] hover:bg-[#8a542f] hover:text-white py-3 rounded-lg font-medium transition"
-              >
-                Iniciar sesión y comprar
-              </button>
-            }
+  @else if(estaLogueado()) {
 
-          </div>
+    <button
+      type="button"
+      (click)="continuarAlCheckout()"
+      class="block w-full text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+    >
+      Continuar al checkout
+    </button>
+
+    <p class="text-xs text-[#8a542f] text-center">
+      Continuarás con tu cuenta y tus direcciones guardadas.
+    </p>
+
+  }
+
+  @else if(comprasInvitado) {
+
+    <button
+      type="button"
+      (click)="continuarComoInvitado()"
+      class="block w-full text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+    >
+      Continuar como invitado
+    </button>
+
+    <button
+      type="button"
+      (click)="iniciarSesionYComprar()"
+      class="block w-full text-center border border-[#8a542f] text-[#8a542f] hover:bg-[#8a542f] hover:text-white py-3 rounded-lg font-medium transition"
+    >
+      Iniciar sesión y comprar
+    </button>
+
+  }
+
+  @else {
+
+    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+
+      <p class="text-sm text-yellow-800 font-semibold mb-3">
+        Debes iniciar sesión para realizar compras.
+      </p>
+
+      <button
+        type="button"
+        (click)="iniciarSesionYComprar()"
+        class="w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+      >
+        Iniciar sesión
+      </button>
+
+    </div>
+
+  }
+
+</div>
 
         </aside>
 

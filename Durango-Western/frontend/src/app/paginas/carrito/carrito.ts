@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
 import { CartService, CartItem } from '../../core/services/cart/cart.service';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ApiService } from '../../core/services/api/api.service';
 
 @Component({
   selector: 'app-carrito',
@@ -12,16 +13,45 @@ import { AuthService } from '../../core/services/auth/auth.service';
   templateUrl: './carrito.html',
   styleUrl: './carrito.css',
 })
-export class Carrito {
-  readonly envioGratisMinimo = 4000;
+export class Carrito implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+
+  envioGratisMinimo = 4000;
+  comprasInvitado = true;
+  cargandoConfiguracion = true;
 
   mensajeError = '';
 
   constructor(
     private cartService: CartService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private api: ApiService
   ) {}
+
+  ngOnInit(): void {
+    this.cargarConfiguracionTienda();
+  }
+
+  cargarConfiguracionTienda(): void {
+  this.cargandoConfiguracion = true;
+
+  this.api.get<any>('configuraciones').subscribe({
+    next: (config) => {
+      this.envioGratisMinimo = Number(config?.envio_gratis_desde ?? 4000);
+      this.comprasInvitado = Boolean(config?.compras_invitado ?? true);
+      this.cargandoConfiguracion = false;
+      this.cdr.detectChanges();
+    },
+    error: (error) => {
+      console.error('Error cargando configuración de tienda:', error);
+      this.envioGratisMinimo = 4000;
+      this.comprasInvitado = true;
+      this.cargandoConfiguracion = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   items(): CartItem[] {
     return this.cartService.cartItems;
@@ -36,20 +66,21 @@ export class Carrito {
     }
 
     this.cartService.increaseQuantity(item.id, item.variante_id);
+    this.cdr.detectChanges();
   }
 
   decrease(item: CartItem): void {
     this.cartService.decreaseQuantity(item.id, item.variante_id);
+    this.cdr.detectChanges();
   }
 
   remove(item: CartItem): void {
     const confirmar = confirm(`¿Eliminar "${item.nombre}" del carrito?`);
 
-    if (!confirmar) {
-      return;
-    }
+    if (!confirmar) return;
 
     this.cartService.removeFromCart(item.id, item.variante_id);
+    this.cdr.detectChanges();
   }
 
   subtotal(): number {
@@ -61,7 +92,10 @@ export class Carrito {
   }
 
   totalArticulos(): number {
-    return this.items().reduce((total, item) => total + item.cantidad, 0);
+    return this.items().reduce(
+      (total, item) => total + item.cantidad,
+      0
+    );
   }
 
   faltaParaEnvioGratis(): number {
@@ -69,7 +103,12 @@ export class Carrito {
   }
 
   porcentajeEnvioGratis(): number {
-    return Math.min((this.subtotal() / this.envioGratisMinimo) * 100, 100);
+    if (this.envioGratisMinimo <= 0) return 100;
+
+    return Math.min(
+      (this.subtotal() / this.envioGratisMinimo) * 100,
+      100
+    );
   }
 
   tieneEnvioGratis(): boolean {
@@ -95,6 +134,12 @@ export class Carrito {
       return;
     }
 
+    if (!this.comprasInvitado) {
+      this.mostrarError('Las compras como invitado están desactivadas. Inicia sesión para continuar.');
+      this.iniciarSesionYComprar();
+      return;
+    }
+
     this.router.navigate(['/checkout']);
   }
 
@@ -113,9 +158,15 @@ export class Carrito {
 
   mostrarError(mensaje: string): void {
     this.mensajeError = mensaje;
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.mensajeError = '';
+      this.cdr.detectChanges();
     }, 3000);
   }
+
+  
+
+
 }

@@ -48,12 +48,13 @@ guardarGuia(
   body: {
     numero_guia: string;
     paqueteria?: string;
+    paqueteria_nombre?: string;
   },
 ) {
   return this.enviosService.guardarGuia(
     id,
     body.numero_guia,
-    body.paqueteria,
+    body.paqueteria_nombre ?? body.paqueteria,
   );
 }
 }

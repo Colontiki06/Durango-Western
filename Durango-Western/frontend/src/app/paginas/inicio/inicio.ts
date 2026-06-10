@@ -7,7 +7,7 @@ import {
   ChangeDetectorRef,
   NgZone
 } from '@angular/core';
-
+import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart/cart.service';
 import { ApiService } from '../../core/services/api/api.service';
@@ -42,8 +42,8 @@ export class Inicio implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.cargarPersonalizacionInicio();
-  }
+  this.cargarPersonalizacionInicio();
+}
 
   ngOnDestroy(): void {
     if (this.intervaloBanner) {

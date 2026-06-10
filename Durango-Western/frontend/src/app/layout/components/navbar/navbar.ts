@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal,} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
@@ -9,6 +9,7 @@ import {
 } from '../../../core/services/auth/auth.service';
 
 import { CartService } from '../../../core/services/cart/cart.service';
+import { ApiService } from '../../../core/services/api/api.service';
 
 @Component({
   selector: 'app-navbar',
@@ -19,6 +20,8 @@ import { CartService } from '../../../core/services/cart/cart.service';
 })
 export class Navbar implements OnInit, OnDestroy {
   cartCount = 0;
+  envioGratisMinimo = signal(4000);
+
 
   searchOpen = false;
   userMenuOpen = false;
@@ -29,12 +32,14 @@ export class Navbar implements OnInit, OnDestroy {
   private routerSubscription?: Subscription;
 
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private cartService: CartService
-  ) {}
+  private router: Router,
+  private authService: AuthService,
+  private cartService: CartService,
+  private api: ApiService,
+) {}
 
   ngOnInit(): void {
+    this.cargarConfiguracionTienda();
     this.actualizarUsuario();
 
     this.cartCount = this.cartService.getTotalItems();
@@ -51,6 +56,18 @@ export class Navbar implements OnInit, OnDestroy {
         this.searchOpen = false;
       });
   }
+
+cargarConfiguracionTienda(): void {
+  this.api.get<any>('configuraciones').subscribe({
+    next: (config) => {
+      this.envioGratisMinimo.set(Number(config?.envio_gratis_desde ?? 4000));
+    },
+    error: (error) => {
+      console.error('Error cargando configuración de tienda:', error);
+      this.envioGratisMinimo.set(4000);
+    }
+  });
+}
 
   ngOnDestroy(): void {
     this.cartSubscription?.unsubscribe();

@@ -48,6 +48,28 @@ export class EnviosService {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  private normalizar(texto: string): string {
+    return (texto || '')
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  private esPaqueteriaPermitida(tarifa: any): boolean {
+    const paqueteriasPermitidas = [
+      'DHL',
+      'FEDEX',
+      'ESTAFETA',
+      'PAQUETEXPRESS',
+    ];
+
+    const paqueteria = this.normalizar(tarifa.paqueteria);
+
+    return paqueteriasPermitidas.some((nombre) =>
+      paqueteria.includes(nombre),
+    );
+  }
+
   async probarConexionSkydropx() {
     const token = await this.obtenerTokenSkydropx();
 
@@ -122,7 +144,15 @@ export class EnviosService {
 
     if (pesoTotal <= 0) pesoTotal = 1;
 
-    const envioGratis = subtotal >= 4000;
+    const configuracion =
+      await (this.prisma as any).configuracion_tienda.findFirst();
+
+    const envioGratisDesde = Number(
+      configuracion?.envio_gratis_desde ?? 4000,
+    );
+
+    const envioGratis = Number(subtotal) >= envioGratisDesde;
+
     const token = await this.obtenerTokenSkydropx();
 
     const quotationPayload = {
@@ -194,54 +224,34 @@ export class EnviosService {
       throw new BadRequestException('No hay tarifas de envío disponibles');
     }
 
-    const paqueteriasConfiables = [
-      'DHL',
-      'FEDEX',
-      'ESTAFETA',
-      'PAQUETEXPRESS',
-    ];
+    const tarifasPermitidas = tarifasDisponibles.filter((tarifa: any) =>
+      this.esPaqueteriaPermitida(tarifa),
+    );
 
-    const normalizar = (texto: string) =>
-      (texto || '')
-        .toUpperCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-
-    const esConfiable = (tarifa: any) => {
-      const paqueteria = normalizar(tarifa.paqueteria);
-
-      return paqueteriasConfiables.some((nombre) =>
-        paqueteria.includes(nombre),
+    if (tarifasPermitidas.length === 0) {
+      throw new BadRequestException(
+        'No hay tarifas disponibles con las paqueterías permitidas',
       );
-    };
+    }
 
-    const opcionEconomica = tarifasDisponibles[0];
+    const opcionEconomica = tarifasPermitidas[0];
 
     const opcionRecomendada =
-      [...tarifasDisponibles]
-        .filter((tarifa: any) => esConfiable(tarifa))
+      [...tarifasPermitidas]
         .filter((tarifa: any) => tarifa.id !== opcionEconomica?.id)
         .sort((a: any, b: any) => {
           const scoreA = Number(a.total) + Number(a.dias) * 10;
           const scoreB = Number(b.total) + Number(b.dias) * 10;
 
           return scoreA - scoreB;
-        })[0] ??
-      [...tarifasDisponibles]
-        .filter((tarifa: any) => tarifa.id !== opcionEconomica?.id)
-        .sort((a: any, b: any) => {
-          const scoreA = Number(a.total) + Number(a.dias) * 10;
-          const scoreB = Number(b.total) + Number(b.dias) * 10;
-
-          return scoreA - scoreB;
-        })[0] ??
-      opcionEconomica;
+        })[0] ?? opcionEconomica;
 
     const opcionExpress =
-      [...tarifasDisponibles]
-        .filter((tarifa: any) =>
-          tarifa.id !== opcionEconomica?.id &&
-          tarifa.id !== opcionRecomendada?.id
+      [...tarifasPermitidas]
+        .filter(
+          (tarifa: any) =>
+            tarifa.id !== opcionEconomica?.id &&
+            tarifa.id !== opcionRecomendada?.id,
         )
         .sort((a: any, b: any) => {
           if (Number(a.dias) === Number(b.dias)) {
@@ -250,7 +260,7 @@ export class EnviosService {
 
           return Number(a.dias) - Number(b.dias);
         })[0] ??
-      [...tarifasDisponibles].sort((a: any, b: any) => {
+      [...tarifasPermitidas].sort((a: any, b: any) => {
         if (Number(a.dias) === Number(b.dias)) {
           return Number(a.total) - Number(b.total);
         }
@@ -258,11 +268,7 @@ export class EnviosService {
         return Number(a.dias) - Number(b.dias);
       })[0];
 
-    const tarifaGratisAutomatica =
-      [...tarifasDisponibles]
-        .filter((tarifa: any) => esConfiable(tarifa))
-        .sort((a: any, b: any) => Number(a.total) - Number(b.total))[0] ??
-      opcionEconomica;
+    const tarifaGratisAutomatica = tarifasPermitidas[0];
 
     const tarifaSeleccionada = envioGratis
       ? tarifaGratisAutomatica
@@ -275,6 +281,7 @@ export class EnviosService {
     return {
       codigoPostal,
       subtotal,
+      envioGratisDesde,
       pesoTotal,
       medidas: {
         largo: largoMax,
@@ -285,64 +292,63 @@ export class EnviosService {
       costoEnvio,
       total: subtotal + costoEnvio,
       tarifaSeleccionada,
-      tarifas: tarifasDisponibles,
+      tarifas: tarifasPermitidas,
       opcionEconomica,
       opcionRecomendada,
       opcionExpress,
       skydropxQuotationId: quotationId,
     };
-  } 
-
-async guardarGuia(
-  id: string,
-  numeroGuia: string,
-  paqueteriaNombre?: string,
-) {
-  if (!numeroGuia || !numeroGuia.trim()) {
-    throw new BadRequestException('El número de guía es obligatorio');
   }
 
-  const envio = await this.prisma.envios.findUnique({
-    where: { id },
-  });
-
-  if (!envio) {
-    throw new BadRequestException('Envío no encontrado');
-  }
-
-  let paqueteriaId: string | null = envio.paqueteria_id ?? null;
-
-  if (paqueteriaNombre && paqueteriaNombre.trim()) {
-    const paqueteria = await this.prisma.paqueterias.findFirst({
-      where: {
-        nombre: {
-          equals: paqueteriaNombre.trim(),
-          mode: 'insensitive',
-        },
-        activa: true,
-      },
-    });
-
-    if (!paqueteria) {
-      throw new BadRequestException(
-        `La paquetería "${paqueteriaNombre}" no existe o no está activa`,
-      );
+  async guardarGuia(
+    id: string,
+    numeroGuia: string,
+    paqueteriaNombre?: string,
+  ) {
+    if (!numeroGuia || !numeroGuia.trim()) {
+      throw new BadRequestException('El número de guía es obligatorio');
     }
 
-    paqueteriaId = paqueteria.id;
+    const envio = await this.prisma.envios.findUnique({
+      where: { id },
+    });
+
+    if (!envio) {
+      throw new BadRequestException('Envío no encontrado');
+    }
+
+    let paqueteriaId: string | null = envio.paqueteria_id ?? null;
+
+    if (paqueteriaNombre && paqueteriaNombre.trim()) {
+      const paqueteria = await this.prisma.paqueterias.findFirst({
+        where: {
+          nombre: {
+            equals: paqueteriaNombre.trim(),
+            mode: 'insensitive',
+          },
+          activa: true,
+        },
+      });
+
+      if (!paqueteria) {
+        throw new BadRequestException(
+          `La paquetería "${paqueteriaNombre}" no existe o no está activa`,
+        );
+      }
+
+      paqueteriaId = paqueteria.id;
+    }
+
+    return this.prisma.envios.update({
+      where: { id },
+      data: {
+        numero_guia: numeroGuia.trim(),
+        paqueteria_id: paqueteriaId,
+        updated_at: new Date(),
+      },
+      include: {
+        paqueterias: true,
+      },
+    });
   }
-
-  return this.prisma.envios.update({
-    where: { id },
-    data: {
-      numero_guia: numeroGuia.trim(),
-      paqueteria_id: paqueteriaId,
-      updated_at: new Date(),
-    },
-    include: {
-      paqueterias: true,
-    },
-  });
-}
-
 }
