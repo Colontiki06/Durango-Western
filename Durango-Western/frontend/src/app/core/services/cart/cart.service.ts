@@ -21,7 +21,7 @@ export class CartService {
   private readonly storageKey = 'durango_cart';
 
   private cartItemsSubject = new BehaviorSubject<CartItem[]>(
-    this.loadCartFromStorage()
+    this.loadCartFromStorage(),
   );
 
   cartItems$ = this.cartItemsSubject.asObservable();
@@ -37,25 +37,29 @@ export class CartService {
   addToCart(product: CartItem): void {
     const currentItems = this.cartItems;
 
-    const existingItem = currentItems.find(item =>
-      item.id === product.id &&
-      item.variante_id === product.variante_id
+    const existingItem = currentItems.find(
+      (item) =>
+        item.id === product.id && item.variante_id === product.variante_id,
     );
 
     let updatedItems: CartItem[];
 
     if (existingItem) {
-      updatedItems = currentItems.map(item => {
-        if (item.id === product.id && item.variante_id === product.variante_id) {
+      updatedItems = currentItems.map((item) => {
+        if (
+          item.id === product.id &&
+          item.variante_id === product.variante_id
+        ) {
           const nuevaCantidad = item.cantidad + product.cantidad;
 
           if (item.stock !== undefined && nuevaCantidad > item.stock) {
+            alert('No hay suficiente stock disponible');
             return item;
           }
 
           return {
             ...item,
-            cantidad: nuevaCantidad
+            cantidad: nuevaCantidad,
           };
         }
 
@@ -69,7 +73,7 @@ export class CartService {
   }
 
   increaseQuantity(id: string | number, variante_id?: string | null): void {
-    const updatedItems = this.cartItems.map(item => {
+    const updatedItems = this.cartItems.map((item) => {
       if (item.id === id && item.variante_id === variante_id) {
         const nuevaCantidad = item.cantidad + 1;
 
@@ -80,7 +84,7 @@ export class CartService {
 
         return {
           ...item,
-          cantidad: nuevaCantidad
+          cantidad: nuevaCantidad,
         };
       }
 
@@ -92,19 +96,19 @@ export class CartService {
 
   decreaseQuantity(id: string | number, variante_id?: string | null): void {
     const updatedItems = this.cartItems
-      .map(item =>
+      .map((item) =>
         item.id === id && item.variante_id === variante_id
           ? { ...item, cantidad: item.cantidad - 1 }
-          : item
+          : item,
       )
-      .filter(item => item.cantidad > 0);
+      .filter((item) => item.cantidad > 0);
 
     this.updateCart(updatedItems);
   }
 
   removeFromCart(id: string | number, variante_id?: string | null): void {
     const updatedItems = this.cartItems.filter(
-      item => !(item.id === id && item.variante_id === variante_id)
+      (item) => !(item.id === id && item.variante_id === variante_id),
     );
 
     this.updateCart(updatedItems);
@@ -113,7 +117,7 @@ export class CartService {
   getSubtotal(): number {
     return this.cartItems.reduce(
       (total, item) => total + item.precio * item.cantidad,
-      0
+      0,
     );
   }
 
@@ -130,11 +134,15 @@ export class CartService {
   }
 
   private loadCartFromStorage(): CartItem[] {
-    if (!this.isBrowser()) return [];
+    if (!this.isBrowser()) {
+      return [];
+    }
 
     const cart = localStorage.getItem(this.storageKey);
 
-    if (!cart) return [];
+    if (!cart) {
+      return [];
+    }
 
     try {
       return JSON.parse(cart) as CartItem[];
@@ -147,6 +155,4 @@ export class CartService {
   private isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
-
-  
 }
