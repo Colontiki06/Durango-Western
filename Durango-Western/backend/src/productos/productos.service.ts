@@ -24,8 +24,18 @@ export class ProductosService {
     if (texto.includes('bota')) return 'BOTA';
     if (texto.includes('sombrero') || texto.includes('tejana')) return 'SOMB';
     if (texto.includes('camisa')) return 'CAM';
-    if (texto.includes('pantalon') || texto.includes('pantalón') || texto.includes('tejano')) return 'PANT';
-    if (texto.includes('cinto') || texto.includes('cinturon') || texto.includes('cinturón')) return 'CINTO';
+    if (
+      texto.includes('pantalon') ||
+      texto.includes('pantalón') ||
+      texto.includes('tejano')
+    )
+      return 'PANT';
+    if (
+      texto.includes('cinto') ||
+      texto.includes('cinturon') ||
+      texto.includes('cinturón')
+    )
+      return 'CINTO';
     if (texto.includes('bolso') || texto.includes('mochila')) return 'BOLSO';
 
     return 'PROD';
@@ -37,8 +47,18 @@ export class ProductosService {
     if (texto.includes('bota')) return 'botas';
     if (texto.includes('sombrero') || texto.includes('tejana')) return 'sombreros';
     if (texto.includes('camisa')) return 'camisas';
-    if (texto.includes('pantalon') || texto.includes('pantalón') || texto.includes('tejano')) return 'pantalones';
-    if (texto.includes('cinto') || texto.includes('cinturon') || texto.includes('cinturón')) return 'cintos';
+    if (
+      texto.includes('pantalon') ||
+      texto.includes('pantalón') ||
+      texto.includes('tejano')
+    )
+      return 'pantalones';
+    if (
+      texto.includes('cinto') ||
+      texto.includes('cinturon') ||
+      texto.includes('cinturón')
+    )
+      return 'cintos';
     if (texto.includes('bolso') || texto.includes('mochila')) return 'bolsos';
 
     return null;
@@ -64,7 +84,10 @@ export class ProductosService {
     return 'GEN';
   }
 
-  async generarCodigoProducto(nombre: string, categoriaId: string): Promise<string> {
+  async generarCodigoProducto(
+    nombre: string,
+    categoriaId: string,
+  ): Promise<string> {
     const categoria = await this.prisma.categorias.findUnique({
       where: { id: categoriaId },
     });
@@ -92,8 +115,7 @@ export class ProductosService {
     const mostrarAgotados = config?.mostrar_productos_agotados ?? false;
 
     const esCatalogoPublico =
-      filtros.publico === true ||
-      filtros.publico === 'true';
+      filtros.publico === true || filtros.publico === 'true';
 
     if (esCatalogoPublico && !mostrarAgotados) {
       where.producto_variantes = {
