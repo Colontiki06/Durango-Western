@@ -12,6 +12,8 @@ import { ApiService } from '../../core/services/api/api.service';
   imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './productos.html',
   styleUrl: './productos.css'
+
+  
 })
 export class Productos implements OnInit {
 
@@ -23,6 +25,7 @@ export class Productos implements OnInit {
   genero = '';
   tipo = '';
   talla = '';
+  buscar = '';
 
   precioMinimo = 0;
   precioMaximo = 10000;
@@ -35,22 +38,27 @@ export class Productos implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams
+    
       .pipe(
         switchMap(params => {
           this.genero = params['genero'] ?? '';
           this.tipo = params['tipo'] ?? '';
           this.talla = params['talla'] ?? '';
+          this.buscar = params['buscar'] ?? '';
 
           this.precioMin = Number(params['precioMin'] ?? this.precioMinimo);
           this.precioMax = Number(params['precioMax'] ?? this.precioMaximo);
+          
 
           const filtros = {
-            genero: this.genero,
-            tipo: this.tipo,
-            talla: this.talla,
-            precioMin: this.precioMin,
-            precioMax: this.precioMax
-          };
+  publico: true,
+  genero: this.genero,
+  tipo: this.tipo,
+  talla: this.talla,
+  precioMin: this.precioMin,
+  precioMax: this.precioMax,
+  buscar: this.buscar,
+};
 
           return this.api.get<any[]>('productos', filtros);
         })
@@ -138,6 +146,7 @@ export class Productos implements OnInit {
 
     const queryParams: any = {
       ...this.route.snapshot.queryParams,
+      
       precioMin: this.precioMin,
       precioMax: this.precioMax
     };
@@ -228,4 +237,17 @@ export class Productos implements OnInit {
 
     return titulos[valor] ?? valor;
   }
+
+  productoAgotado(producto: any): boolean {
+  const variantes = producto?.producto_variantes ?? [];
+
+  if (variantes.length === 0) {
+    return true;
+  }
+
+  return variantes.every((variante: any) =>
+    Number(variante.stock ?? 0) <= 0
+  );
+}
+
 }
