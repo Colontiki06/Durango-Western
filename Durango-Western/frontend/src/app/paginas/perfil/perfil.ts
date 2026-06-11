@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -41,21 +41,55 @@ interface DireccionForm {
   principal: boolean;
 }
 
+export interface PedidoItemUsuario {
+  id: string;
+  pedido_id: string;
+  producto_id: string;
+  variante_id?: string | null;
+  nombre_producto: string;
+  sku?: string | null;
+  talla?: string | null;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+}
+
+export interface PedidoUsuario {
+  id: string;
+  folio?: string | null;
+  subtotal: number;
+  envio: number;
+  total: number;
+  estado?: string | null;
+  estado_envio?: string | null;
+  tipo_entrega?: string | null;
+  metodo_pago?: string | null;
+  notas?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  pedido_items?: PedidoItemUsuario[];
+  pagos?: any[];
+  envios?: any[];
+  direcciones?: any;
+}
+
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, CurrencyPipe, DatePipe],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
 export class Perfil implements OnInit {
   usuario: UsuarioSesion | null = null;
   direcciones: DireccionUsuario[] = [];
+  pedidos: PedidoUsuario[] = [];
 
   editandoPerfil = false;
   cargando = false;
   guardando = false;
   cargandoDirecciones = false;
+  cargandoPedidos = false;
 
   mostrarFormularioDireccion = false;
   guardandoDireccion = false;
@@ -66,6 +100,7 @@ export class Perfil implements OnInit {
 
   mensaje = '';
   error = '';
+  errorPedidos = '';
 
   direccionForm: DireccionForm = this.obtenerFormularioDireccionVacio();
 
@@ -81,6 +116,7 @@ export class Perfil implements OnInit {
   ngOnInit(): void {
     this.cargarUsuarioDesdeBackend();
     this.cargarDirecciones();
+    this.cargarMisPedidos();
   }
 
   cargarUsuarioDesdeBackend(): void {
@@ -165,6 +201,41 @@ export class Perfil implements OnInit {
           }
 
           this.error = 'No se pudieron cargar tus direcciones.';
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  cargarMisPedidos(): void {
+    const token = this.authService.getToken();
+
+    if (!token) {
+      return;
+    }
+
+    this.cargandoPedidos = true;
+    this.errorPedidos = '';
+
+    this.http
+      .get<PedidoUsuario[]>(`${environment.apiUrl}/pedidos/mis-pedidos`, {
+        headers: this.getAuthHeaders(),
+      })
+      .subscribe({
+        next: (pedidos) => {
+          this.pedidos = pedidos || [];
+          this.cargandoPedidos = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.cargandoPedidos = false;
+
+          if (error.status === 401) {
+            this.authService.logout();
+            this.router.navigate(['/login']);
+            return;
+          }
+
+          this.errorPedidos = 'No se pudieron cargar tus pedidos.';
           this.cdr.detectChanges();
         },
       });
@@ -516,6 +587,7 @@ export class Perfil implements OnInit {
         next: () => {
           this.mensaje = 'Dirección principal actualizada.';
           this.cargarDirecciones();
+          this.cdr.detectChanges();
         },
         error: (error) => {
           if (error.status === 401) {
@@ -556,6 +628,7 @@ export class Perfil implements OnInit {
         next: () => {
           this.mensaje = 'Dirección eliminada correctamente.';
           this.cargarDirecciones();
+          this.cdr.detectChanges();
         },
         error: (error) => {
           if (error.status === 401) {
@@ -576,11 +649,22 @@ export class Perfil implements OnInit {
   }
 
   irAPedidos(): void {
-    this.router.navigate(['/pedidos']);
+    const seccionPedidos = document.getElementById('mis-pedidos');
+
+    if (seccionPedidos) {
+      seccionPedidos.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      return;
+    }
+
+    this.cargarMisPedidos();
   }
 
   irAMetodosPago(): void {
     this.mensaje = 'La sección de métodos de pago se agregará más adelante.';
+    this.cdr.detectChanges();
   }
 
   obtenerInicial(): string {
@@ -599,6 +683,75 @@ export class Perfil implements OnInit {
     ];
 
     return partes.filter(Boolean).join(', ');
+  }
+
+  obtenerTotalProductosPedido(pedido: PedidoUsuario): number {
+    return (pedido.pedido_items || []).reduce(
+      (total, item) => total + Number(item.cantidad || 0),
+      0
+    );
+  }
+
+  obtenerEstadoPedido(pedido: PedidoUsuario): string {
+    const estado = pedido.estado || 'pendiente';
+
+    const estados: Record<string, string> = {
+      pendiente: 'Pendiente',
+      pagado: 'Pagado',
+      aprobado: 'Aprobado',
+      cancelado: 'Cancelado',
+      fallido: 'Fallido',
+    };
+
+    return estados[estado] || estado;
+  }
+
+  obtenerEstadoEnvio(pedido: PedidoUsuario): string {
+    const estado = pedido.estado_envio || 'pendiente';
+
+    const estados: Record<string, string> = {
+      pendiente: 'Pendiente',
+      preparando: 'Preparando',
+      empacado: 'Empacado',
+      enviado: 'Enviado',
+      listo_recoger: 'Listo para recoger',
+      entregado: 'Entregado',
+      cancelado: 'Cancelado',
+    };
+
+    return estados[estado] || estado;
+  }
+
+  obtenerClaseEstadoPedido(pedido: PedidoUsuario): string {
+    const estado = pedido.estado || 'pendiente';
+
+    if (estado === 'pagado' || estado === 'aprobado') {
+      return 'bg-green-100 text-green-700 border-green-300';
+    }
+
+    if (estado === 'cancelado' || estado === 'fallido') {
+      return 'bg-red-100 text-red-700 border-red-300';
+    }
+
+    return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+  }
+
+  obtenerClaseEstadoEnvio(pedido: PedidoUsuario): string {
+    const estado = pedido.estado_envio || 'pendiente';
+
+    if (estado === 'entregado') {
+      return 'bg-green-100 text-green-700 border-green-300';
+    }
+
+    if (estado === 'enviado') {
+      return 'bg-blue-100 text-blue-700 border-blue-300';
+    }
+
+    if (estado === 'cancelado') {
+      return 'bg-red-100 text-red-700 border-red-300';
+    }
+
+    return 'bg-[#f5ede1] text-[#6b3f26] border-[#d8c4a8]';
   }
 
   private obtenerFormularioDireccionVacio(): DireccionForm {
