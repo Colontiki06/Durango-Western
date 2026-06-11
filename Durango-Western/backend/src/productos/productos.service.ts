@@ -81,20 +81,18 @@ export class ProductosService {
   async findAll(filtros: any = {}) {
   const esAdmin = filtros?.admin === true || filtros?.admin === 'true';
 
-const where: any = {};
+  const where: any = {};
 
-if (!esAdmin) {
-  where.activo = true;
-}
+  if (!esAdmin) {
+    where.activo = true;
+  }
 
   const config = await (this.prisma as any).configuracion_tienda.findFirst();
 
-  const mostrarAgotados =
-    config?.mostrar_productos_agotados ?? false;
+  const mostrarAgotados = config?.mostrar_productos_agotados ?? false;
 
   const esCatalogoPublico =
-    filtros.publico === true ||
-    filtros.publico === 'true';
+    filtros.publico === true || filtros.publico === 'true';
 
   if (esCatalogoPublico && !mostrarAgotados) {
     where.producto_variantes = {
@@ -174,20 +172,14 @@ if (!esAdmin) {
     };
   }
 
-  if (
-    filtros.precioMin !== undefined &&
-    filtros.precioMin !== ''
-  ) {
+  if (filtros.precioMin !== undefined && filtros.precioMin !== '') {
     where.precio = {
       ...where.precio,
       gte: String(filtros.precioMin),
     };
   }
 
-  if (
-    filtros.precioMax !== undefined &&
-    filtros.precioMax !== ''
-  ) {
+  if (filtros.precioMax !== undefined && filtros.precioMax !== '') {
     where.precio = {
       ...where.precio,
       lte: String(filtros.precioMax),
@@ -199,65 +191,59 @@ if (!esAdmin) {
   }
 
   if (filtros.buscar) {
-  const palabras = String(filtros.buscar)
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+    const palabras = String(filtros.buscar)
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
 
-  where.AND = [
-    ...(where.AND ?? []),
-    ...palabras.map((palabra) => ({
-      OR: [
-        {
-          nombre: {
-            contains: palabra,
-            mode: 'insensitive',
+    where.AND = [
+      ...(where.AND ?? []),
+      ...palabras.map((palabra) => ({
+        OR: [
+          {
+            nombre: {
+              contains: palabra,
+              mode: 'insensitive',
+            },
           },
-    const productos = await this.prisma.productos.findMany({
-      where,
-      include: {
-        producto_imagenes: {
-          orderBy: { orden: 'asc' },
-        },
-        {
-          descripcion: {
-            contains: palabra,
-            mode: 'insensitive',
+          {
+            descripcion: {
+              contains: palabra,
+              mode: 'insensitive',
+            },
           },
-        },
-        {
-          codigo: {
-            contains: palabra,
-            mode: 'insensitive',
+          {
+            codigo: {
+              contains: palabra,
+              mode: 'insensitive',
+            },
           },
-        },
-        {
-          categorias: {
-            is: {
-              nombre: {
-                contains: palabra,
-                mode: 'insensitive',
+          {
+            categorias: {
+              is: {
+                nombre: {
+                  contains: palabra,
+                  mode: 'insensitive',
+                },
               },
             },
           },
-        },
-        {
-          tipos_producto: {
-            is: {
-              nombre: {
-                contains: palabra,
-                mode: 'insensitive',
+          {
+            tipos_producto: {
+              is: {
+                nombre: {
+                  contains: palabra,
+                  mode: 'insensitive',
+                },
               },
             },
           },
-        },
-      ],
-    })),
-  ];
-}
+        ],
+      })),
+    ];
+  }
 
-
-  return this.prisma.productos.findMany({
+  const productos = await this.prisma.productos.findMany({
     where,
     include: {
       producto_imagenes: {
@@ -280,45 +266,39 @@ if (!esAdmin) {
     },
   });
 
- 
+  const productosConVendidos = await Promise.all(
+    productos.map(async (producto) => {
+      const variantesIds = producto.producto_variantes.map(
+        (variante) => variante.id
+      );
 
-
-}
-    });
-
-    const productosConVendidos = await Promise.all(
-      productos.map(async (producto) => {
-        const variantesIds = producto.producto_variantes.map(
-          (variante) => variante.id
-        );
-
-        if (variantesIds.length === 0) {
-          return {
-            ...producto,
-            vendidos: 0,
-          };
-        }
-
-        const totalVendido = await this.prisma.pedido_items.aggregate({
-          where: {
-            variante_id: {
-              in: variantesIds,
-            },
-          },
-          _sum: {
-            cantidad: true,
-          },
-        });
-
+      if (variantesIds.length === 0) {
         return {
           ...producto,
-          vendidos: Number(totalVendido._sum.cantidad ?? 0),
+          vendidos: 0,
         };
-      })
-    );
+      }
 
-    return productosConVendidos;
-  }
+      const totalVendido = await this.prisma.pedido_items.aggregate({
+        where: {
+          variante_id: {
+            in: variantesIds,
+          },
+        },
+        _sum: {
+          cantidad: true,
+        },
+      });
+
+      return {
+        ...producto,
+        vendidos: Number(totalVendido._sum.cantidad ?? 0),
+      };
+    })
+  );
+
+  return productosConVendidos;
+}
 
   async findBySlug(slug: string) {
     return this.prisma.productos.findUnique({
