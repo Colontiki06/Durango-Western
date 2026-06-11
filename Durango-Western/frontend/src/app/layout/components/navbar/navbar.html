@@ -12,7 +12,6 @@
 
     <div class="navbar-icons">
 
-      <!-- BUSCADOR -->
       <button
         type="button"
         class="icon-button"
@@ -46,9 +45,28 @@
                   Administra tu perfil, pedidos y direcciones.
                 </p>
 
-                <button type="button" (click)="goTo('/perfil')">
+                <button
+                  type="button"
+                  (click)="goTo('/perfil')"
+                >
                   Mi perfil
                 </button>
+
+                <button
+                  type="button"
+                  (click)="goTo('/pedidos')"
+                >
+                  Mis compras
+                </button>
+
+                <button
+                  type="button"
+                  (click)="logout()"
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            }
 
                 <button type="button" (click)="goTo('/pedidos')">
                   Mis compras
@@ -69,7 +87,7 @@
                 </p>
 
                 <p class="text-[#8a542f] text-sm mb-3">
-                  Inicia sesión para ver tu perfil, pedidos y métodos de pago.
+                  Inicia sesión para ver tu perfil, pedidos y direcciones.
                 </p>
 
                 <button
@@ -86,7 +104,6 @@
         }
       </div>
 
-      <!-- CARRITO -->
       <button
         type="button"
         class="icon-button cart-button"
@@ -118,7 +135,7 @@
         (keyup.enter)="buscarProductos()"
         placeholder="Buscar botas, sombreros, camisas..."
         class="search-input"
-      >
+      />
 
       <button
         type="button"
@@ -212,7 +229,7 @@
         </div>
 
         <div class="mega-promo">
-          <img src="/img/BotasCaballero.PNG" alt="Caballero">
+          <img src="/img/BotasCaballero.PNG" alt="Caballero" />
           <p>Estilo western para caballero</p>
         </div>
 
@@ -246,7 +263,7 @@
         </div>
 
         <div class="mega-promo">
-          <img src="/img/BotasDama.png" alt="Dama">
+          <img src="/img/BotasDama.png" alt="Dama" />
           <p>Moda western para dama</p>
         </div>
 
@@ -281,7 +298,7 @@
         </div>
 
         <div class="mega-promo">
-          <img src="/img/Gorras.PNG" alt="Niños">
+          <img src="/img/Gorras.PNG" alt="Niños" />
           <p>Estilo western para los pequeños</p>
         </div>
 

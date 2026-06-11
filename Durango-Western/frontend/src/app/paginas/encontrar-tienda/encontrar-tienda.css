@@ -1,0 +1,60 @@
+/* SCROLL PERSONALIZADO DE SUCURSALES */
+
+.tiendas-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tiendas-scroll::-webkit-scrollbar-track {
+  background: #f3e3cc;
+  border-radius: 999px;
+}
+
+.tiendas-scroll::-webkit-scrollbar-thumb {
+  background: #8a542f;
+  border-radius: 999px;
+}
+
+.tiendas-scroll::-webkit-scrollbar-thumb:hover {
+  background: #6b3f26;
+}
+
+/* ANIMACIÓN DE TARJETAS */
+
+.tienda-card {
+  transition: all 0.25s ease;
+}
+
+.tienda-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* CONTENEDOR DEL MAPA */
+
+.map-box {
+  width: 100%;
+  height: 700px;
+  min-height: 700px;
+  display: block;
+}
+
+google-map {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1024px) {
+
+  .sticky-map {
+    position: static !important;
+  }
+
+  .map-box {
+    height: 420px;
+    min-height: 420px;
+  }
+
+}

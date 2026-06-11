@@ -34,6 +34,7 @@ export class Productos implements OnInit {
   precioMax = 10000;
 
   products: any[] = [];
+  ordenSeleccionado = '';
 
   ngOnInit(): void {
     this.route.queryParams
@@ -65,12 +66,48 @@ export class Productos implements OnInit {
       .subscribe({
         next: (data) => {
           this.products = [...data];
+          this.ordenarProductos();
           this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error cargando productos', error);
         }
       });
+  }
+
+  ordenarProductos(): void {
+    switch (this.ordenSeleccionado) {
+      case 'precioAsc':
+        this.products.sort(
+          (a, b) => Number(a.precio) - Number(b.precio)
+        );
+        break;
+
+      case 'precioDesc':
+        this.products.sort(
+          (a, b) => Number(b.precio) - Number(a.precio)
+        );
+        break;
+
+      case 'masVendidos':
+        this.products.sort(
+          (a, b) => Number(b.vendidos ?? 0) - Number(a.vendidos ?? 0)
+        );
+        break;
+
+      case 'recientes':
+        this.products.sort(
+          (a, b) =>
+            new Date(b.created_at ?? 0).getTime() -
+            new Date(a.created_at ?? 0).getTime()
+        );
+        break;
+
+      default:
+        break;
+    }
+
+    this.products = [...this.products];
   }
 
   filtrar(clave: string, valor: string): void {
@@ -139,6 +176,7 @@ export class Productos implements OnInit {
   }
 
   limpiarFiltros(): void {
+    this.ordenSeleccionado = '';
     this.router.navigate(['/productos']);
   }
 

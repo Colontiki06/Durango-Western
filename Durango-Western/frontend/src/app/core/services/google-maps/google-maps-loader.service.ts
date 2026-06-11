@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
@@ -16,10 +17,17 @@ declare global {
 export class GoogleMapsLoaderService {
   private readonly scriptId = 'google-maps-script';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   async load(): Promise<void> {
-    if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    if ((window as any).google?.maps) {
       return;
     }
 
@@ -51,11 +59,13 @@ export class GoogleMapsLoaderService {
       script.id = this.scriptId;
       script.async = true;
       script.defer = true;
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
-        config.apiKey
-      )}&libraries=places&loading=async`;
 
-      script.onload = () => resolve();
+      script.src =
+        `https://maps.googleapis.com/maps/api/js?key=${config.apiKey}&libraries=places`;
+
+      script.onload = () => {
+        resolve();
+      };
 
       script.onerror = () => {
         reject('No se pudo cargar Google Maps.');

@@ -1,11 +1,13 @@
 <div class="min-h-screen bg-[#f5ede1] flex items-center justify-center px-5">
 
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
+  <div class="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8 text-center">
 
-    <div class="bg-[#4b2e1f] rounded-full py-6 px-8 mb-8">
-      <h1 class="text-[#d6a15d] text-2xl font-bold tracking-widest">
-        DURANGO WESTERN
-      </h1>
+    <div class="bg-[#4b2e1f] rounded-2xl p-4 mb-8 flex justify-center items-center">
+      <img
+        src="/img/logo-durango.png"
+        alt="Durango Western"
+        class="w-full max-w-[330px] h-auto object-contain"
+      >
     </div>
 
     <h2 class="text-3xl font-bold text-[#2f1b12] mb-2">
@@ -18,7 +20,6 @@
 
     <div class="space-y-5 text-left">
 
-      <!-- EMAIL -->
       <input
         type="email"
         placeholder="Correo administrador"
@@ -26,23 +27,44 @@
         class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
       >
 
-      <!-- PASSWORD -->
-      <input
-        type="password"
-        placeholder="Contraseña"
-        [(ngModel)]="password"
-        class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-      >
+      <div class="relative">
+        <input
+          [type]="mostrarPassword ? 'text' : 'password'"
+          placeholder="Contraseña"
+          [(ngModel)]="password"
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 pr-12 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
 
-      <!-- ERROR -->
+        <button
+          type="button"
+          (click)="togglePassword()"
+          class="absolute right-4 top-1/2 -translate-y-1/2 text-[#6b3f26] hover:text-[#4b2e1f] transition"
+          aria-label="Mostrar u ocultar contraseña"
+        >
+          @if(mostrarPassword) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
+            </svg>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.88 5.5A8.8 8.8 0 0 1 12 5.25c6 0 9.75 6.75 9.75 6.75a16.5 16.5 0 0 1-2.42 3.16" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.23 6.23C3.78 8.05 2.25 12 2.25 12s3.75 6.75 9.75 6.75a8.9 8.9 0 0 0 4.12-.98" />
+            </svg>
+          }
+        </button>
+      </div>
+
       @if(error) {
         <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
           {{ error }}
         </div>
       }
 
-      <!-- BUTTON -->
       <button
+        type="button"
         (click)="login()"
         [disabled]="loading"
         class="w-full bg-[#4b2e1f] hover:bg-[#6b3f26] disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold transition"
