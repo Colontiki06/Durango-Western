@@ -1,0 +1,176 @@
+<section class="min-h-screen bg-[#f3e3cc] flex items-center justify-center px-4 py-14">
+
+  <div class="w-full max-w-[460px] bg-[#fff8ec] shadow-xl border border-[#d8c4a8] rounded-2xl overflow-hidden">
+
+    <!-- Encabezado -->
+    <div class="bg-[#5b2d16] px-8 py-9 text-center">
+      <h1 class="text-white text-3xl font-bold tracking-wide">
+        Restablecer contraseña
+      </h1>
+
+      <p class="text-[#f3e3cc] text-sm mt-3">
+        Crea una nueva contraseña para tu cuenta Durango Western
+      </p>
+    </div>
+
+    <div class="px-8 py-9">
+
+      <p
+        *ngIf="!exito"
+        class="text-center text-sm text-[#3b2618] leading-6 mb-8"
+      >
+        Ingresa tu nueva contraseña y confírmala para recuperar el acceso a tu cuenta.
+      </p>
+
+      <!-- Error -->
+      <div
+        *ngIf="error"
+        class="mb-5 rounded-xl border border-red-300 bg-red-100 text-red-700 px-4 py-3 text-sm"
+      >
+        {{ error }}
+      </div>
+
+      <!-- Éxito -->
+      <div
+        *ngIf="exito"
+        class="mb-6 rounded-xl border border-green-300 bg-green-100 text-green-700 px-4 py-5 text-center"
+      >
+        <div class="w-14 h-14 mx-auto rounded-full bg-green-200 flex items-center justify-center text-2xl mb-3">
+          ✓
+        </div>
+
+        <p class="font-bold text-base">
+          Contraseña cambiada con éxito
+        </p>
+
+        <p class="mt-2 text-sm leading-6">
+          Ya puedes iniciar sesión con tu nueva contraseña.
+        </p>
+      </div>
+
+      <!-- Formulario -->
+      <form
+        *ngIf="!exito"
+        class="space-y-5"
+        (ngSubmit)="restablecerPassword()"
+      >
+
+        <!-- Nueva contraseña -->
+        <div>
+          <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+            Nueva contraseña
+          </label>
+
+          <div class="relative">
+            <input
+              [type]="mostrarPassword ? 'text' : 'password'"
+              name="nuevaPassword"
+              [(ngModel)]="nuevaPassword"
+              (input)="limpiarAlertas()"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password"
+              [class.border-red-400]="passwordMuyCorta()"
+              [class.focus:border-red-500]="passwordMuyCorta()"
+              [class.focus:ring-red-500]="passwordMuyCorta()"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 pr-16 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+            />
+
+            <button
+              type="button"
+              (click)="mostrarPassword = !mostrarPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#8b542f] font-semibold"
+            >
+              {{ mostrarPassword ? 'Ocultar' : 'Ver' }}
+            </button>
+          </div>
+
+          <p
+            *ngIf="passwordMuyCorta()"
+            class="mt-2 text-sm text-red-600"
+          >
+            La contraseña debe tener al menos 8 caracteres.
+          </p>
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div>
+          <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+            Confirmar contraseña
+          </label>
+
+          <div class="relative">
+            <input
+              [type]="mostrarConfirmarPassword ? 'text' : 'password'"
+              name="confirmarPassword"
+              [(ngModel)]="confirmarPassword"
+              (input)="limpiarAlertas()"
+              placeholder="Repite tu contraseña"
+              autocomplete="new-password"
+              [class.border-red-400]="passwordsNoCoinciden()"
+              [class.focus:border-red-500]="passwordsNoCoinciden()"
+              [class.focus:ring-red-500]="passwordsNoCoinciden()"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 pr-16 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20"
+            />
+
+            <button
+              type="button"
+              (click)="mostrarConfirmarPassword = !mostrarConfirmarPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#8b542f] font-semibold"
+            >
+              {{ mostrarConfirmarPassword ? 'Ocultar' : 'Ver' }}
+            </button>
+          </div>
+
+          <p
+            *ngIf="passwordsNoCoinciden()"
+            class="mt-2 text-sm text-red-600"
+          >
+            Las contraseñas no coinciden.
+          </p>
+        </div>
+
+        <div class="rounded-lg bg-[#f3e3cc] px-4 py-3 text-sm text-[#6b4a34] leading-6">
+          La contraseña debe tener al menos 8 caracteres y ambas contraseñas deben coincidir.
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="formularioInvalido()"
+          class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <span
+            *ngIf="cargando"
+            class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
+          ></span>
+
+          <span>
+            {{ cargando ? 'ACTUALIZANDO...' : 'CAMBIAR CONTRASEÑA' }}
+          </span>
+        </button>
+
+      </form>
+
+      <div class="relative py-5">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-[#d8c4a8]"></div>
+        </div>
+
+        <div class="relative flex justify-center">
+          <span class="bg-[#fff8ec] px-4 text-xs text-[#6b4a34]">
+            o
+          </span>
+        </div>
+      </div>
+
+      <a
+        routerLink="/login"
+        class="w-full h-12 rounded-lg border border-[#8b542f] bg-transparent text-[#5b2d16] text-sm font-bold tracking-wide hover:bg-[#f3e3cc] transition flex items-center justify-center"
+      >
+        REGRESAR A INICIO DE SESIÓN
+      </a>
+
+    </div>
+
+  </div>
+
+</section>

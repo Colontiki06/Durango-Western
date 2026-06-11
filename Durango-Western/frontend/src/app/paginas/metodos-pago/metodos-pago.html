@@ -1,0 +1,308 @@
+<section class="min-h-screen bg-[#f5ede1] px-5 md:px-16 py-10">
+
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+
+      <div>
+
+        <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+          Métodos de pago
+        </h1>
+
+        <p class="text-[#8a542f] mt-2">
+          Administra tus tarjetas guardadas para futuras compras.
+        </p>
+
+      </div>
+
+      <button
+        (click)="showAddPaymentModal = true"
+        class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-6 py-3 rounded-xl font-bold transition"
+      >
+        + Agregar tarjeta
+      </button>
+
+    </div>
+
+    <!-- Sin tarjetas -->
+    @if(paymentMethods.length === 0) {
+
+      <div class="bg-white rounded-2xl shadow-md p-10 text-center border-2 border-dashed border-[#d8c5aa]">
+
+        <div class="text-6xl mb-4">
+          💳
+        </div>
+
+        <h2 class="text-2xl font-bold text-[#2f1b12] mb-2">
+          No tienes métodos de pago guardados
+        </h2>
+
+        <p class="text-[#8a542f] mb-6">
+          Agrega una tarjeta para pagar más rápido en tus próximas compras.
+        </p>
+
+        <button
+          (click)="showAddPaymentModal = true"
+          class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-6 py-3 rounded-xl font-bold transition"
+        >
+          Agregar mi primera tarjeta
+        </button>
+
+      </div>
+
+    }
+
+    <!-- Tarjetas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      @for(method of paymentMethods; track method.id) {
+
+        <article class="bg-white rounded-2xl shadow-md p-6">
+
+          <!-- Tarjeta visual -->
+          <div class="bg-[#4b2e1f] text-white rounded-2xl p-6 mb-6">
+
+            <!-- Marca -->
+            <div class="flex justify-between items-start mb-10">
+
+              <div class="flex items-center gap-3">
+
+                <span class="font-bold text-lg">
+                  {{ method.brand }}
+                </span>
+
+                <div class="w-14 flex justify-center">
+
+                  @if(method.brand === 'Visa') {
+                    <img
+                      src="/icons/visaColor.svg"
+                      alt="Visa"
+                      class="h-[8px] w-auto object-contain"
+                    >
+                  }
+
+                  @if(method.brand === 'Mastercard') {
+                    <img
+                      src="/icons/mastercardColor.svg"
+                      alt="Mastercard"
+                      class="h-[12px] w-auto object-contain"
+                    >
+                  }
+
+                  @if(method.brand === 'American Express') {
+                    <img
+                      src="/icons/americanColor.svg"
+                      alt="American Express"
+                      class="h-6 w-auto object-contain"
+                    >
+                  }
+
+                  @if(method.brand === 'PayPal') {
+                    <img
+                      src="/icons/paypalColor.svg"
+                      alt="PayPal"
+                      class="h-6 w-auto object-contain"
+                    >
+                  }
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Número -->
+            <p class="tracking-[4px] text-xl font-bold mb-6">
+              **** **** **** {{ method.cardNumber.slice(-4) }}
+            </p>
+
+            <!-- Datos -->
+            <div class="flex justify-between text-sm">
+
+              <div>
+
+                <p class="text-white/60">
+                  Titular
+                </p>
+
+                <p class="font-semibold">
+                  {{ method.cardHolder }}
+                </p>
+
+              </div>
+
+              <div>
+
+                <p class="text-white/60">
+                  Expira
+                </p>
+
+                <p class="font-semibold">
+                  {{ method.expiration }}
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-between items-center">
+
+            <p class="text-[#8a542f] font-semibold">
+              Método guardado
+            </p>
+
+            <button
+              (click)="deletePaymentMethod(method.id)"
+              class="bg-red-100 hover:bg-red-600 text-red-700 hover:text-white px-5 py-3 rounded-xl font-bold transition"
+            >
+              Eliminar
+            </button>
+
+          </div>
+
+        </article>
+
+      }
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- Modal -->
+@if(showAddPaymentModal) {
+
+  <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50 px-5">
+
+    <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
+
+      <h2 class="text-2xl font-bold text-[#2f1b12] mb-6">
+        Agregar método de pago
+      </h2>
+
+      <!-- Titular -->
+      <input
+        [(ngModel)]="newPaymentMethod.cardHolder"
+        type="text"
+        placeholder="Nombre del titular"
+        class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 mb-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      />
+
+      <!-- Número -->
+      <input
+        [(ngModel)]="newPaymentMethod.cardNumber"
+        type="text"
+        placeholder="Número de tarjeta"
+        class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 mb-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      />
+
+      <!-- Expiración -->
+      <input
+        [(ngModel)]="newPaymentMethod.expiration"
+        type="text"
+        placeholder="MM/AA"
+        class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 mb-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+      />
+
+      <!-- Select -->
+      <div class="relative mb-6">
+
+        <select
+          [(ngModel)]="newPaymentMethod.brand"
+          required
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 pr-20 outline-none focus:ring-2 focus:ring-[#8a542f]"
+          [class.text-gray-400]="newPaymentMethod.brand === ''"
+          [class.text-[#4b2e1f]]="newPaymentMethod.brand !== ''"
+        >
+
+          <option value="" disabled hidden>
+            Tipo de método de pago
+          </option>
+
+          <option value="Visa">
+            Visa
+          </option>
+
+          <option value="Mastercard">
+            Mastercard
+          </option>
+
+          <option value="American Express">
+            American Express
+          </option>
+
+          <option value="PayPal">
+            PayPal
+          </option>
+
+        </select>
+
+        <!-- Logos dinámicos -->
+        <div class="absolute right-12 top-1/2 -translate-y-1/2 w-14 flex justify-center pointer-events-none">
+
+          @if(newPaymentMethod.brand === 'Visa') {
+            <img
+              src="/icons/visaColor.svg"
+              alt="Visa"
+              class="h-[8px] w-auto object-contain"
+            >
+          }
+
+          @if(newPaymentMethod.brand === 'Mastercard') {
+            <img
+              src="/icons/mastercardColor.svg"
+              alt="Mastercard"
+              class="h-[12px] w-auto object-contain"
+            >
+          }
+
+          @if(newPaymentMethod.brand === 'American Express') {
+            <img
+              src="/icons/americanColor.svg"
+              alt="American Express"
+              class="h-6 w-auto object-contain"
+            >
+          }
+
+          @if(newPaymentMethod.brand === 'PayPal') {
+            <img
+              src="/icons/paypalColor.svg"
+              alt="PayPal"
+              class="h-6 w-auto object-contain"
+            >
+          }
+
+        </div>
+
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-3">
+
+        <button
+          (click)="showAddPaymentModal = false"
+          class="border border-[#4b2e1f] text-[#4b2e1f] px-5 py-3 rounded-xl font-bold transition"
+        >
+          Cancelar
+        </button>
+
+        <button
+          (click)="addPaymentMethod()"
+          class="bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-5 py-3 rounded-xl font-bold transition"
+        >
+          Guardar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

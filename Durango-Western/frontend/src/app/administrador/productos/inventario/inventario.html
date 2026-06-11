@@ -1,0 +1,326 @@
+<div class="p-4 sm:p-5 md:p-8">
+
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+        Inventario
+      </h1>
+
+      <p class="text-[#8a542f] mt-2 text-sm md:text-base">
+        Gestiona productos, stock, precios, estado del catálogo y promociones.
+      </p>
+    </div>
+
+    <a
+      routerLink="/admin/agregar-producto"
+      class="w-full sm:w-fit bg-[#4b2e1f] hover:bg-[#6b3f26] text-white px-6 py-3 rounded-xl font-semibold transition text-center"
+    >
+      + Agregar producto
+    </a>
+  </div>
+
+  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
+
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
+        Productos activos
+      </p>
+
+      <h2 class="text-3xl font-bold text-[#2f1b12]">
+        {{ productos.length }}
+      </h2>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
+        Con promoción
+      </p>
+
+      <h2 class="text-3xl font-bold text-red-700">
+        {{ totalPromociones }}
+      </h2>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
+        MSI activos
+      </p>
+
+      <h2 class="text-3xl font-bold text-[#2f1b12]">
+        {{ totalMsi }}
+      </h2>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-md">
+      <p class="text-[#8a542f] mb-2 text-sm md:text-base">
+        Sin stock
+      </p>
+
+      <h2 class="text-3xl font-bold text-[#2f1b12]">
+        {{ totalSinStock }}
+      </h2>
+    </div>
+
+  </section>
+
+  <section class="bg-white rounded-2xl shadow-md p-4 md:p-6">
+
+    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-6">
+
+      <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12]">
+        Productos
+      </h2>
+
+      <div class="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+
+        <input
+          type="text"
+          placeholder="Buscar producto..."
+          [(ngModel)]="busqueda"
+          class="w-full xl:w-[260px] h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+
+        <select
+          [(ngModel)]="categoriaSeleccionada"
+          class="w-full sm:w-[220px] h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+          <option value="todas">Todas las categorías</option>
+
+          @for(categoria of categoriasDisponibles; track categoria) {
+            <option [value]="categoria">
+              {{ categoria }}
+            </option>
+          }
+        </select>
+
+      </div>
+
+    </div>
+
+    <!-- FILTROS PROMOCIONES -->
+    <div class="overflow-x-auto pb-2 mb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+
+      <div class="flex gap-3 min-w-max">
+
+        <button
+          type="button"
+          (click)="setFiltro('todos')"
+          class="px-4 py-2 rounded-full font-bold transition text-sm md:text-base"
+          [class.bg-[#4b2e1f]]="filtroActivo === 'todos'"
+          [class.text-white]="filtroActivo === 'todos'"
+          [class.bg-[#f5ede1]]="filtroActivo !== 'todos'"
+          [class.text-[#4b2e1f]]="filtroActivo !== 'todos'"
+        >
+          Todos
+        </button>
+
+        <button
+          type="button"
+          (click)="setFiltro('promociones')"
+          class="px-4 py-2 rounded-full font-bold transition text-sm md:text-base"
+          [class.bg-red-600]="filtroActivo === 'promociones'"
+          [class.text-white]="filtroActivo === 'promociones'"
+          [class.bg-red-100]="filtroActivo !== 'promociones'"
+          [class.text-red-700]="filtroActivo !== 'promociones'"
+        >
+          🔥 Promociones
+        </button>
+
+        <button
+          type="button"
+          (click)="setFiltro('msi')"
+          class="px-4 py-2 rounded-full font-bold transition text-sm md:text-base"
+          [class.bg-[#4b2e1f]]="filtroActivo === 'msi'"
+          [class.text-white]="filtroActivo === 'msi'"
+          [class.bg-[#f5ede1]]="filtroActivo !== 'msi'"
+          [class.text-[#4b2e1f]]="filtroActivo !== 'msi'"
+        >
+          💳 MSI
+        </button>
+
+        <button
+          type="button"
+          (click)="setFiltro('ultimas')"
+          class="px-4 py-2 rounded-full font-bold transition text-sm md:text-base"
+          [class.bg-yellow-500]="filtroActivo === 'ultimas'"
+          [class.text-white]="filtroActivo === 'ultimas'"
+          [class.bg-yellow-100]="filtroActivo !== 'ultimas'"
+          [class.text-yellow-800]="filtroActivo !== 'ultimas'"
+        >
+          ⚠ Últimas piezas
+        </button>
+
+        <button
+          type="button"
+          (click)="setFiltro('sin-stock')"
+          class="px-4 py-2 rounded-full font-bold transition text-sm md:text-base"
+          [class.bg-gray-800]="filtroActivo === 'sin-stock'"
+          [class.text-white]="filtroActivo === 'sin-stock'"
+          [class.bg-gray-100]="filtroActivo !== 'sin-stock'"
+          [class.text-gray-700]="filtroActivo !== 'sin-stock'"
+        >
+          Sin stock
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="overflow-x-auto">
+
+      <table class="min-w-[1050px] w-full text-left border-collapse">
+
+        <thead>
+          <tr class="bg-[#f5ede1] text-[#2f1b12] text-sm">
+            <th class="p-4">Producto</th>
+            <th class="p-4">Categoría</th>
+            <th class="p-4">Precio</th>
+            <th class="p-4">Stock</th>
+            <th class="p-4">Promoción</th>
+            <th class="p-4">Estado</th>
+            <th class="p-4 text-right">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for(producto of productosFiltrados; track producto.id) {
+
+            <tr class="border-b border-[#eadcc7] hover:bg-[#fff8ec] transition">
+
+              <td class="p-4">
+                <div class="flex items-center gap-4 min-w-[280px]">
+                  <div class="w-14 h-14 bg-[#e7dccb] rounded-lg overflow-hidden shrink-0">
+                    <img
+                      [src]="producto.imagen"
+                      [alt]="producto.nombre"
+                      class="w-full h-full object-contain p-1"
+                    >
+                  </div>
+
+                  <div>
+                    <h3 class="font-bold text-[#2f1b12] leading-tight">
+                      {{ producto.nombre }}
+                    </h3>
+
+                    <p class="text-sm text-[#8a542f]">
+                      SKU: {{ producto.sku }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+
+              <td class="p-4 text-[#4b2e1f]">
+                {{ producto.categoria }}
+              </td>
+
+              <td class="p-4 font-semibold text-[#2f1b12] whitespace-nowrap">
+                ${{ producto.precio }} MXN
+              </td>
+
+              <td class="p-4">
+                <span
+                  class="font-bold"
+                  [class.text-red-700]="producto.stock === 0"
+                  [class.text-yellow-700]="producto.stock > 0 && producto.stock <= 5"
+                  [class.text-[#4b2e1f]]="producto.stock > 5"
+                >
+                  {{ producto.stock }}
+                </span>
+              </td>
+
+              <td class="p-4">
+                <div class="flex flex-wrap gap-2 min-w-[190px]">
+
+                  @if(producto.promocionActiva) {
+                    <span class="px-3 py-1 rounded-full text-xs bg-red-100 text-red-700 font-bold">
+                      🔥 {{ producto.porcentajeDescuento }}% OFF
+                    </span>
+                  }
+
+                  @if(producto.msiActivo) {
+                    <span class="px-3 py-1 rounded-full text-xs bg-[#f5ede1] text-[#4b2e1f] font-bold">
+                      💳 {{ producto.mesesMsi }} MSI
+                    </span>
+                  }
+
+                  @if(producto.ultimasPiezas) {
+                    <span class="px-3 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-bold">
+                      ⚠ Últimas
+                    </span>
+                  }
+
+                  @if(!producto.promocionActiva && !producto.msiActivo && !producto.ultimasPiezas) {
+                    <span class="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-500 font-bold">
+                      Sin promo
+                    </span>
+                  }
+
+                </div>
+              </td>
+
+              <td class="p-4">
+  <span
+    class="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
+
+    [class.bg-emerald-100]="producto.estado === 'Activo'"
+    [class.text-emerald-700]="producto.estado === 'Activo'"
+
+    [class.bg-yellow-100]="producto.estado === 'Oculto'"
+    [class.text-yellow-800]="producto.estado === 'Oculto'"
+
+    [class.bg-red-100]="producto.stock === 0"
+    [class.text-red-700]="producto.stock === 0"
+  >
+    {{ producto.stock === 0 ? 'Sin stock' : producto.estado }}
+  </span>
+</td>
+
+              <td class="p-4">
+                <div class="flex justify-end gap-2">
+
+                  <a
+                    [routerLink]="['/admin/editar-producto', producto.id]"
+                    class="px-3 py-2 rounded-lg bg-[#f5ede1] hover:bg-[#8a542f] hover:text-white transition whitespace-nowrap"
+                  >
+                    Editar
+                  </a>
+
+                  @if(producto.estado === 'Activo') {
+
+  <button
+    type="button"
+    (click)="ocultarProducto(producto)"
+    class="px-3 py-2 rounded-lg bg-yellow-100 text-yellow-800 hover:bg-yellow-500 hover:text-white transition whitespace-nowrap"
+  >
+    Ocultar
+  </button>
+
+} @else {
+
+  <button
+    type="button"
+    (click)="reactivarProducto(producto)"
+    class="px-3 py-2 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white transition whitespace-nowrap"
+  >
+    Reactivar
+  </button>
+
+}
+
+                </div>
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>

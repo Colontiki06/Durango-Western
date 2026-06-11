@@ -1,0 +1,439 @@
+<div class="p-8">
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+    <div>
+      <h1 class="text-4xl font-bold text-[#2f1b12]">
+        Agregar producto
+      </h1>
+
+      <p class="text-[#8a542f] mt-2">
+        Registra un nuevo producto con categoría, tallas, stock e imágenes.
+      </p>
+    </div>
+
+    <a
+      routerLink="/admin/inventario"
+      class="cursor-pointer border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:scale-95 px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-center"
+    >
+      Volver
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8">
+
+    <section class="bg-white rounded-2xl shadow-md p-8">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="md:col-span-2">
+          <label class="block text-[#2f1b12] mb-2 font-medium">
+            Nombre del producto
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="producto.nombre"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+            placeholder="Ej. Bota Vaquera Caballero"
+          >
+        </div>
+
+        <div>
+          <label class="block text-[#2f1b12] mb-2 font-medium">
+            Código
+          </label>
+
+          <input
+            type="text"
+            value="Se generará automáticamente"
+            disabled
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 bg-gray-100 text-[#8a542f]"
+          >
+        </div>
+
+        <div>
+          <label class="block text-[#2f1b12] mb-2 font-medium">
+            Precio
+          </label>
+
+          <input
+            type="number"
+            [(ngModel)]="producto.precio"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+          >
+        </div>
+
+        <div>
+          <label class="block text-[#2f1b12] mb-2 font-medium">
+            Categoría
+          </label>
+
+          <select
+            [(ngModel)]="producto.categoria_id"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+          >
+            <option value="">Selecciona una categoría</option>
+
+            @for(categoria of categorias(); track categoria.id) {
+              <option [value]="categoria.id">
+                {{ categoria.nombre }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[#2f1b12] mb-2 font-medium">
+            Costo
+          </label>
+
+          <input
+            type="number"
+            [(ngModel)]="producto.costo"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+          >
+        </div>
+
+        <div>
+          <label class="block text-[#2f1b12] mb-2 font-medium">
+            Estado
+          </label>
+
+          <select
+            [(ngModel)]="producto.estado"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+          >
+            <option>Activo</option>
+            <option>Oculto</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-[#2f1b12] mb-2 font-medium">
+            Descripción
+          </label>
+
+          <textarea
+            rows="6"
+            [(ngModel)]="producto.descripcion"
+            class="w-full border border-[#d8c5aa] rounded-lg p-4 outline-none resize-none focus:ring-2 focus:ring-[#8a542f]"
+            placeholder="Descripción del producto..."
+          ></textarea>
+        </div>
+
+        <div class="md:col-span-2 border border-[#eadcc7] rounded-2xl overflow-hidden">
+
+          <div class="bg-[#f5ede1] px-6 py-4">
+            <h2 class="text-lg font-bold text-[#2f1b12]">
+              Variantes, stock y envío
+            </h2>
+
+            <p class="text-xs text-[#8a542f]">
+              Agrega tallas, stock inicial, peso y dimensiones para cotizar envíos.
+            </p>
+          </div>
+
+          @if(producto.variantes.length > 0) {
+            <div class="divide-y divide-[#eadcc7] bg-white">
+              @for(variante of producto.variantes; track $index) {
+                <div class="px-6 py-4">
+
+                  <div class="grid grid-cols-1 xl:grid-cols-[1fr_100px_100px_100px_100px_100px_90px] gap-4 items-end">
+
+                    <div>
+                      <p class="text-xs text-[#8a542f] mb-1">
+                        Talla
+                      </p>
+
+                      <p class="font-bold text-[#2f1b12]">
+                        {{ variante.talla_nombre }}
+                      </p>
+
+                      <p class="text-xs text-[#8a542f]">
+                        {{ variante.talla_tipo }}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label class="block text-xs text-[#8a542f] mb-1">
+                        Stock
+                      </label>
+
+                      <input
+                        type="number"
+                        min="0"
+                        [(ngModel)]="variante.stock"
+                        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="block text-xs text-[#8a542f] mb-1">
+                        Peso kg
+                      </label>
+
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        step="1"
+                        [(ngModel)]="variante.peso_kg"
+                        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="block text-xs text-[#8a542f] mb-1">
+                        Largo cm
+                      </label>
+
+                      <input
+                        type="number"
+                        min="1"
+                        max="300"
+                        step="1"
+                        [(ngModel)]="variante.largo_cm"
+                        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="block text-xs text-[#8a542f] mb-1">
+                        Ancho cm
+                      </label>
+
+                      <input
+                          type="number"
+                          min="1"
+                          max="300"
+                          step="1"
+                          [(ngModel)]="variante.ancho_cm"
+                          class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3"
+                        >
+                    </div>
+
+                    <div>
+                      <label class="block text-xs text-[#8a542f] mb-1">
+                        Alto cm
+                      </label>
+
+                      <input
+                        type="number"
+                        min="1"
+                        max="300"
+                        step="1"
+                        [(ngModel)]="variante.alto_cm"
+                        class="w-full h-10 border border-[#d8c5aa] rounded-lg px-3 outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      >
+                    </div>
+
+                    <button
+                      type="button"
+                      (click)="eliminarVariante($index)"
+                      class="cursor-pointer text-xs bg-red-100 text-red-700 hover:bg-red-600 hover:text-white active:scale-95 rounded-lg py-2 font-semibold transition-all duration-200"
+                    >
+                      Quitar
+                    </button>
+
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+
+          <div class="bg-[#f5ede1] border-t border-[#eadcc7] p-6">
+
+            <h3 class="font-bold text-[#2f1b12] mb-4">
+              Agregar talla
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-[1fr_120px_150px] gap-4">
+
+              <select
+                [(ngModel)]="nuevaVariante.talla_id"
+                class="h-12 border border-[#d8c5aa] rounded-lg px-4 bg-white"
+              >
+                <option value="">Selecciona una talla</option>
+
+                <optgroup label="Calzado niños">
+                  @for(talla of tallas(); track talla.id) {
+                    @if(talla.tipo === 'calzado_nino') {
+                      <option [value]="talla.id">{{ talla.nombre }}</option>
+                    }
+                  }
+                </optgroup>
+
+                <optgroup label="Calzado">
+                  @for(talla of tallas(); track talla.id) {
+                    @if(talla.tipo === 'calzado') {
+                      <option [value]="talla.id">{{ talla.nombre }}</option>
+                    }
+                  }
+                </optgroup>
+
+                <optgroup label="Ropa niños">
+                  @for(talla of tallas(); track talla.id) {
+                    @if(talla.tipo === 'ropa_nino') {
+                      <option [value]="talla.id">{{ talla.nombre }}</option>
+                    }
+                  }
+                </optgroup>
+
+                <optgroup label="Ropa">
+                  @for(talla of tallas(); track talla.id) {
+                    @if(talla.tipo === 'ropa') {
+                      <option [value]="talla.id">{{ talla.nombre }}</option>
+                    }
+                  }
+                </optgroup>
+
+                <optgroup label="Sombrero">
+                  @for(talla of tallas(); track talla.id) {
+                    @if(talla.tipo === 'sombrero') {
+                      <option [value]="talla.id">{{ talla.nombre }}</option>
+                    }
+                  }
+                </optgroup>
+
+                <optgroup label="Cinturones">
+                  @for(talla of tallas(); track talla.id) {
+                    @if(talla.tipo === 'cinturon') {
+                      <option [value]="talla.id">{{ talla.nombre }}</option>
+                    }
+                  }
+                </optgroup>
+
+                <optgroup label="Gorras">
+                  @for(talla of tallas(); track talla.id) {
+                    @if(talla.tipo === 'gorra') {
+                      <option [value]="talla.id">{{ talla.nombre }}</option>
+                    }
+                  }
+                </optgroup>
+
+                <optgroup label="Accesorios">
+                  @for(talla of tallas(); track talla.id) {
+                    @if(talla.tipo === 'accesorio') {
+                      <option [value]="talla.id">{{ talla.nombre }}</option>
+                    }
+                  }
+                </optgroup>
+
+              </select>
+
+              <input
+                type="number"
+                min="0"
+                [(ngModel)]="nuevaVariante.stock"
+                placeholder="Stock"
+                class="h-12 border border-[#d8c5aa] rounded-lg px-4 bg-white"
+              >
+
+              <button
+                type="button"
+                (click)="agregarVariante()"
+                class="cursor-pointer bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 text-white rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                Agregar talla
+              </button>
+
+            </div>
+
+            <p class="text-xs text-[#8a542f] mt-3">
+              Después de agregar la talla podrás ajustar peso y dimensiones de esa variante.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="flex flex-wrap gap-4 mt-10">
+
+        <button
+          type="button"
+          (click)="guardarProducto()"
+          [disabled]="loading()"
+          class="cursor-pointer bg-[#4b2e1f] hover:bg-[#6b3f26] active:scale-95 disabled:opacity-60 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+        >
+          {{ loading() ? 'Guardando...' : 'Guardar producto' }}
+        </button>
+
+        <a
+          routerLink="/admin/inventario"
+          class="cursor-pointer border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:scale-95 px-8 py-3 rounded-lg font-semibold transition-all duration-200"
+        >
+          Cancelar
+        </a>
+
+      </div>
+
+    </section>
+
+    <aside class="bg-white rounded-2xl shadow-md p-8 h-fit">
+
+      <h2 class="text-2xl font-bold text-[#2f1b12] mb-6">
+        Imágenes del producto
+      </h2>
+
+      @if(previews.length > 0) {
+        <div class="grid grid-cols-2 gap-3">
+
+          @for(preview of previews; track $index) {
+            <div class="relative group rounded-xl overflow-hidden border border-[#eadcc7]">
+
+              <div class="aspect-square bg-[#f5ede1]">
+                <img
+                  [src]="preview"
+                  class="w-full h-full object-cover"
+                >
+              </div>
+
+              <button
+                type="button"
+                (click)="eliminarPreview($index)"
+                class="cursor-pointer absolute top-2 right-2 bg-red-600 text-white w-8 h-8 rounded-full opacity-90 hover:opacity-100 active:scale-90 transition-all"
+              >
+                ×
+              </button>
+
+              @if($index === 0) {
+                <span class="absolute top-2 left-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+                  Principal
+                </span>
+              }
+
+            </div>
+          }
+
+        </div>
+      } @else {
+        <div class="h-[350px] bg-[#f5ede1] rounded-2xl flex flex-col items-center justify-center text-center px-4">
+          <span class="text-7xl mb-4">🖼️</span>
+
+          <p class="text-[#8a542f]">
+            Aquí se mostrarán las imágenes seleccionadas.
+          </p>
+        </div>
+      }
+
+      <label
+        class="cursor-pointer block w-full mt-6 bg-[#8a542f] hover:bg-[#6b3f26] active:scale-95 text-white py-3 rounded-lg font-semibold transition-all duration-200 text-center shadow-sm hover:shadow-md"
+      >
+        Agregar imágenes
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          class="hidden"
+          (change)="seleccionarImagenes($event)"
+        >
+      </label>
+
+    </aside>
+
+  </div>
+
+</div>

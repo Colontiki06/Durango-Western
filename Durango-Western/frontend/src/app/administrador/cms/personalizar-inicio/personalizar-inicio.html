@@ -1,0 +1,683 @@
+<div class="p-5 md:p-8 bg-[#f5ede1] min-h-screen">
+
+  <div class="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl md:text-4xl font-bold text-[#2f1b12]">
+        Personalizar inicio
+      </h1>
+
+      <p class="text-[#8a542f] mt-2">
+        Modifica banners, categorías y contenido visual de la página principal.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      (click)="cargarInicio()"
+      [disabled]="loading || guardando"
+      class="bg-white border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white disabled:opacity-60 px-5 py-3 rounded-xl font-semibold transition"
+    >
+      Actualizar
+    </button>
+  </div>
+
+  @if(mensaje) {
+    <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl p-4 font-semibold">
+      {{ mensaje }}
+    </div>
+  }
+
+  @if(loading) {
+    <div class="bg-white rounded-2xl shadow-md p-8 text-center text-[#8a542f] font-semibold">
+      Cargando personalización...
+    </div>
+  } @else {
+
+    <!-- Carrusel principal -->
+    <section class="bg-white rounded-2xl shadow-md p-6 mb-8">
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+
+        <div>
+          <h2 class="text-2xl font-bold text-[#2f1b12]">
+            Carrusel principal
+          </h2>
+
+          <p class="text-[#8a542f] mt-1">
+            Administra las imágenes, textos y botones que aparecen en el carrusel de inicio.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          (click)="abrirModalBanner()"
+          class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-5 py-3 rounded-xl font-semibold transition"
+        >
+          + Agregar banner
+        </button>
+
+      </div>
+
+      @if(banners.length === 0) {
+        <div class="border border-dashed border-[#d8c5aa] rounded-2xl p-8 text-center text-[#8a542f]">
+          Todavía no hay banners registrados.
+        </div>
+      } @else {
+        <div class="space-y-8">
+
+          @for(banner of banners; track banner.id; let i = $index) {
+
+            <div class="border border-[#eadcc7] rounded-2xl overflow-hidden">
+
+              <div class="relative h-[260px]">
+
+                <img
+                  [src]="banner.imagen"
+                  alt="Banner"
+                  class="w-full h-full object-cover"
+                >
+
+                <div class="absolute inset-0 bg-black/45 flex flex-col justify-center px-8">
+
+                  <p class="text-[#d6a15d] text-sm md:text-lg mb-2 tracking-widest">
+                    {{ banner.textoSuperior }}
+                  </p>
+
+                  <h2 class="text-white text-3xl md:text-5xl font-bold max-w-[650px]">
+                    {{ banner.titulo }}
+                  </h2>
+
+                  <p class="text-white/90 mt-3">
+                    {{ banner.descripcion }}
+                  </p>
+
+                  <span class="inline-block mt-5 bg-[#8a542f] text-white px-6 py-3 rounded-lg font-bold w-fit">
+                    {{ banner.textoBoton }}
+                  </span>
+
+                </div>
+
+                @if(!banner.activo) {
+                  <div class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-2 rounded-full">
+                    Inactivo
+                  </div>
+                }
+
+              </div>
+
+              <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <div>
+                  <label class="block mb-2 font-semibold text-[#2f1b12]">
+                    Texto superior
+                  </label>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="banner.textoSuperior"
+                    class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  >
+                </div>
+
+                <div>
+                  <label class="block mb-2 font-semibold text-[#2f1b12]">
+                    Título principal
+                  </label>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="banner.titulo"
+                    class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  >
+                </div>
+
+                <div>
+                  <label class="block mb-2 font-semibold text-[#2f1b12]">
+                    Descripción / temporada
+                  </label>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="banner.descripcion"
+                    class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  >
+                </div>
+
+                <div>
+  <label class="block mb-2 font-semibold text-[#2f1b12]">
+    Imagen del banner
+  </label>
+
+  <div class="h-[120px] rounded-xl overflow-hidden border border-[#eadcc7] mb-3 bg-[#f5ede1]">
+    <img
+      [src]="banner.imagen"
+      class="w-full h-full object-cover"
+    >
+  </div>
+
+  <label
+    class="cursor-pointer block w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-semibold text-center transition"
+  >
+    {{ guardando ? 'Subiendo imagen...' : 'Cambiar imagen' }}
+
+    <input
+      type="file"
+      accept="image/*"
+      class="hidden"
+      (change)="subirImagenBannerExistente($event, banner)"
+    >
+  </label>
+</div>
+
+                <div>
+                  <label class="block mb-2 font-semibold text-[#2f1b12]">
+                    Texto del botón
+                  </label>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="banner.textoBoton"
+                    placeholder="Ver colección"
+                    class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  >
+                </div>
+
+                <div>
+                  <label class="block mb-2 font-semibold text-[#2f1b12]">
+                    Enlace del botón
+                  </label>
+
+                  <select
+  [(ngModel)]="banner.enlaceBoton"
+  class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+>
+  <option value="/productos">Todos los productos</option>
+
+  @for(categoria of categoriasCatalogo; track categoria.id) {
+    <option [value]="'/productos/' + categoria.slug">
+      {{ categoria.nombre }}
+    </option>
+  }
+</select>
+                </div>
+
+                <div>
+                  <label class="block mb-2 font-semibold text-[#2f1b12]">
+                    Orden
+                  </label>
+
+                  <input
+                    type="number"
+                    min="1"
+                    [(ngModel)]="banner.orden"
+                    class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  >
+                </div>
+
+                <div class="flex items-end">
+                  <label class="flex items-center gap-3 text-[#2f1b12] font-semibold h-12">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="banner.activo"
+                      class="w-5 h-5"
+                    >
+                    Banner activo
+                  </label>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-end gap-3 pt-4 border-t border-[#eadcc7]">
+
+                  <button
+                    type="button"
+                    [disabled]="guardando"
+                    class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 disabled:opacity-60 text-white px-5 py-2 rounded-lg font-semibold transition"
+                    (click)="guardarBanner(banner)"
+                  >
+                    Guardar
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="eliminarBanner(i)"
+                    class="bg-red-100 text-red-700 hover:bg-red-600 hover:text-white active:bg-red-700 active:text-white active:scale-95 px-5 py-2 rounded-lg font-semibold transition"
+                  >
+                    Eliminar
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+      }
+
+    </section>
+
+  <!-- Categorías -->
+<section class="bg-white rounded-2xl shadow-md p-6">
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+
+    <div>
+      <h2 class="text-2xl font-bold text-[#2f1b12]">
+        Categorías destacadas
+      </h2>
+
+      <p class="text-[#8a542f] mt-1">
+        Selecciona qué categorías del catálogo aparecerán en la página principal.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      (click)="abrirModalCategoria()"
+      class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 text-white px-5 py-3 rounded-xl font-semibold transition"
+    >
+      + Agregar categoría
+    </button>
+
+  </div>
+
+  @if(categorias.length === 0) {
+    <div class="border border-dashed border-[#d8c5aa] rounded-2xl p-8 text-center text-[#8a542f]">
+      Todavía no hay categorías destacadas registradas.
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+      @for(categoria of categorias; track categoria.id; let i = $index) {
+
+        <div class="border border-[#eadcc7] rounded-2xl overflow-hidden">
+
+          <div class="h-[220px] bg-[#f5ede1] relative">
+
+  @if(categoria.imagen) {
+    <img
+      [src]="categoria.imagen"
+      [alt]="categoria.nombre"
+      class="w-full h-full object-contain p-4"
+    >
+  } @else {
+    <div class="w-full h-full flex items-center justify-center text-[#8a542f] font-semibold">
+      Sin imagen
+    </div>
+  }
+
+  @if(!categoria.activa) {
+    <div class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+      Inactiva
+    </div>
+  }
+
+</div>
+
+          <div class="p-5">
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Categoría del catálogo
+            </label>
+
+            <select
+              [(ngModel)]="categoria.categoria_id"
+              (change)="categoriaSeleccionadaCambio(categoria)"
+              class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] mb-4"
+            >
+              <option value="">Selecciona una categoría</option>
+
+              @for(cat of categoriasCatalogo; track cat.id) {
+                <option [value]="cat.id">
+                  {{ cat.nombre }}
+                </option>
+              }
+            </select>
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Nombre visible
+            </label>
+
+            <input
+              type="text"
+              [(ngModel)]="categoria.nombre"
+              readonly
+              class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 bg-gray-100 text-[#8a542f] mb-4"
+            >
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Imagen destacada
+            </label>
+
+            <div class="h-[120px] rounded-xl overflow-hidden border border-[#eadcc7] mb-3 bg-[#f5ede1] flex items-center justify-center">
+
+  @if(categoria.imagen) {
+    <img
+      [src]="categoria.imagen"
+      class="w-full h-full object-contain p-3"
+    >
+  } @else {
+    <span class="text-sm text-[#8a542f]">
+      Sin imagen
+    </span>
+  }
+
+</div>
+
+            <label
+              class="cursor-pointer block w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-2 rounded-lg font-semibold text-center transition mb-4"
+            >
+              {{ guardando ? 'Subiendo imagen...' : 'Cambiar imagen' }}
+
+              <input
+                type="file"
+                accept="image/*"
+                class="hidden"
+                (change)="subirImagenCategoriaExistente($event, categoria)"
+              >
+            </label>
+
+            <label class="block mb-2 font-semibold text-[#2f1b12]">
+              Orden
+            </label>
+
+            <input
+              type="number"
+              min="1"
+              [(ngModel)]="categoria.orden"
+              class="w-full h-11 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f] mb-4"
+            >
+
+            <label class="flex items-center gap-3 text-[#2f1b12] font-semibold mb-5">
+              <input
+                type="checkbox"
+                [(ngModel)]="categoria.activa"
+                class="w-5 h-5"
+              >
+              Categoría activa
+            </label>
+
+            <p class="text-xs text-[#8a542f] mb-4">
+              Enlace: {{ categoria.enlace || '/productos' }}
+            </p>
+
+            <div class="flex gap-2">
+              <button
+                type="button"
+                (click)="guardarCategoria(categoria)"
+                [disabled]="guardando"
+                class="flex-1 bg-[#4b2e1f] hover:bg-[#6b3f26] disabled:opacity-60 text-white py-2 rounded-lg font-semibold transition"
+              >
+                Guardar
+              </button>
+
+              <button
+                type="button"
+                (click)="eliminarCategoria(i)"
+                class="flex-1 bg-red-100 text-red-700 hover:bg-red-600 hover:text-white py-2 rounded-lg font-semibold transition"
+              >
+                Eliminar
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      }
+
+    </div>
+  }
+
+</section>
+
+
+<!-- MODAL AGREGAR CATEGORIA -->
+@if(showAddCategoriaModal) {
+
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-5">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-8">
+
+      <h2 class="text-2xl font-bold text-[#2f1b12] mb-2">
+        Agregar nueva categoría
+      </h2>
+
+      <p class="text-[#8a542f] mb-6">
+        Selecciona una categoría del catálogo para mostrarla en la página principal.
+      </p>
+
+      <div class="space-y-4">
+
+        <div>
+          <label class="block mb-2 font-semibold text-[#2f1b12]">
+            Categoría del catálogo
+          </label>
+
+          <select
+            [(ngModel)]="nuevaCategoria.categoria_id"
+            (change)="nuevaCategoriaSeleccionadaCambio()"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+          >
+            <option value="">Selecciona una categoría</option>
+
+            @for(categoria of categoriasCatalogo; track categoria.id) {
+              <option [value]="categoria.id">
+                {{ categoria.nombre }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block mb-2 font-semibold text-[#2f1b12]">
+            Nombre visible
+          </label>
+
+          <input
+            [(ngModel)]="nuevaCategoria.nombre"
+            type="text"
+            readonly
+            placeholder="Se llenará automáticamente"
+            class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 bg-gray-100 text-[#8a542f]"
+          >
+        </div>
+
+        <div>
+          <label class="block mb-2 font-semibold text-[#2f1b12]">
+            Imagen destacada
+          </label>
+
+          @if(nuevaCategoria.imagen) {
+            <div class="h-[160px] rounded-xl overflow-hidden border border-[#eadcc7] mb-3 bg-[#f5ede1] flex items-center justify-center">
+              <img
+                [src]="nuevaCategoria.imagen"
+                class="w-full h-full object-contain p-4"
+              >
+            </div>
+          }
+
+          <label
+            class="cursor-pointer block w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-semibold text-center transition"
+          >
+            {{ subiendoImagen ? 'Subiendo imagen...' : 'Cambiar imagen' }}
+
+            <input
+              type="file"
+              accept="image/*"
+              class="hidden"
+              (change)="subirImagenNuevaCategoria($event)"
+            >
+          </label>
+        </div>
+
+        <label class="flex items-center gap-3 text-[#2f1b12] font-semibold">
+          <input
+            type="checkbox"
+            [(ngModel)]="nuevaCategoria.activa"
+            class="w-5 h-5"
+          >
+          Categoría activa
+        </label>
+
+      </div>
+
+      <div class="flex justify-end gap-3 mt-8">
+
+        <button
+          type="button"
+          (click)="cerrarModalCategoria()"
+          class="border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:bg-[#4b2e1f] active:text-white active:scale-95 px-6 py-3 rounded-xl font-bold transition"
+        >
+          Cancelar
+        </button>
+
+        <button
+  type="button"
+  (click)="agregarCategoria()"
+  [disabled]="guardando || subiendoImagen"
+  class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 disabled:opacity-60 text-white px-6 py-3 rounded-xl font-bold transition"
+>
+  {{ guardando ? 'Guardando...' : 'Aceptar y agregar' }}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+  }
+
+</div>
+
+<!-- MODAL AGREGAR BANNER -->
+@if(showAddBannerModal) {
+
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-5">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8">
+
+      <h2 class="text-2xl font-bold text-[#2f1b12] mb-2">
+        Agregar nuevo banner
+      </h2>
+
+      <p class="text-[#8a542f] mb-6">
+        Configura la información que aparecerá en el carrusel principal.
+      </p>
+
+      <div class="space-y-4">
+
+        <input
+          [(ngModel)]="nuevoBanner.textoSuperior"
+          type="text"
+          placeholder="Texto superior"
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+
+        <input
+          [(ngModel)]="nuevoBanner.titulo"
+          type="text"
+          placeholder="Título principal"
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+
+        <input
+          [(ngModel)]="nuevoBanner.descripcion"
+          type="text"
+          placeholder="Descripción / temporada"
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+
+        <div>
+  <label class="block mb-2 font-semibold text-[#2f1b12]">
+    Imagen del banner
+  </label>
+
+  @if(nuevoBanner.imagen) {
+    <div class="h-[160px] rounded-xl overflow-hidden border border-[#eadcc7] mb-3">
+      <img
+        [src]="nuevoBanner.imagen"
+        class="w-full h-full object-cover"
+      >
+    </div>
+  }
+
+  <label
+    class="cursor-pointer block w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-semibold text-center transition"
+  >
+    {{ guardando ? 'Subiendo imagen...' : 'Subir imagen' }}
+
+    <input
+      type="file"
+      accept="image/*"
+      class="hidden"
+      (change)="subirImagenBanner($event)"
+    >
+  </label>
+</div>
+
+        <input
+          [(ngModel)]="nuevoBanner.textoBoton"
+          type="text"
+          placeholder="Texto del botón"
+          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+        >
+
+        <label class="block mb-2 font-semibold text-[#2f1b12]">
+  ¿A dónde llevará el botón?
+</label>
+
+        <select
+  [(ngModel)]="nuevoBanner.enlaceBoton"
+  class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+>
+  <option value="/productos">Todos los productos</option>
+
+  @for(categoria of categoriasCatalogo; track categoria.id) {
+    <option [value]="'/productos/' + categoria.slug">
+      {{ categoria.nombre }}
+    </option>
+  }
+</select>
+
+        <label class="flex items-center gap-3 text-[#2f1b12] font-semibold">
+          <input
+            type="checkbox"
+            [(ngModel)]="nuevoBanner.activo"
+            class="w-5 h-5"
+          >
+          Banner activo
+        </label>
+
+      </div>
+
+      <div class="flex justify-end gap-3 mt-8">
+
+        <button
+          type="button"
+          (click)="cerrarModalBanner()"
+          class="border border-[#4b2e1f] text-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white active:bg-[#4b2e1f] active:text-white active:scale-95 px-6 py-3 rounded-xl font-bold transition"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="agregarBanner()"
+          [disabled]="guardando"
+          class="bg-[#4b2e1f] hover:bg-[#6b3f26] active:bg-[#2f1b12] active:scale-95 disabled:opacity-60 text-white px-6 py-3 rounded-xl font-bold transition"
+        >
+          {{ guardando ? 'Guardando...' : 'Aceptar y agregar' }}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

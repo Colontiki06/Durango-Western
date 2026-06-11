@@ -1,0 +1,275 @@
+<div class="min-h-screen bg-[#f5ede1] px-4 md:px-8 lg:px-10 py-10 md:py-14">
+
+  <!-- Modal de éxito -->
+  <div
+    *ngIf="mostrarModalExito"
+    class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4"
+  >
+    <div class="bg-[#fff8ec] w-full max-w-md rounded-2xl shadow-2xl border border-[#eadcc7] p-7 text-center">
+
+      <div class="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center text-3xl mb-4 text-green-700">
+        ✓
+      </div>
+
+      <h2 class="text-2xl font-bold text-[#2f1b12] mb-3">
+        Mensaje enviado
+      </h2>
+
+      <p class="text-[#6b4a34] leading-6 mb-6">
+        Tu mensaje fue enviado correctamente. Nos pondremos en contacto contigo pronto.
+      </p>
+
+      <button
+        type="button"
+        (click)="cerrarModalExito()"
+        class="w-full h-12 rounded-xl bg-[#8a542f] hover:bg-[#6b3f26] text-white font-bold transition"
+      >
+        Entendido
+      </button>
+
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Encabezado -->
+    <div class="mb-10 md:mb-12">
+      <div class="inline-flex items-center gap-2 bg-[#fff8ec] border border-[#e4d4bd] text-[#8a542f] px-4 py-2 rounded-full text-sm font-semibold mb-4">
+        <span>📩</span>
+        <span>Estamos para ayudarte</span>
+      </div>
+
+      <h1 class="text-4xl md:text-5xl font-bold text-[#2f1b12] mb-3">
+        Contáctanos
+      </h1>
+
+      <p class="text-[#6b4a34] text-base md:text-lg max-w-3xl leading-7">
+        ¿Tienes dudas sobre un pedido, productos o envíos? Envíanos un mensaje
+        y con gusto te ayudamos.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start">
+
+      <!-- Formulario -->
+      <section class="bg-[#fff8ec] border border-[#eadcc7] rounded-2xl shadow-sm p-6 md:p-8">
+
+        <div class="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-bold text-[#2f1b12]">
+              Envíanos un mensaje
+            </h2>
+
+            <p class="text-[#8a542f] mt-2 text-sm md:text-base">
+              Completa el formulario y te responderemos lo antes posible.
+            </p>
+          </div>
+
+          <div class="hidden md:flex w-14 h-14 rounded-2xl bg-[#f3e3cc] items-center justify-center text-2xl">
+            ✉
+          </div>
+        </div>
+
+        <div
+          *ngIf="error"
+          class="mb-5 rounded-xl border border-red-300 bg-red-100 text-red-700 px-4 py-3 text-sm md:text-base"
+        >
+          {{ error }}
+        </div>
+
+        <form class="space-y-5" (ngSubmit)="enviarMensaje()">
+
+          <!-- Honeypot oculto anti-bots -->
+          <input
+            type="text"
+            name="empresa"
+            [(ngModel)]="empresa"
+            tabindex="-1"
+            autocomplete="off"
+            class="hidden"
+          />
+
+          <div>
+            <label class="block text-sm font-semibold text-[#2f1b12] mb-2">
+              Nombre
+            </label>
+
+            <input
+              type="text"
+              name="nombre"
+              [(ngModel)]="nombre"
+              (input)="limpiarAlertas()"
+              maxlength="100"
+              placeholder="Escribe tu nombre"
+              autocomplete="name"
+              class="w-full h-12 rounded-xl border border-[#cbb89d] bg-white px-4 text-[#2f1b12] outline-none focus:border-[#8a542f] focus:ring-2 focus:ring-[#8a542f]/20"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-[#2f1b12] mb-2">
+              Correo electrónico
+            </label>
+
+            <input
+              type="email"
+              name="correo"
+              [(ngModel)]="correo"
+              (input)="limpiarAlertas()"
+              maxlength="120"
+              placeholder="ejemplo@correo.com"
+              autocomplete="email"
+              class="w-full h-12 rounded-xl border border-[#cbb89d] bg-white px-4 text-[#2f1b12] outline-none focus:border-[#8a542f] focus:ring-2 focus:ring-[#8a542f]/20"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-[#2f1b12] mb-2">
+              Asunto
+            </label>
+
+            <select
+              name="asunto"
+              [(ngModel)]="asunto"
+              (change)="limpiarAlertas()"
+              class="w-full h-12 rounded-xl border border-[#cbb89d] bg-white px-4 text-[#2f1b12] outline-none focus:border-[#8a542f] focus:ring-2 focus:ring-[#8a542f]/20"
+            >
+              <option value="" disabled>
+                Selecciona un asunto
+              </option>
+
+              <option value="Duda sobre producto">
+                Duda sobre producto
+              </option>
+
+              <option value="Estado de mi pedido">
+                Estado de mi pedido
+              </option>
+
+              <option value="Envíos">
+                Envíos
+              </option>
+
+              <option value="Cambios o devoluciones">
+                Cambios o devoluciones
+              </option>
+
+              <option value="Disponibilidad en tienda">
+                Disponibilidad en tienda
+              </option>
+
+              <option value="Facturación">
+                Facturación
+              </option>
+
+              <option value="Otro">
+                Otro
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-sm font-semibold text-[#2f1b12]">
+                Mensaje
+              </label>
+
+              <span class="text-xs text-[#8a542f]">
+                {{ caracteresRestantesMensaje() }} caracteres restantes
+              </span>
+            </div>
+
+            <textarea
+              name="mensajeFormulario"
+              [(ngModel)]="mensajeFormulario"
+              (input)="limpiarAlertas()"
+              rows="7"
+              maxlength="1000"
+              placeholder="Cuéntanos en qué te podemos ayudar..."
+              class="w-full rounded-xl border border-[#cbb89d] bg-white p-4 text-[#2f1b12] resize-none outline-none focus:border-[#8a542f] focus:ring-2 focus:ring-[#8a542f]/20"
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="cargando"
+            class="w-full h-12 rounded-xl bg-[#8a542f] hover:bg-[#6b3f26] text-white font-bold transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <span
+              *ngIf="cargando"
+              class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
+            ></span>
+
+            <span>
+              {{ cargando ? 'Enviando mensaje...' : 'Enviar mensaje' }}
+            </span>
+          </button>
+
+        </form>
+      </section>
+
+      <!-- Imagen y horario -->
+      <section class="space-y-7">
+
+        <div class="overflow-hidden rounded-2xl bg-[#e7dccb] shadow-sm border border-[#eadcc7]">
+          <img
+            src="/img/contactanos.jpg"
+            alt="Sucursal Durango Western"
+            class="w-full h-[240px] md:h-[300px] object-cover"
+          />
+        </div>
+
+        <!-- Horario de atención -->
+        <div class="bg-[#fff8ec] p-6 md:p-8 rounded-2xl shadow-sm border border-[#eadcc7] lg:min-h-[320px] flex flex-col justify-center">
+
+          <div class="flex items-center gap-4 mb-7">
+            <div class="w-14 h-14 rounded-full bg-[#f3e3cc] flex items-center justify-center text-2xl shrink-0">
+              🕘
+            </div>
+
+            <div>
+              <h2 class="text-2xl md:text-3xl font-bold text-[#2f1b12]">
+                Horario de atención
+              </h2>
+
+              <p class="text-[#8a542f] mt-1 text-sm md:text-base">
+                Visítanos en nuestro horario disponible.
+              </p>
+            </div>
+          </div>
+
+          <div class="divide-y divide-[#d8c5aa] text-[#4b2e1f] text-sm md:text-base">
+
+            <div class="flex justify-between gap-4 py-4">
+              <span>Lunes - Viernes</span>
+
+              <span class="font-semibold text-right">
+                9:00 a.m. - 9:00 p.m.
+              </span>
+            </div>
+
+            <div class="flex justify-between gap-4 py-4">
+              <span>Sábado</span>
+
+              <span class="font-semibold text-right">
+                9:00 a.m. - 8:00 p.m.
+              </span>
+            </div>
+
+            <div class="flex justify-between gap-4 py-4">
+              <span>Domingo</span>
+
+              <span class="font-semibold text-right">
+                10:00 a.m. - 6:00 p.m.
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+</div>

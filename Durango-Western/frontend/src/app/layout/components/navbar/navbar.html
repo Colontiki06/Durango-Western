@@ -1,0 +1,272 @@
+<div class="top-bar">
+  Envíos gratis en compras mínimas de
+  {{ envioGratisMinimo() | currency:'MXN':'symbol':'1.0-0' }}
+</div>
+
+<nav class="navbar">
+  <div class="navbar-container">
+    <a routerLink="/" class="logo-link" aria-label="Durango Western inicio">
+      <img src="/img/logo-durango.png" alt="Durango Western" class="logo-img" />
+    </a>
+
+    <div class="navbar-icons">
+      <button
+        type="button"
+        class="icon-button"
+        aria-label="Buscar"
+        (click)="toggleSearch()"
+      >
+        <img src="/icons/lupa.svg" alt="Buscar" />
+      </button>
+
+      <div class="user-menu-wrapper">
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Área de usuario"
+          (click)="toggleUserMenu()"
+        >
+          <img src="/icons/usuario.svg" alt="Usuario" />
+        </button>
+
+        @if (userMenuOpen) {
+          <div class="user-dropdown">
+            @if (isLoggedIn()) {
+              <div class="px-3 py-3 text-left">
+                <p class="text-[#2f1b12] font-bold mb-1">
+                  Hola, {{ obtenerNombreUsuario() }}
+                </p>
+
+                <p class="text-[#8a542f] text-sm mb-3">
+                  Administra tu perfil, pedidos y direcciones.
+                </p>
+
+                <button type="button" (click)="goTo('/perfil')">
+                  Mi perfil
+                </button>
+
+                <button type="button" (click)="goTo('/pedidos')">
+                  Mis compras
+                </button>
+
+                <button type="button" (click)="logout()">
+                  Cerrar sesión
+                </button>
+              </div>
+            } @else {
+              <div class="px-3 py-3 text-left">
+                <p class="text-[#2f1b12] font-bold mb-1">
+                  ¿Ya tienes cuenta?
+                </p>
+
+                <p class="text-[#8a542f] text-sm mb-3">
+                  Inicia sesión para ver tu perfil, pedidos y direcciones.
+                </p>
+
+                <button
+                  type="button"
+                  (click)="goTo('/login')"
+                  class="w-full bg-[#4b2e1f] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#6b3f26] transition"
+                >
+                  Iniciar sesión
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="icon-button cart-button"
+        routerLink="/carrito"
+        aria-label="Carrito"
+      >
+        <img src="/icons/bolso.svg" alt="Carrito" />
+
+        <span *ngIf="cartCount > 0" class="cart-badge">
+          {{ cartCount }}
+        </span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+@if (searchOpen) {
+  <div class="search-dropdown">
+    <div class="search-container">
+      <input
+        type="text"
+        name="busqueda-navbar"
+        autocomplete="off"
+        [(ngModel)]="terminoBusqueda"
+        (ngModelChange)="buscarSugerencias($event)"
+        (keyup.enter)="buscarProductos()"
+        placeholder="Buscar botas, sombreros, camisas..."
+        class="search-input"
+      />
+
+      <button type="button" class="search-btn" (click)="buscarProductos()">
+        Buscar
+      </button>
+
+      @if (
+        sugerenciasBusqueda.length > 0 ||
+        buscandoSugerencias ||
+        busquedaSinResultados ||
+        terminoBusqueda.trim().length >= 2
+      ) {
+        <div class="suggestions-box">
+          @if (buscandoSugerencias) {
+            <div class="suggestion-message">
+              Buscando productos...
+            </div>
+          }
+
+          @for (producto of sugerenciasBusqueda; track producto.id) {
+            <button
+              type="button"
+              class="suggestion-item"
+              (mousedown)="irAProducto(producto)"
+            >
+              <img
+                [src]="producto.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/80x80'"
+                [alt]="producto.nombre"
+              />
+
+              <div>
+                <p>{{ producto.nombre }}</p>
+                <small>
+                  {{ producto.precio | currency:'MXN':'symbol':'1.0-0' }}
+                </small>
+              </div>
+            </button>
+          }
+
+          @if (busquedaSinResultados && !buscandoSugerencias) {
+            <div class="suggestion-message">
+              No encontramos productos para "{{ terminoBusqueda }}".
+            </div>
+          }
+
+          <button
+            type="button"
+            class="suggestion-see-all"
+            (click)="buscarProductos()"
+          >
+            Ver todos los resultados para "{{ terminoBusqueda }}"
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<div class="menu-bar">
+  <div class="mega-item">
+    <a
+      routerLink="/productos"
+      [queryParams]="{ genero: 'caballero' }"
+      class="menu-link"
+    >
+      Caballero
+    </a>
+
+    <div class="mega-menu">
+      <div class="mega-content">
+        <div>
+          <h3>Caballero</h3>
+
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'botas' }">Botas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'sombreros' }">Sombreros</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'camisas' }">Camisas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'pantalones' }">Pantalones</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'cintos' }">Cintos</a>
+        </div>
+
+        <div>
+          <h3>Destacado</h3>
+
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'botas' }">Botas vaqueras</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero', tipo: 'camisas' }">Camisas western</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'caballero' }">Todo caballero</a>
+        </div>
+
+        <div class="mega-promo">
+          <img src="/img/BotasCaballero.PNG" alt="Caballero" />
+          <p>Estilo western para caballero</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mega-item">
+    <a
+      routerLink="/productos"
+      [queryParams]="{ genero: 'dama' }"
+      class="menu-link"
+    >
+      Dama
+    </a>
+
+    <div class="mega-menu">
+      <div class="mega-content">
+        <div>
+          <h3>Dama</h3>
+
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'botas' }">Botas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'sombreros' }">Sombreros</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'camisas' }">Blusas / Camisas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'cintos' }">Cintos</a>
+        </div>
+
+        <div>
+          <h3>Destacado</h3>
+
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama', tipo: 'botas' }">Botas bordadas</a>
+          <a routerLink="/productos" [queryParams]="{ tipo: 'bolsos' }">Bolsos</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'dama' }">Todo dama</a>
+        </div>
+
+        <div class="mega-promo">
+          <img src="/img/BotasDama.png" alt="Dama" />
+          <p>Moda western para dama</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mega-item">
+    <a
+      routerLink="/productos"
+      [queryParams]="{ genero: 'ninos' }"
+      class="menu-link"
+    >
+      Niños
+    </a>
+
+    <div class="mega-menu">
+      <div class="mega-content">
+        <div>
+          <h3>Niños</h3>
+
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos', tipo: 'botas' }">Botas infantiles</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos', tipo: 'camisas' }">Camisas</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos', tipo: 'sombreros' }">Sombreros</a>
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }">Todo niños</a>
+        </div>
+
+        <div>
+          <h3>Destacado</h3>
+
+          <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }">Colección infantil</a>
+        </div>
+
+        <div class="mega-promo">
+          <img src="/img/Gorras.PNG" alt="Niños" />
+          <p>Estilo western para los pequeños</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

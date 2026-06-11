@@ -1,0 +1,582 @@
+<div class="min-h-screen bg-[#f5ede1] px-5 md:px-10 py-8 md:py-10">
+
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-[#2f1b12]">
+          Checkout
+        </h1>
+
+        <p class="text-sm text-[#8a542f] mt-1">
+          Completa tus datos para continuar con el pago.
+        </p>
+      </div>
+
+      <a
+        routerLink="/carrito"
+        class="text-[#4b2e1f] border border-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-5 py-2 rounded-lg font-semibold transition"
+      >
+        ← Volver al carrito
+      </a>
+
+    </div>
+
+    @if(error) {
+      <div class="mb-6 bg-red-100 border border-red-300 text-red-700 px-5 py-4 rounded-xl font-semibold">
+        {{ error }}
+      </div>
+    }
+
+    @if(mensaje) {
+      <div class="mb-6 bg-green-100 border border-green-300 text-green-700 px-5 py-4 rounded-xl font-semibold">
+        {{ mensaje }}
+      </div>
+    }
+
+    @if(carritoVacio()) {
+
+      <div class="bg-[#fff8ec] p-10 text-center rounded-xl shadow-sm">
+        <h2 class="text-2xl font-bold text-[#2f1b12] mb-3">
+          Tu carrito está vacío
+        </h2>
+
+        <p class="text-[#8a542f] mb-6">
+          Agrega productos antes de continuar al checkout.
+        </p>
+
+        <a
+          routerLink="/productos"
+          class="inline-block bg-[#8a542f] hover:bg-[#6b3f26] text-white px-8 py-3 rounded-lg font-semibold transition"
+        >
+          Ver productos
+        </a>
+      </div>
+
+    }
+
+    @else {
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12">
+
+        <section class="bg-[#fff8ec] p-5 md:p-8 rounded-xl shadow-sm">
+
+          <h2 class="font-bold text-[#2f1b12] text-xl mb-5">
+            Datos de entrega
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
+            <button
+              type="button"
+              (click)="seleccionarEntrega('domicilio')"
+              class="cursor-pointer py-4 rounded-lg font-semibold transition"
+              [class.bg-[#8a542f]]="tipoEntrega === 'domicilio'"
+              [class.text-white]="tipoEntrega === 'domicilio'"
+              [class.border]="tipoEntrega !== 'domicilio'"
+              [class.border-[#8a542f]]="tipoEntrega !== 'domicilio'"
+              [class.text-[#2f1b12]]="tipoEntrega !== 'domicilio'"
+            >
+              Entrega en domicilio
+            </button>
+
+            <button
+              type="button"
+              (click)="seleccionarEntrega('tienda')"
+              class="cursor-pointer py-4 rounded-lg font-semibold transition"
+              [class.bg-[#8a542f]]="tipoEntrega === 'tienda'"
+              [class.text-white]="tipoEntrega === 'tienda'"
+              [class.border]="tipoEntrega !== 'tienda'"
+              [class.border-[#8a542f]]="tipoEntrega !== 'tienda'"
+              [class.text-[#2f1b12]]="tipoEntrega !== 'tienda'"
+            >
+              Recoger en tienda
+            </button>
+
+          </div>
+
+          <div class="mb-10">
+
+            <h3 class="font-bold text-[#2f1b12] mb-4">
+              Contacto
+            </h3>
+
+            <div class="space-y-4">
+
+              <div>
+                <input
+                  [(ngModel)]="cliente.nombre"
+                  class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  [class.border-red-400]="erroresCliente.nombre"
+                  [class.border-[#cbb89d]]="!erroresCliente.nombre"
+                  placeholder="Nombre completo"
+                >
+
+                @if(erroresCliente.nombre) {
+                  <p class="text-red-700 text-xs mt-2 font-semibold">
+                    {{ erroresCliente.nombre }}
+                  </p>
+                }
+              </div>
+
+              <div>
+                <input
+                  [(ngModel)]="cliente.correo"
+                  type="email"
+                  class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  [class.border-red-400]="erroresCliente.correo"
+                  [class.border-[#cbb89d]]="!erroresCliente.correo"
+                  placeholder="Correo electrónico"
+                >
+
+                @if(erroresCliente.correo) {
+                  <p class="text-red-700 text-xs mt-2 font-semibold">
+                    {{ erroresCliente.correo }}
+                  </p>
+                }
+              </div>
+
+              <div>
+                <input
+                  [(ngModel)]="cliente.telefono"
+                  class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                  [class.border-red-400]="erroresCliente.telefono"
+                  [class.border-[#cbb89d]]="!erroresCliente.telefono"
+                  placeholder="Número de teléfono"
+                  maxlength="14"
+                >
+
+                @if(erroresCliente.telefono) {
+                  <p class="text-red-700 text-xs mt-2 font-semibold">
+                    {{ erroresCliente.telefono }}
+                  </p>
+                }
+              </div>
+
+            </div>
+
+          </div>
+
+          @if(tipoEntrega === 'domicilio') {
+
+            <div class="mb-10">
+
+              <h3 class="font-bold text-[#2f1b12] mb-4">
+                Dirección
+              </h3>
+
+              @if(cargandoDirecciones) {
+                <div class="bg-[#f5ede1] border border-[#d8c5aa] rounded-xl p-5 text-[#8a542f] font-semibold mb-5">
+                  Cargando tu dirección principal...
+                </div>
+              }
+
+              @if(!cargandoDirecciones && direccionesGuardadas.length > 0) {
+                <div class="mb-6 space-y-3">
+
+                  <p class="text-sm text-[#8a542f] font-semibold">
+                    Selecciona una dirección guardada:
+                  </p>
+
+                  @for(direccionGuardada of direccionesGuardadas; track direccionGuardada.id) {
+
+                    <button
+                      type="button"
+                      (click)="seleccionarDireccionGuardada(direccionGuardada.id)"
+                      class="w-full text-left rounded-xl border p-4 transition"
+                      [class.bg-[#8a542f]]="direccionSeleccionadaId === direccionGuardada.id"
+                      [class.text-white]="direccionSeleccionadaId === direccionGuardada.id"
+                      [class.border-[#8a542f]]="direccionSeleccionadaId === direccionGuardada.id"
+                      [class.bg-white]="direccionSeleccionadaId !== direccionGuardada.id"
+                      [class.text-[#2f1b12]]="direccionSeleccionadaId !== direccionGuardada.id"
+                      [class.border-[#cbb89d]]="direccionSeleccionadaId !== direccionGuardada.id"
+                    >
+                      <div class="flex flex-wrap items-center gap-2 mb-1">
+                        <span class="font-bold">
+                          {{ direccionGuardada.nombre_recibe }}
+                        </span>
+
+                        @if(direccionGuardada.principal) {
+                          <span
+                            class="text-xs px-2 py-1 rounded-full font-bold"
+                            [class.bg-white]="direccionSeleccionadaId === direccionGuardada.id"
+                            [class.text-[#8a542f]]="direccionSeleccionadaId === direccionGuardada.id"
+                            [class.bg-[#4b2e1f]]="direccionSeleccionadaId !== direccionGuardada.id"
+                            [class.text-white]="direccionSeleccionadaId !== direccionGuardada.id"
+                          >
+                            Principal
+                          </span>
+                        }
+                      </div>
+
+                      <p class="text-sm">
+                        {{ obtenerDireccionCompleta(direccionGuardada) }}
+                      </p>
+
+                      @if(direccionGuardada.telefono) {
+                        <p class="text-xs mt-1">
+                          Tel. {{ direccionGuardada.telefono }}
+                        </p>
+                      }
+                    </button>
+
+                  }
+
+                  <button
+                    type="button"
+                    (click)="usarNuevaDireccion()"
+                    class="text-[#4b2e1f] border border-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-5 py-2 rounded-lg font-semibold transition"
+                  >
+                    Capturar otra dirección
+                  </button>
+
+                </div>
+
+              }
+
+              @if(direccionListaParaMostrar && !direccionSeleccionadaId) {
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div>
+                    <input
+  [(ngModel)]="direccion.codigoPostal"
+  (ngModelChange)="codigoPostalCambio($event)"
+  class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+  [class.border-red-400]="erroresDireccion.codigoPostal"
+  [class.border-[#cbb89d]]="!erroresDireccion.codigoPostal"
+  placeholder="Código postal"
+  maxlength="5"
+>
+
+                    @if(erroresDireccion.codigoPostal) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.codigoPostal }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.estado"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.estado"
+                      [class.border-[#cbb89d]]="!erroresDireccion.estado"
+                      placeholder="Estado"
+                    >
+
+                    @if(erroresDireccion.estado) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.estado }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.ciudad"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.ciudad"
+                      [class.border-[#cbb89d]]="!erroresDireccion.ciudad"
+                      placeholder="Ciudad"
+                    >
+
+                    @if(erroresDireccion.ciudad) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.ciudad }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.colonia"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.colonia"
+                      [class.border-[#cbb89d]]="!erroresDireccion.colonia"
+                      placeholder="Colonia"
+                    >
+
+                    @if(erroresDireccion.colonia) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.colonia }}
+                      </p>
+                    }
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <input
+                      [(ngModel)]="direccion.calle"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.calle"
+                      [class.border-[#cbb89d]]="!erroresDireccion.calle"
+                      placeholder="Calle"
+                    >
+
+                    @if(erroresDireccion.calle) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.calle }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.numeroExterior"
+                      class="w-full h-11 border px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.numeroExterior"
+                      [class.border-[#cbb89d]]="!erroresDireccion.numeroExterior"
+                      placeholder="Número exterior"
+                    >
+
+                    @if(erroresDireccion.numeroExterior) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.numeroExterior }}
+                      </p>
+                    }
+                  </div>
+
+                  <div>
+                    <input
+                      [(ngModel)]="direccion.numeroInterior"
+                      class="w-full h-11 border border-[#cbb89d] px-3 bg-white rounded-lg outline-none focus:ring-2 focus:ring-[#8a542f]"
+                      placeholder="Número interior opcional"
+                    >
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <textarea
+                      [(ngModel)]="direccion.referencias"
+                      rows="4"
+                      class="w-full border px-3 py-3 bg-white rounded-lg outline-none resize-none focus:ring-2 focus:ring-[#8a542f]"
+                      [class.border-red-400]="erroresDireccion.referencias"
+                      [class.border-[#cbb89d]]="!erroresDireccion.referencias"
+                      placeholder="Referencias de entrega"
+                    ></textarea>
+
+                    @if(erroresDireccion.referencias) {
+                      <p class="text-red-700 text-xs mt-2 font-semibold">
+                        {{ erroresDireccion.referencias }}
+                      </p>
+                    }
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="mb-10 bg-[#f5ede1] rounded-xl p-5 text-[#2f1b12]">
+              <h3 class="font-bold mb-2">
+                Recolección en tienda
+              </h3>
+
+              <p class="text-sm text-[#8a542f]">
+                El pedido se preparará para recoger en sucursal. Más adelante podremos permitir seleccionar sucursal.
+              </p>
+            </div>
+
+          }
+
+          <div class="mb-10">
+
+            <h3 class="font-bold text-[#2f1b12] mb-4">
+              Pago
+            </h3>
+
+            <div class="bg-[#f5ede1] rounded-xl p-5 text-sm text-[#4b2e1f]">
+              El pago se realizará de forma segura mediante Mercado Pago en el siguiente paso.
+            </div>
+
+          </div>
+
+          <button
+  type="button"
+  (click)="realizarPedido()"
+  [disabled]="
+    cargando ||
+    cotizandoEnvio ||
+    (
+      tipoEntrega === 'domicilio' &&
+      !envioGratis &&
+      !tarifaEnvioSeleccionada
+    )
+  "
+  class="cursor-pointer w-full bg-[#8a542f] hover:bg-[#6b3f26] active:scale-95 disabled:opacity-60 text-white py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
+>
+  @if(cargando) {
+    Creando pedido...
+  } @else if(cotizandoEnvio) {
+    Calculando envío...
+  } @else {
+    Continuar al pago
+  }
+</button>
+
+@if(tipoEntrega === 'domicilio' && !envioGratis && !tarifaEnvioSeleccionada) {
+  <div class="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+    <p class="text-sm text-yellow-800 font-medium">
+      Espera a que carguen las opciones de envío y selecciona una paquetería para continuar.
+    </p>
+  </div>
+}
+
+        </section>
+
+        <aside class="bg-[#fff8ec] p-6 h-fit rounded-xl shadow-sm">
+
+          <h2 class="font-bold text-[#2f1b12] text-xl mb-6">
+            Resumen del pedido
+          </h2>
+
+          <div class="space-y-4 mb-8">
+
+            @for(item of items(); track item.id + '-' + item.variante_id) {
+
+              <div class="flex gap-4">
+
+                <div class="w-20 h-24 bg-[#e7dccb] rounded-lg overflow-hidden flex items-center justify-center">
+
+                  @if(item.imagen) {
+                    <img
+                      [src]="item.imagen"
+                      [alt]="item.nombre"
+                      class="w-full h-full object-cover"
+                    >
+                  }
+
+                  @else {
+                    <span class="text-3xl text-[#8b7355]">
+                      ▧
+                    </span>
+                  }
+
+                </div>
+
+                <div class="flex-1">
+
+                  <h3 class="text-sm font-bold text-[#2f1b12]">
+                    {{ item.nombre }}
+                  </h3>
+
+                  @if(item.talla) {
+                    <p class="text-xs text-[#4b2e1f]">
+                      Talla: {{ item.talla }}
+                    </p>
+                  }
+
+                  <p class="text-xs text-[#4b2e1f]">
+                    Cantidad: {{ item.cantidad }}
+                  </p>
+
+                  <p class="text-sm font-bold text-[#2f1b12] mt-2">
+                    {{ item.precio * item.cantidad | currency:'MXN':'symbol':'1.0-0' }}
+                  </p>
+
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+
+          <div class="border-t border-[#d8c5aa] pt-5 space-y-4 text-[#2f1b12]">
+
+  <div class="flex justify-between">
+    <span>Subtotal</span>
+    <span class="font-bold">
+      {{ subtotal() | currency:'MXN':'symbol':'1.0-0' }}
+    </span>
+  </div>
+
+  @if(tipoEntrega === 'domicilio' && !envioGratis && tarifasEnvio.length > 0) {
+  <div class="space-y-2">
+    <p class="text-sm font-bold text-[#2f1b12]">
+      Elige tu tipo de envío
+    </p>
+
+    @for(opcion of tarifasEnvio; track opcion.tipo) {
+      <button
+        type="button"
+        (click)="seleccionarTarifaEnvio(opcion)"
+        class="w-full text-left border rounded-xl p-3 transition hover:bg-[#f5ede1]"
+        [ngClass]="tarifaEnvioSeleccionada?.id === opcion.tarifa?.id
+          ? 'border-[#9b6235] bg-[#f5ede1]'
+          : 'border-[#d8c5aa] bg-white'"
+      >
+        <div class="flex justify-between gap-3">
+          <div>
+            <p class="font-bold">
+              {{ opcion.tipo }}
+            </p>
+
+            <p class="text-xs text-[#8a542f]">
+              {{ opcion.descripcion }}
+            </p>
+
+            <p class="text-xs text-[#4b2e1f] mt-1">
+              {{ opcion.tarifa?.paqueteria }} ·
+              {{ opcion.tarifa?.servicio }} ·
+              {{ opcion.tarifa?.dias }} día(s) hábil(es)
+            </p>
+          </div>
+
+          <span class="font-bold">
+            {{ opcion.tarifa?.total | currency:'MXN':'symbol':'1.0-0' }}
+          </span>
+        </div>
+      </button>
+    }
+  </div>
+}
+
+  <div class="flex justify-between items-center">
+    <span>Envío</span>
+
+    @if(tipoEntrega === 'tienda') {
+      <span class="font-bold text-emerald-700">Sin costo</span>
+    } @else if(envioGratis) {
+      <span class="font-bold text-emerald-700">Gratis</span>
+    } @else {
+      <span class="font-bold">
+        {{ envio() | currency:'MXN':'symbol':'1.0-0' }}
+      </span>
+    }
+  </div>
+
+  @if(mensajeEnvio) {
+    <div
+      class="text-xs px-3 py-2 rounded-lg"
+      [ngClass]="envioGratis
+        ? 'bg-emerald-50 text-emerald-700'
+        : 'bg-[#f5ede1] text-[#8a542f]'"
+    >
+      {{ mensajeEnvio }}
+    </div>
+  }
+
+  <div class="border-t-2 border-[#2f1b12] pt-4 flex justify-between text-lg">
+    <span>Total</span>
+    <span class="font-bold">
+      {{ total() | currency:'MXN':'symbol':'1.0-0' }}
+    </span>
+  </div>
+
+</div>
+
+        </aside>
+
+      </div>
+
+    }
+
+  </div>
+
+</div>

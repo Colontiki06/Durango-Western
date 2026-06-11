@@ -1,0 +1,343 @@
+@if(mensajeError) {
+  <div class="fixed top-28 right-6 z-50 bg-red-600 text-white px-5 py-4 rounded-xl font-semibold shadow-xl">
+    {{ mensajeError }}
+  </div>
+}
+
+<div class="min-h-screen bg-[#f5ede1] px-5 md:px-10 py-8 md:py-10">
+
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 md:mb-10">
+
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-[#2f1b12]">
+          Carrito de compra
+        </h1>
+
+        @if(!carritoVacio()) {
+          <p class="text-sm text-[#8a542f] mt-1">
+            {{ totalArticulos() }} artículo(s) en tu carrito
+          </p>
+        }
+      </div>
+
+      <a
+        routerLink="/productos"
+        class="text-[#4b2e1f] border border-[#4b2e1f] hover:bg-[#4b2e1f] hover:text-white px-5 py-2 rounded-lg font-semibold transition"
+      >
+        ← Seguir comprando
+      </a>
+
+    </div>
+
+    @if(carritoVacio()) {
+
+      <div class="bg-[#fff8ec] p-10 text-center rounded-xl shadow-sm">
+        <h2 class="text-2xl font-bold text-[#2f1b12] mb-3">
+          Tu carrito está vacío
+        </h2>
+
+        <p class="text-[#8a542f] mb-6">
+          Explora nuestras botas, sombreros y accesorios western.
+        </p>
+
+        <a
+          routerLink="/productos"
+          class="inline-block bg-[#8a542f] hover:bg-[#6b3f26] text-white px-8 py-3 rounded-lg font-semibold transition"
+        >
+          Ver productos
+        </a>
+      </div>
+
+    }
+
+    @else {
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12">
+
+        <section class="space-y-5 md:space-y-8">
+
+          @for(item of items(); track item.id + '-' + item.variante_id) {
+
+            <div class="bg-[#fff8ec] p-4 flex flex-col md:flex-row gap-5 rounded-xl shadow-sm">
+
+              <div class="w-full md:w-48 h-48 bg-[#e7dccb] rounded-lg overflow-hidden flex items-center justify-center">
+
+                @if(item.imagen) {
+                  <img
+                    [src]="item.imagen"
+                    [alt]="item.nombre"
+                    class="w-full h-full object-cover"
+                  >
+                }
+
+                @else {
+                  <span class="text-6xl text-[#8b7355]">▧</span>
+                }
+
+              </div>
+
+              <div class="flex-1 flex flex-col justify-center">
+
+                <h3 class="font-bold text-[#2f1b12] text-lg">
+                  {{ item.nombre }}
+                </h3>
+
+                @if(item.codigo) {
+                  <p class="text-sm text-[#4b2e1f] mt-1">
+                    SKU: {{ item.codigo }}
+                  </p>
+                }
+
+                @if(item.talla) {
+                  <p class="text-sm text-[#4b2e1f]">
+                    Talla: {{ item.talla }}
+                  </p>
+                }
+
+                @if(item.stock !== undefined) {
+                  <p
+                    class="text-xs mt-1 font-semibold"
+                    [class.text-red-700]="item.stock <= 2"
+                    [class.text-[#8a542f]]="item.stock > 2"
+                  >
+                    @if(item.stock <= 2) {
+                      ⚠ Solo quedan {{ item.stock }} piezas
+                    }
+                    @else {
+                      Disponible: {{ item.stock }} piezas
+                    }
+                  </p>
+                }
+
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mt-5">
+
+                  <div class="flex items-center gap-3">
+
+                    <button
+                      type="button"
+                      (click)="decrease(item)"
+                      class="cursor-pointer w-10 h-10 bg-[#8a542f] hover:bg-[#6b3f26] text-white rounded-lg font-bold transition"
+                    >
+                      -
+                    </button>
+
+                    <span class="w-12 h-10 flex items-center justify-center bg-white border border-[#d8c5aa] rounded-lg font-bold text-[#2f1b12]">
+                      {{ item.cantidad }}
+                    </span>
+
+                    <button
+                      type="button"
+                      (click)="increase(item)"
+                      class="cursor-pointer w-10 h-10 bg-[#8a542f] hover:bg-[#6b3f26] text-white rounded-lg font-bold transition"
+                    >
+                      +
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="remove(item)"
+                      class="cursor-pointer ml-2 text-sm text-red-700 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+
+                  <div class="text-right min-w-[150px]">
+                    <div class="border-t border-[#d8c5aa] pt-3">
+                      <p class="text-xs text-[#8a542f] uppercase tracking-wide font-semibold">
+                        Precio unitario
+                      </p>
+
+                      <p class="font-bold text-[#2f1b12] text-2xl">
+                        {{ item.precio | currency:'MXN':'symbol':'1.0-0' }}
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          }
+
+        </section>
+
+        <aside class="bg-[#fff8ec] p-6 h-fit rounded-xl shadow-sm">
+
+          <h2 class="font-bold text-[#2f1b12] text-xl mb-6">
+            Resumen del pedido
+          </h2>
+
+          <div class="mb-6 bg-[#f5ede1] rounded-xl p-4">
+
+            @if(tieneEnvioGratis()) {
+              <p class="text-emerald-700 font-bold text-sm mb-3">
+                ✓ Ya calificas para envío gratis
+              </p>
+            }
+
+            @else {
+              <p class="text-[#4b2e1f] font-semibold text-sm mb-3">
+                Te faltan {{ faltaParaEnvioGratis() | currency:'MXN':'symbol':'1.0-0' }} para envío gratis
+              </p>
+            }
+
+            <div class="w-full h-3 bg-white rounded-full overflow-hidden">
+              <div
+                class="h-full bg-[#8a542f] rounded-full transition-all"
+                [style.width.%]="porcentajeEnvioGratis()"
+              ></div>
+            </div>
+
+          </div>
+
+          <div class="space-y-4 text-[#2f1b12] text-sm">
+
+            @for(item of items(); track item.id + '-' + item.variante_id) {
+
+              <div class="flex justify-between gap-6">
+
+                <span>
+                  {{ item.nombre }}
+
+                  @if(item.talla) {
+                    <small class="block text-[#8a542f]">
+                      Talla: {{ item.talla }} x{{ item.cantidad }}
+                    </small>
+                  }
+                </span>
+
+                <span class="font-bold">
+                  {{ item.precio * item.cantidad | currency:'MXN':'symbol':'1.0-0' }}
+                </span>
+
+              </div>
+
+            }
+
+          </div>
+
+          <div class="border-t border-[#d8c5aa] mt-8 pt-5 space-y-3 text-[#2f1b12]">
+
+            <div class="flex justify-between">
+              <span>Subtotal</span>
+              <span class="font-bold">
+                {{ subtotal() | currency:'MXN':'symbol':'1.0-0' }}
+              </span>
+            </div>
+
+            <div class="flex justify-between text-sm text-[#8a542f]">
+              <span>Envío</span>
+
+              @if(tieneEnvioGratis()) {
+                <span class="font-bold text-emerald-700">
+                  Gratis
+                </span>
+              }
+
+              @else {
+                <span>
+                  Se calcula en checkout
+                </span>
+              }
+            </div>
+
+            <div class="border-t-2 border-[#2f1b12] pt-4 flex justify-between text-lg">
+              <span>Total</span>
+              <span class="font-bold">
+                {{ subtotal() | currency:'MXN':'symbol':'1.0-0' }}
+              </span>
+            </div>
+
+            <p class="text-xs text-[#8a542f] mt-3">
+              Los costos de envío se calcularán en el siguiente paso.
+            </p>
+
+          </div>
+
+          <div class="mt-10 space-y-4">
+
+  @if(cargandoConfiguracion) {
+
+    <button
+      type="button"
+      disabled
+      class="block w-full text-center bg-[#8a542f] opacity-60 text-white py-3 rounded-lg font-medium"
+    >
+      Cargando opciones...
+    </button>
+
+  }
+
+  @else if(estaLogueado()) {
+
+    <button
+      type="button"
+      (click)="continuarAlCheckout()"
+      class="block w-full text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+    >
+      Continuar al checkout
+    </button>
+
+    <p class="text-xs text-[#8a542f] text-center">
+      Continuarás con tu cuenta y tus direcciones guardadas.
+    </p>
+
+  }
+
+  @else if(comprasInvitado) {
+
+    <button
+      type="button"
+      (click)="continuarComoInvitado()"
+      class="block w-full text-center bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+    >
+      Continuar como invitado
+    </button>
+
+    <button
+      type="button"
+      (click)="iniciarSesionYComprar()"
+      class="block w-full text-center border border-[#8a542f] text-[#8a542f] hover:bg-[#8a542f] hover:text-white py-3 rounded-lg font-medium transition"
+    >
+      Iniciar sesión y comprar
+    </button>
+
+  }
+
+  @else {
+
+    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+
+      <p class="text-sm text-yellow-800 font-semibold mb-3">
+        Debes iniciar sesión para realizar compras.
+      </p>
+
+      <button
+        type="button"
+        (click)="iniciarSesionYComprar()"
+        class="w-full bg-[#8a542f] hover:bg-[#6b3f26] text-white py-3 rounded-lg font-medium transition"
+      >
+        Iniciar sesión
+      </button>
+
+    </div>
+
+  }
+
+</div>
+
+        </aside>
+
+      </div>
+
+    }
+
+  </div>
+
+</div>
