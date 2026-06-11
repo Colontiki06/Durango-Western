@@ -45,28 +45,9 @@
                   Administra tu perfil, pedidos y direcciones.
                 </p>
 
-                <button
-                  type="button"
-                  (click)="goTo('/perfil')"
-                >
+                <button type="button" (click)="goTo('/perfil')">
                   Mi perfil
                 </button>
-
-                <button
-                  type="button"
-                  (click)="goTo('/pedidos')"
-                >
-                  Mis compras
-                </button>
-
-                <button
-                  type="button"
-                  (click)="logout()"
-                >
-                  Cerrar sesión
-                </button>
-              </div>
-            }
 
                 <button type="button" (click)="goTo('/pedidos')">
                   Mis compras
@@ -163,12 +144,12 @@
             <button
               type="button"
               class="suggestion-item"
-              (click)="irAProducto(producto)"
+              (mousedown)="irAProducto(producto)"
             >
               <img
                 [src]="producto.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/80x80'"
                 [alt]="producto.nombre"
-              >
+              />
 
               <div>
                 <p>{{ producto.nombre }}</p>
@@ -292,9 +273,6 @@
           <h3>Destacado</h3>
 
           <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }">Colección infantil</a>
-          <!--
-          <a routerLink="/productos" [queryParams]="{ oferta: true }">Promociones</a>
-          -->
         </div>
 
         <div class="mega-promo">
@@ -305,11 +283,5 @@
       </div>
     </div>
   </div>
-
-  <!--
-  <a routerLink="/productos" [queryParams]="{ oferta: true }" class="menu-link">
-    Ofertas
-  </a>
-  -->
 
 </div>

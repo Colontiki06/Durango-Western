@@ -107,7 +107,7 @@ export class Inicio implements OnInit, OnDestroy {
             descripcion: banner.descripcion ?? '',
             boton: banner.texto_boton ?? 'Ver colección',
             textoBoton: banner.texto_boton ?? 'Ver colección',
-            enlaceBoton: banner.enlace_boton ?? '/productos',
+            enlaceBoton: banner.enlace_boton ?? 'Todos los productos',
             imagen: banner.imagen_url ?? '/img/banner.png'
           }));
 
@@ -127,7 +127,7 @@ export class Inicio implements OnInit, OnDestroy {
               descripcion: 'Primavera Verano 2026',
               boton: 'Ver colección',
               textoBoton: 'Ver colección',
-              enlaceBoton: '/productos',
+              enlaceBoton: 'Todos los productos',
               imagen: '/img/banner.png'
             }
           ];
@@ -155,7 +155,7 @@ export class Inicio implements OnInit, OnDestroy {
             descripcion: 'Primavera Verano 2026',
             boton: 'Ver colección',
             textoBoton: 'Ver colección',
-            enlaceBoton: '/productos',
+            enlaceBoton: 'Todos los productos',
             imagen: '/img/banner.png'
           }
         ];
@@ -244,15 +244,12 @@ export class Inicio implements OnInit, OnDestroy {
       id: this.productoVista.id,
       producto_id: String(this.productoVista.id),
       variante_id: variante?.id ? String(variante.id) : null,
-
       nombre: this.productoVista.nombre,
       codigo: variante?.codigo ?? variante?.sku ?? this.productoVista.codigo ?? this.productoVista.sku ?? '',
       precio: Number(this.productoVista.precio),
       cantidad: 1,
-
       talla: variante?.tallas?.nombre ?? 'Única',
       stock: Number(variante?.stock ?? variante?.cantidad ?? this.productoVista.stock ?? 0),
-
       imagen: this.imagenProducto(this.productoVista)
     });
 
@@ -266,16 +263,73 @@ export class Inicio implements OnInit, OnDestroy {
       id: product.id,
       producto_id: String(product.id),
       variante_id: variante?.id ? String(variante.id) : null,
-
       nombre: product.nombre,
       codigo: variante?.codigo ?? variante?.sku ?? product.codigo ?? product.sku ?? '',
       precio: Number(product.precio),
       cantidad: 1,
-
       talla: variante?.tallas?.nombre ?? 'Única',
       stock: Number(variante?.stock ?? variante?.cantidad ?? product.stock ?? 0),
-
       imagen: this.imagenProducto(product)
     });
+  }
+
+  normalizarEnlaceBanner(enlace: string): string {
+    return (enlace || '')
+      .toString()
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  rutaBanner(enlace: string): any[] {
+    return ['/productos'];
+  }
+
+  queryBanner(enlace: string): any {
+    const valor = this.normalizarEnlaceBanner(enlace);
+
+    if (valor.includes('caballero') || valor.includes('hombre')) {
+      return { genero: 'caballero' };
+    }
+
+    if (valor.includes('dama') || valor.includes('mujer') || valor.includes('ella')) {
+      return { genero: 'dama' };
+    }
+
+    if (valor.includes('nino') || valor.includes('ninos')) {
+      return { genero: 'ninos' };
+    }
+
+    if (valor.includes('bota')) {
+      return { tipo: 'botas' };
+    }
+
+    if (valor.includes('sombrero')) {
+      return { tipo: 'sombreros' };
+    }
+
+    if (valor.includes('camisa')) {
+      return { tipo: 'camisas' };
+    }
+
+    if (valor.includes('pantalon') || valor.includes('pantalones')) {
+      return { tipo: 'pantalones' };
+    }
+
+    if (valor.includes('cinto')) {
+      return { tipo: 'cintos' };
+    }
+
+    if (
+      valor.includes('accesorio') ||
+      valor.includes('bolso') ||
+      valor.includes('mochila') ||
+      valor.includes('gorra')
+    ) {
+      return { tipo: 'accesorios' };
+    }
+
+    return {};
   }
 }
