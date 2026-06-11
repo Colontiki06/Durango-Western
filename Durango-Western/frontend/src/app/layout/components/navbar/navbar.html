@@ -146,7 +146,7 @@
             <button
               type="button"
               class="suggestion-item"
-              (click)="irAProducto(producto)"
+              (mousedown)="irAProducto(producto)"
             >
               <img
                 [src]="producto.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/80x80'"
