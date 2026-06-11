@@ -77,10 +77,15 @@
               Cintos
             </label>
 
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="tipo" [checked]="tipo === 'bolsos'" (change)="filtrar('tipo', 'bolsos')">
-              Bolsos
-            </label>
+           <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="tipo"
+              [checked]="tipo === 'accesorios'"
+              (change)="filtrar('tipo', 'accesorios')"
+            >
+            Accesorios
+          </label>
 
           </div>
 
@@ -262,55 +267,55 @@
 
             @for(product of products; track product.id) {
 
-  <a
-    [routerLink]="productoAgotado(product) ? null : ['/detalle-producto', product.slug]"
-    class="block bg-[#fff8ec] p-3 shadow-sm hover:shadow-lg transition relative"
-  >
+              <a
+                [routerLink]="productoAgotado(product) ? null : ['/detalle-producto', product.slug]"
+                class="block bg-[#fff8ec] p-3 shadow-sm hover:shadow-lg transition relative"
+              >
 
-    <div class="aspect-square bg-[#e7dccb] overflow-hidden mb-3">
+                <div class="aspect-square bg-[#e7dccb] overflow-hidden mb-3">
 
-      <img
-        [src]="imagenProducto(product)"
-        [alt]="product.nombre"
-        class="w-full h-full object-cover"
-        [class.opacity-60]="productoAgotado(product)"
-      />
+                  <img
+                    [src]="imagenProducto(product)"
+                    [alt]="product.nombre"
+                    class="w-full h-full object-cover"
+                    [class.opacity-60]="productoAgotado(product)"
+                  />
 
-    </div>
+                </div>
 
-    <h3 class="text-[#2f1b12] text-sm font-semibold mb-2 line-clamp-2">
-      {{ product.nombre }}
-    </h3>
+                <h3 class="text-[#2f1b12] text-sm font-semibold mb-2 line-clamp-2">
+                  {{ product.nombre }}
+                </h3>
 
-    <p class="text-xs text-[#7b5a45] mb-2 line-clamp-2">
-      {{ product.descripcion }}
-    </p>
+                <p class="text-xs text-[#7b5a45] mb-2 line-clamp-2">
+                  {{ product.descripcion }}
+                </p>
 
-    <p class="text-[#2f1b12] font-bold mb-3">
-      ${{ product.precio }} MXN
-    </p>
+                <p class="text-[#2f1b12] font-bold mb-3">
+                  ${{ product.precio }} MXN
+                </p>
 
-    @if(productoAgotado(product)) {
+                @if(productoAgotado(product)) {
 
-      <div
-        class="w-full bg-gray-400 text-white text-sm py-2 text-center cursor-not-allowed"
-      >
-        Producto agotado
-      </div>
+                  <div
+                    class="w-full bg-gray-400 text-white text-sm py-2 text-center cursor-not-allowed"
+                  >
+                    Producto agotado
+                  </div>
 
-    } @else {
+                } @else {
 
-      <div
-        class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2 text-center"
-      >
-        Ver producto
-      </div>
+                  <div
+                    class="w-full bg-[#6b3f26] hover:bg-[#4b2e1f] text-white text-sm py-2 text-center"
+                  >
+                    Ver producto
+                  </div>
 
-    }
+                }
 
-  </a>
+              </a>
 
-}
+            }
 
           </div>
         }

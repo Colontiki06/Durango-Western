@@ -41,7 +41,7 @@ export class Navbar implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private cartService: CartService,
-    private api: ApiService
+    private api: ApiService,
   ) {}
 
   ngOnInit(): void {
@@ -72,9 +72,7 @@ export class Navbar implements OnInit, OnDestroy {
   cargarConfiguracionTienda(): void {
     this.api.get<any>('configuraciones').subscribe({
       next: (config) => {
-        this.envioGratisMinimo.set(
-          Number(config?.envio_gratis_desde ?? 4000)
-        );
+        this.envioGratisMinimo.set(Number(config?.envio_gratis_desde ?? 4000));
       },
       error: (error) => {
         console.error('Error cargando configuración de tienda:', error);
@@ -122,7 +120,9 @@ export class Navbar implements OnInit, OnDestroy {
   buscarProductos(): void {
     const texto = this.terminoBusqueda.trim();
 
-    if (!texto) return;
+    if (!texto) {
+      return;
+    }
 
     this.searchOpen = false;
     this.sugerenciasBusqueda = [];
