@@ -1,14 +1,14 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Param,
-  Post,
-  UploadedFile,
   Patch,
-  Body,
-  Delete,
-  UseInterceptors,
+  Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -33,9 +33,29 @@ export class ProductosController {
     return this.productosService.findRelacionados(id);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.productosService.findOne(id);
+  }
+
+  @Post()
+  create(@Body() body: any) {
+    return this.productosService.create(body);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: any) {
     return this.productosService.update(id, body);
+  }
+
+  @Patch(':id/ocultar')
+  ocultar(@Param('id') id: string) {
+    return this.productosService.ocultar(id);
+  }
+
+  @Patch(':id/reactivar')
+  reactivar(@Param('id') id: string) {
+    return this.productosService.reactivar(id);
   }
 
   @Post(':id/variantes')
@@ -43,14 +63,18 @@ export class ProductosController {
     return this.productosService.createVariante(id, body);
   }
 
-  @Patch(':id/reactivar')
-reactivar(@Param('id') id: string) {
-  return this.productosService.reactivar(id);
-}
+  @Patch('variantes/:varianteId/stock')
+  updateStockVariante(
+    @Param('varianteId') varianteId: string,
+    @Body() body: any,
+  ) {
+    return this.productosService.updateStockVariante(varianteId, body.stock);
+  }
 
-  @Patch(':id/ocultar')
-  ocultar(@Param('id') id: string) {
-    return this.productosService.ocultar(id);
+  @Post(':id/imagen')
+  @UseInterceptors(FileInterceptor('imagen'))
+  uploadImage(@Param('id') id: string, @UploadedFile() file: any) {
+    return this.productosService.uploadImage(id, file);
   }
 
   @Patch('imagenes/:imagenId/principal')
@@ -65,27 +89,9 @@ reactivar(@Param('id') id: string) {
 
   @Patch('imagenes/:imagenId/orden')
   updateOrdenImagen(@Param('imagenId') imagenId: string, @Body() body: any) {
-    return this.productosService.updateOrdenImagen(imagenId, Number(body.orden));
-  }
-
-  @Post()
-  create(@Body() body: any) {
-    return this.productosService.create(body);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productosService.findOne(id);
-  }
-
-  @Post(':id/imagen')
-  @UseInterceptors(FileInterceptor('imagen'))
-  uploadImage(@Param('id') id: string, @UploadedFile() file: any) {
-    return this.productosService.uploadImage(id, file);
-  }
-
-  @Patch('variantes/:varianteId/stock')
-  updateStockVariante(@Param('varianteId') varianteId: string, @Body() body: any) {
-    return this.productosService.updateStockVariante(varianteId, body.stock);
+    return this.productosService.updateOrdenImagen(
+      imagenId,
+      Number(body.orden),
+    );
   }
 }

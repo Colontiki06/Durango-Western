@@ -1,10 +1,15 @@
-import { CommonModule, CurrencyPipe, DatePipe, isPlatformBrowser } from '@angular/common';
 import {
+  CommonModule,
+  CurrencyPipe,
+  DatePipe,
+  isPlatformBrowser,
+} from '@angular/common';
+import {
+  ChangeDetectorRef,
   Component,
   Inject,
   OnInit,
   PLATFORM_ID,
-  ChangeDetectorRef,
   inject,
 } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -81,10 +86,10 @@ interface PedidoUsuario {
   styleUrl: './pedidos.css',
 })
 export class Pedidos implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+
   pedidos: PedidoUsuario[] = [];
   pedidoSeleccionado: PedidoUsuario | null = null;
-
-  private cdr = inject(ChangeDetectorRef);
 
   modalDetalle = false;
   modalRastreo = false;
@@ -98,7 +103,7 @@ export class Pedidos implements OnInit {
     private http: HttpClient,
     private authService: AuthService,
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -129,6 +134,8 @@ export class Pedidos implements OnInit {
           redirect: '/pedidos',
         },
       });
+
+      this.cdr.detectChanges();
       return;
     }
 
@@ -156,6 +163,7 @@ export class Pedidos implements OnInit {
                 redirect: '/pedidos',
               },
             });
+
             this.cdr.detectChanges();
             return;
           }
@@ -209,7 +217,7 @@ export class Pedidos implements OnInit {
   obtenerTotalProductos(pedido: PedidoUsuario): number {
     return this.obtenerItems(pedido).reduce(
       (total, item) => total + Number(item.cantidad || 0),
-      0
+      0,
     );
   }
 
