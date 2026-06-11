@@ -1,3 +1,41 @@
+@if(mostrarConfirmacionMantenimiento) {
+  <div class="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-6">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-[#eadcc7]">
+
+      <h2 class="text-xl font-bold text-[#2f1b12] mb-3">
+        Activar modo mantenimiento
+      </h2>
+
+      <p class="text-[#8a542f] mb-4 leading-relaxed">
+        La tienda dejará de estar disponible para los clientes. Los visitantes verán una pantalla de mantenimiento, pero el panel administrativo seguirá funcionando.
+      </p>
+
+      <p class="text-sm font-semibold text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-6">
+        ¿Estás seguro de que deseas activar el modo mantenimiento?
+      </p>
+
+      <div class="flex flex-col sm:flex-row justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancelarModoMantenimiento()"
+          class="px-5 py-3 rounded-lg border border-[#4b2e1f] text-[#4b2e1f] font-semibold hover:bg-[#f5ede1] transition"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="confirmarModoMantenimiento()"
+          class="px-5 py-3 rounded-lg bg-[#8a542f] text-white font-semibold hover:bg-[#6b3f26] transition"
+        >
+          Activar mantenimiento
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
 <div class="p-4 sm:p-5 md:p-8">
 
   @if(loading) {
@@ -86,14 +124,32 @@
             <input type="checkbox" [(ngModel)]="config.mostrarAgotados" class="w-5 h-5 shrink-0">
           </label>
 
-          <label class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-[#f5ede1] rounded-xl p-4">
-            <span>
-              <strong class="block text-[#2f1b12]">Carrito persistente</strong>
-              <small class="text-[#8a542f]">Guarda el carrito aunque el cliente cierre la página.</small>
-            </span>
+       <div class="bg-[#f5ede1] rounded-xl p-4">
 
-            <input type="checkbox" [(ngModel)]="config.carritoPersistente" class="w-5 h-5 shrink-0">
-          </label>
+  <div class="flex items-center justify-between">
+    <div>
+      <strong class="block text-[#2f1b12]">
+        Carrito persistente
+      </strong>
+
+      <small class="text-[#8a542f]">
+        El carrito se conserva aunque el cliente cierre la página.
+      </small>
+    </div>
+
+    <span class="text-emerald-700 font-semibold">
+      Activo
+    </span>
+  </div>
+
+  <div class="mt-3 pt-3 border-t border-[#d8c5aa]">
+    <p class="text-xs text-[#8a542f]">
+      Esta funcionalidad está habilitada por el sistema para mejorar la experiencia de compra.
+      Próximamente podrá administrarse desde este panel.
+    </p>
+  </div>
+
+</div>
 
         </div>
       </section>
@@ -112,12 +168,13 @@
         </label>
 
         <select
-          [(ngModel)]="config.estadoTienda"
-          class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
-        >
-          <option>Activa</option>
-          <option>Modo mantenimiento</option>
-        </select>
+  [ngModel]="estadoSeleccionado"
+  (ngModelChange)="onCambioEstado($event)"
+  class="w-full h-12 border border-[#d8c5aa] rounded-lg px-4 outline-none focus:ring-2 focus:ring-[#8a542f]"
+>
+  <option value="Activa">Activa</option>
+  <option value="Modo mantenimiento">Modo mantenimiento</option>
+</select>
 
         @if(config.estadoTienda === 'Modo mantenimiento') {
           <div class="mt-5 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl p-4 text-sm font-semibold">
@@ -130,67 +187,118 @@
         }
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md p-5 md:p-8 border border-[#eadcc7]">
-        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-2">
-          Métodos de entrega
-        </h2>
+      <!-- Métodos de entrega -->
+<section class="bg-white rounded-2xl shadow-md p-5 md:p-8 border border-[#eadcc7]">
 
-        <p class="text-[#8a542f] text-sm mb-6">
-          Opciones disponibles para entregar pedidos.
+  <div class="mb-6">
+    <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12]">
+      Métodos de entrega
+    </h2>
+
+    <p class="text-[#8a542f] text-sm mt-1">
+      Opciones de entrega actualmente disponibles para los clientes.
+    </p>
+  </div>
+
+  <div class="space-y-3">
+
+    <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+      <div>
+        <h3 class="font-bold text-[#2f1b12]">
+          Entrega a domicilio
+        </h3>
+
+        <p class="text-sm text-[#8a542f] mt-1">
+          Permite cotizar envíos mediante paqueterías autorizadas.
         </p>
+      </div>
 
-        <div class="space-y-3">
-          <label class="flex items-center justify-between gap-4 bg-[#f5ede1] rounded-xl p-4">
-            <span>
-              <strong class="block text-[#2f1b12]">Entrega a domicilio</strong>
-              <small class="text-[#8a542f]">Permite cotizar envío y entregar por paquetería.</small>
-            </span>
+      <span class="text-emerald-700 font-semibold">
+        Activo
+      </span>
+    </div>
 
-            <input type="checkbox" checked disabled class="w-5 h-5 shrink-0">
-          </label>
+    <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+      <div>
+        <h3 class="font-bold text-[#2f1b12]">
+          Recolección en tienda
+        </h3>
 
-          <label class="flex items-center justify-between gap-4 bg-[#f5ede1] rounded-xl p-4">
-            <span>
-              <strong class="block text-[#2f1b12]">Recolección en tienda</strong>
-              <small class="text-[#8a542f]">Permite que el cliente recoja su pedido en sucursal.</small>
-            </span>
-
-            <input type="checkbox" checked disabled class="w-5 h-5 shrink-0">
-          </label>
-        </div>
-      </section>
-
-      <section class="bg-white rounded-2xl shadow-md p-5 md:p-8 border border-[#eadcc7]">
-        <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12] mb-2">
-          Paqueterías permitidas
-        </h2>
-
-        <p class="text-[#8a542f] text-sm mb-6">
-          Paqueterías autorizadas para cotizar y enviar pedidos.
+        <p class="text-sm text-[#8a542f] mt-1">
+          El cliente puede recoger su pedido en sucursal.
         </p>
+      </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
-            <span class="font-bold text-[#2f1b12]">DHL</span>
-            <input type="checkbox" checked disabled class="w-5 h-5">
-          </div>
+      <span class="text-emerald-700 font-semibold">
+        Activo
+      </span>
+    </div>
 
-          <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
-            <span class="font-bold text-[#2f1b12]">FedEx</span>
-            <input type="checkbox" checked disabled class="w-5 h-5">
-          </div>
+  </div>
 
-          <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
-            <span class="font-bold text-[#2f1b12]">Estafeta</span>
-            <input type="checkbox" checked disabled class="w-5 h-5">
-          </div>
+  <div class="mt-5 bg-blue-50 border border-blue-200 rounded-xl p-4">
 
-          <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
-            <span class="font-bold text-[#2f1b12]">Paquetexpress</span>
-            <input type="checkbox" checked disabled class="w-5 h-5">
-          </div>
-        </div>
-      </section>
+    <p class="text-sm text-blue-800 font-medium">
+      Los métodos de entrega están configurados por el sistema para garantizar una experiencia de compra consistente.
+    </p>
+
+    <p class="text-xs text-blue-700 mt-2">
+      Próximamente podrás activar o desactivar métodos de entrega desde este panel.
+    </p>
+
+  </div>
+
+</section>
+
+      <!-- Paqueterías permitidas -->
+<section class="bg-white rounded-2xl shadow-md p-5 md:p-8 border border-[#eadcc7]">
+
+  <div class="mb-6">
+    <h2 class="text-xl md:text-2xl font-bold text-[#2f1b12]">
+      Paqueterías permitidas
+    </h2>
+
+    <p class="text-[#8a542f] text-sm mt-1">
+      Paqueterías autorizadas actualmente para cotizaciones y envíos.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+    <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+      <span class="font-bold text-[#2f1b12]">DHL</span>
+      <span class="text-emerald-700 font-semibold">Activa</span>
+    </div>
+
+    <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+      <span class="font-bold text-[#2f1b12]">FedEx</span>
+      <span class="text-emerald-700 font-semibold">Activa</span>
+    </div>
+
+    <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+      <span class="font-bold text-[#2f1b12]">Estafeta</span>
+      <span class="text-emerald-700 font-semibold">Activa</span>
+    </div>
+
+    <div class="bg-[#f5ede1] rounded-xl p-4 flex items-center justify-between">
+      <span class="font-bold text-[#2f1b12]">Paquetexpress</span>
+      <span class="text-emerald-700 font-semibold">Activa</span>
+    </div>
+
+  </div>
+
+  <div class="mt-5 bg-blue-50 border border-blue-200 rounded-xl p-4">
+    <p class="text-sm text-blue-800 font-medium">
+      Actualmente las paqueterías son administradas por el sistema para garantizar
+      cotizaciones consistentes y envíos confiables.
+    </p>
+
+    <p class="text-xs text-blue-700 mt-2">
+      Próximamente podrás activar o desactivar paqueterías desde este panel.
+    </p>
+  </div>
+
+</section>
 
     </div>
 

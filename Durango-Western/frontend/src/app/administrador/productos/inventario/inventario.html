@@ -260,16 +260,21 @@
               </td>
 
               <td class="p-4">
-                <span
-                  class="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
-                  [class.bg-emerald-100]="producto.stock > 0"
-                  [class.text-emerald-700]="producto.stock > 0"
-                  [class.bg-red-100]="producto.stock === 0"
-                  [class.text-red-700]="producto.stock === 0"
-                >
-                  {{ producto.stock > 0 ? producto.estado : 'Sin stock' }}
-                </span>
-              </td>
+  <span
+    class="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
+
+    [class.bg-emerald-100]="producto.estado === 'Activo'"
+    [class.text-emerald-700]="producto.estado === 'Activo'"
+
+    [class.bg-yellow-100]="producto.estado === 'Oculto'"
+    [class.text-yellow-800]="producto.estado === 'Oculto'"
+
+    [class.bg-red-100]="producto.stock === 0"
+    [class.text-red-700]="producto.stock === 0"
+  >
+    {{ producto.stock === 0 ? 'Sin stock' : producto.estado }}
+  </span>
+</td>
 
               <td class="p-4">
                 <div class="flex justify-end gap-2">
@@ -281,9 +286,27 @@
                     Editar
                   </a>
 
-                  <button class="px-3 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-600 hover:text-white transition whitespace-nowrap">
-                    Eliminar
-                  </button>
+                  @if(producto.estado === 'Activo') {
+
+  <button
+    type="button"
+    (click)="ocultarProducto(producto)"
+    class="px-3 py-2 rounded-lg bg-yellow-100 text-yellow-800 hover:bg-yellow-500 hover:text-white transition whitespace-nowrap"
+  >
+    Ocultar
+  </button>
+
+} @else {
+
+  <button
+    type="button"
+    (click)="reactivarProducto(producto)"
+    class="px-3 py-2 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white transition whitespace-nowrap"
+  >
+    Reactivar
+  </button>
+
+}
 
                 </div>
               </td>

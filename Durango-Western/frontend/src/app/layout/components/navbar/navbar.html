@@ -1,6 +1,6 @@
 <div class="top-bar">
   Envíos gratis en compras mínimas de
-{{ envioGratisMinimo() | currency:'MXN':'symbol':'1.0-0' }}
+  {{ envioGratisMinimo() | currency:'MXN':'symbol':'1.0-0' }}
 </div>
 
 <nav class="navbar">
@@ -12,12 +12,24 @@
 
     <div class="navbar-icons">
 
-      <button type="button" class="icon-button" aria-label="Buscar" (click)="toggleSearch()">
+      <!-- BUSCADOR -->
+      <button
+        type="button"
+        class="icon-button"
+        aria-label="Buscar"
+        (click)="toggleSearch()"
+      >
         <img src="/icons/lupa.svg" alt="Buscar" />
       </button>
 
+      <!-- USUARIO -->
       <div class="user-menu-wrapper">
-        <button type="button" class="icon-button" aria-label="Área de usuario" (click)="toggleUserMenu()">
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Área de usuario"
+          (click)="toggleUserMenu()"
+        >
           <img src="/icons/usuario.svg" alt="Usuario" />
         </button>
 
@@ -34,14 +46,23 @@
                   Administra tu perfil, pedidos y direcciones.
                 </p>
 
-                <button type="button" (click)="goTo('/perfil')">Mi perfil</button>
-                <button type="button" (click)="goTo('/pedidos')">Mis compras</button>
-                <button type="button" (click)="goTo('/metodos-pago')">Métodos de pago</button>
-                <button type="button" (click)="logout()">Cerrar sesión</button>
-              </div>
-            }
+                <button type="button" (click)="goTo('/perfil')">
+                  Mi perfil
+                </button>
 
-            @else {
+                <button type="button" (click)="goTo('/pedidos')">
+                  Mis compras
+                </button>
+
+                <button type="button" (click)="goTo('/metodos-pago')">
+                  Métodos de pago
+                </button>
+
+                <button type="button" (click)="logout()">
+                  Cerrar sesión
+                </button>
+              </div>
+            } @else {
               <div class="px-3 py-3 text-left">
                 <p class="text-[#2f1b12] font-bold mb-1">
                   ¿Ya tienes cuenta?
@@ -65,7 +86,13 @@
         }
       </div>
 
-      <button type="button" class="icon-button cart-button" routerLink="/carrito" aria-label="Carrito">
+      <!-- CARRITO -->
+      <button
+        type="button"
+        class="icon-button cart-button"
+        routerLink="/carrito"
+        aria-label="Carrito"
+      >
         <img src="/icons/bolso.svg" alt="Carrito" />
 
         <span *ngIf="cartCount > 0" class="cart-badge">
@@ -81,15 +108,77 @@
 @if(searchOpen) {
   <div class="search-dropdown">
     <div class="search-container">
+
       <input
         type="text"
+        name="busqueda-navbar"
+        autocomplete="off"
+        [(ngModel)]="terminoBusqueda"
+        (ngModelChange)="buscarSugerencias($event)"
+        (keyup.enter)="buscarProductos()"
         placeholder="Buscar botas, sombreros, camisas..."
         class="search-input"
       >
 
-      <button type="button" class="search-btn">
+      <button
+        type="button"
+        class="search-btn"
+        (click)="buscarProductos()"
+      >
         Buscar
       </button>
+
+      @if(
+        sugerenciasBusqueda.length > 0 ||
+        buscandoSugerencias ||
+        busquedaSinResultados ||
+        terminoBusqueda.trim().length >= 2
+      ) {
+        <div class="suggestions-box">
+
+          @if(buscandoSugerencias) {
+            <div class="suggestion-message">
+              Buscando productos...
+            </div>
+          }
+
+          @for(producto of sugerenciasBusqueda; track producto.id) {
+            <button
+              type="button"
+              class="suggestion-item"
+              (click)="irAProducto(producto)"
+            >
+              <img
+                [src]="producto.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/80x80'"
+                [alt]="producto.nombre"
+              >
+
+              <div>
+                <p>{{ producto.nombre }}</p>
+                <small>
+                  {{ producto.precio | currency:'MXN':'symbol':'1.0-0' }}
+                </small>
+              </div>
+            </button>
+          }
+
+          @if(busquedaSinResultados && !buscandoSugerencias) {
+            <div class="suggestion-message">
+              No encontramos productos para "{{ terminoBusqueda }}".
+            </div>
+          }
+
+          <button
+            type="button"
+            class="suggestion-see-all"
+            (click)="buscarProductos()"
+          >
+            Ver todos los resultados para "{{ terminoBusqueda }}"
+          </button>
+
+        </div>
+      }
+
     </div>
   </div>
 }
@@ -186,7 +275,9 @@
           <h3>Destacado</h3>
 
           <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }">Colección infantil</a>
+          <!--
           <a routerLink="/productos" [queryParams]="{ oferta: true }">Promociones</a>
+          -->
         </div>
 
         <div class="mega-promo">
@@ -198,8 +289,10 @@
     </div>
   </div>
 
+  <!--
   <a routerLink="/productos" [queryParams]="{ oferta: true }" class="menu-link">
     Ofertas
   </a>
+  -->
 
 </div>
