@@ -1,655 +1,692 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+
 import { PrismaService } from '../prisma/prisma.service';
-import { StorageService } from '../storage/storage.service';
+import { CorreosService } from '../correos/correos.service';
 
 @Injectable()
-export class ProductosService {
+export class PedidosService {
+  private readonly logger = new Logger(PedidosService.name);
+
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storageService: StorageService,
+    private readonly correosService: CorreosService,
   ) {}
 
-  private generarSlug(texto: string): string {
-    return texto
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
+  private generarFolio(numero: number): string {
+    return `DW-${String(numero).padStart(6, '0')}`;
   }
 
-  private detectarTipoProducto(nombre: string): string {
-    const texto = nombre.toLowerCase();
-
-    if (texto.includes('bota')) return 'BOTA';
-    if (texto.includes('sombrero') || texto.includes('tejana')) return 'SOMB';
-    if (texto.includes('camisa')) return 'CAM';
-    if (
-      texto.includes('pantalon') ||
-      texto.includes('pantalón') ||
-      texto.includes('tejano')
-    )
-      return 'PANT';
-    if (
-      texto.includes('cinto') ||
-      texto.includes('cinturon') ||
-      texto.includes('cinturón')
-    )
-      return 'CINTO';
-    if (texto.includes('bolso') || texto.includes('mochila')) return 'BOLSO';
-
-    return 'PROD';
-  }
-
-  private detectarSlugTipoProducto(nombre: string): string | null {
-    const texto = nombre.toLowerCase();
-
-    if (texto.includes('bota')) return 'botas';
-    if (texto.includes('sombrero') || texto.includes('tejana')) return 'sombreros';
-    if (texto.includes('camisa')) return 'camisas';
-    if (
-      texto.includes('pantalon') ||
-      texto.includes('pantalón') ||
-      texto.includes('tejano')
-    )
-      return 'pantalones';
-    if (
-      texto.includes('cinto') ||
-      texto.includes('cinturon') ||
-      texto.includes('cinturón')
-    )
-      return 'cintos';
-    if (texto.includes('bolso') || texto.includes('mochila')) return 'bolsos';
-
-    return null;
-  }
-
-  private async obtenerTipoProductoId(nombre: string): Promise<string | null> {
-    const slug = this.detectarSlugTipoProducto(nombre);
-
-    if (!slug) return null;
-
-    const tipoProducto = await this.prisma.tipos_producto.findUnique({
-      where: { slug },
-    });
-
-    return tipoProducto?.id ?? null;
-  }
-
-  private prefijoCategoria(slug: string): string {
-    if (slug === 'caballero') return 'CAB';
-    if (slug === 'dama') return 'DAM';
-    if (slug === 'ninos' || slug === 'niños') return 'NIN';
-
-    return 'GEN';
-  }
-
-  async generarCodigoProducto(
-    nombre: string,
-    categoriaId: string,
-  ): Promise<string> {
-    const categoria = await this.prisma.categorias.findUnique({
-      where: { id: categoriaId },
-    });
-
-    const prefijo = this.prefijoCategoria(categoria?.slug ?? '');
-    const tipo = this.detectarTipoProducto(nombre);
-
-    const total = await this.prisma.productos.count();
-    const consecutivo = String(total + 1).padStart(4, '0');
-
-    return `DW-${prefijo}-${tipo}-${consecutivo}`;
-  }
-
-  async findAll(filtros: any = {}) {
-    const esAdmin = filtros?.admin === true || filtros?.admin === 'true';
-
-    const where: any = {};
-
-    if (!esAdmin) {
-      where.activo = true;
-    }
-
-    const config = await (this.prisma as any).configuracion_tienda.findFirst();
-
-    const mostrarAgotados = config?.mostrar_productos_agotados ?? false;
-
-    const esCatalogoPublico =
-      filtros.publico === true || filtros.publico === 'true';
-
-    if (esCatalogoPublico && !mostrarAgotados) {
-      where.producto_variantes = {
-        some: {
-          activo: true,
-          stock: {
-            gt: 0,
-          },
-        },
-      };
-    }
-
-    if (filtros.genero) {
-      where.categorias = {
-        is: {
-          slug: filtros.genero,
-        },
-      };
-    }
-
-    if (filtros.tipo) {
-      where.tipos_producto = {
-        is: {
-          slug: filtros.tipo,
-        },
-      };
-    }
-
-    if (filtros.categoria && filtros.categoria !== 'todos') {
-      const tiposProducto = [
-        'botas',
-        'sombreros',
-        'camisas',
-        'pantalones',
-        'cintos',
-        'bolsos',
-      ];
-
-      const categorias = [
-        'caballero',
-        'dama',
-        'ninos',
-        'niños',
-        'accesorios',
-      ];
-
-      if (tiposProducto.includes(filtros.categoria)) {
-        where.tipos_producto = {
-          is: {
-            slug: filtros.categoria,
-          },
-        };
-      }
-
-      if (categorias.includes(filtros.categoria)) {
-        where.categorias = {
-          is: {
-            slug: filtros.categoria,
-          },
-        };
-      }
-    }
-
-    if (filtros.talla) {
-      where.producto_variantes = {
-        some: {
-          activo: true,
-          stock: {
-            gt: 0,
-          },
-          tallas: {
-            is: {
-              nombre: filtros.talla,
-            },
-          },
-        },
-      };
-    }
-
-    if (filtros.precioMin !== undefined && filtros.precioMin !== '') {
-      where.precio = {
-        ...where.precio,
-        gte: String(filtros.precioMin),
-      };
-    }
-
-    if (filtros.precioMax !== undefined && filtros.precioMax !== '') {
-      where.precio = {
-        ...where.precio,
-        lte: String(filtros.precioMax),
-      };
-    }
-
-    if (filtros.destacado) {
-      where.destacado = true;
-    }
-
-    if (filtros.buscar) {
-      const palabras = String(filtros.buscar)
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
-
-      where.AND = [
-        ...(where.AND ?? []),
-        ...palabras.map((palabra) => ({
-          OR: [
-            {
-              nombre: {
-                contains: palabra,
-                mode: 'insensitive',
-              },
-            },
-            {
-              descripcion: {
-                contains: palabra,
-                mode: 'insensitive',
-              },
-            },
-            {
-              codigo: {
-                contains: palabra,
-                mode: 'insensitive',
-              },
-            },
-            {
-              categorias: {
-                is: {
-                  nombre: {
-                    contains: palabra,
-                    mode: 'insensitive',
-                  },
-                },
-              },
-            },
-            {
-              tipos_producto: {
-                is: {
-                  nombre: {
-                    contains: palabra,
-                    mode: 'insensitive',
-                  },
-                },
-              },
-            },
-          ],
-        })),
-      ];
-    }
-
-    const productos = await this.prisma.productos.findMany({
-      where,
-      include: {
-        producto_imagenes: {
-          orderBy: { orden: 'asc' },
-        },
-        categorias: true,
-        tipos_producto: true,
-        producto_variantes: {
-          where: {
-            activo: true,
-          },
-          include: {
-            tallas: true,
-            colores: true,
-          },
+  private async generarSiguienteFolio(): Promise<string> {
+    const pedidos = await this.prisma.pedidos.findMany({
+      where: {
+        folio: {
+          startsWith: 'DW-',
         },
       },
-      orderBy: {
-        created_at: 'desc',
+      select: {
+        folio: true,
       },
     });
 
-    const productosConVendidos = await Promise.all(
-      productos.map(async (producto) => {
-        const variantesIds = producto.producto_variantes.map(
-          (variante) => variante.id,
+    const numeros = pedidos.map((pedido) => {
+      const numero = Number(String(pedido.folio).replace('DW-', ''));
+      return Number.isFinite(numero) ? numero : 0;
+    });
+
+    const maximo = numeros.length > 0 ? Math.max(...numeros) : 0;
+
+    let siguiente = maximo + 1;
+    let folio = this.generarFolio(siguiente);
+
+    while (
+      await this.prisma.pedidos.findUnique({
+        where: { folio },
+      })
+    ) {
+      siguiente++;
+      folio = this.generarFolio(siguiente);
+    }
+
+    return folio;
+  }
+
+  private extraerCorreoDesdeNotas(notas?: string | null): string | null {
+    const texto = String(notas ?? '');
+
+    const match = texto.match(/Correo:\s*([^\s,]+)/i);
+
+    if (!match?.[1]) {
+      return null;
+    }
+
+    const correo = match[1].trim().toLowerCase();
+    const esCorreoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+
+    return esCorreoValido ? correo : null;
+  }
+
+  private extraerNombreDesdeNotas(notas?: string | null): string {
+    const texto = String(notas ?? '');
+
+    const match = texto.match(/Cliente:\s*([^,]+)/i);
+
+    if (!match?.[1]) {
+      return 'Cliente';
+    }
+
+    return match[1].trim() || 'Cliente';
+  }
+
+  private async obtenerDatosClienteParaCorreo(pedido: any): Promise<{
+    nombre: string;
+    correo: string | null;
+  }> {
+    const nombreDesdeNotas = this.extraerNombreDesdeNotas(pedido.notas);
+    const correoDesdeNotas = this.extraerCorreoDesdeNotas(pedido.notas);
+
+    if (!pedido.usuario_id) {
+      return {
+        nombre: nombreDesdeNotas,
+        correo: correoDesdeNotas,
+      };
+    }
+
+    try {
+      const usuario = await (this.prisma as any).usuarios.findUnique({
+        where: {
+          id: pedido.usuario_id,
+        },
+      });
+
+      return {
+        nombre: usuario?.nombre || nombreDesdeNotas,
+        correo: usuario?.correo || usuario?.email || correoDesdeNotas,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `No se pudo obtener el usuario del pedido ${pedido.folio}. Se usará el correo guardado en notas.`,
+      );
+
+      return {
+        nombre: nombreDesdeNotas,
+        correo: correoDesdeNotas,
+      };
+    }
+  }
+
+  private async enviarConfirmacionPedidoCreado(data: {
+    nombre: string;
+    correo: string | null;
+    folio: string;
+    total: number;
+  }) {
+    if (!data.correo) {
+      this.logger.warn(
+        `No se envió correo de pedido creado porque el pedido ${data.folio} no tiene correo de cliente.`,
+      );
+      return;
+    }
+
+    try {
+      const resultado = await this.correosService.enviarCorreoPedidoCreado({
+        nombre: data.nombre,
+        correo: data.correo,
+        pedidoId: data.folio,
+        total: data.total,
+      });
+
+      if (!resultado?.enviado) {
+        this.logger.warn(
+          `No se pudo enviar correo de pedido creado para ${data.folio}: ${JSON.stringify(
+            resultado,
+          )}`,
         );
-
-        if (variantesIds.length === 0) {
-          return {
-            ...producto,
-            vendidos: 0,
-          };
-        }
-
-        const totalVendido = await this.prisma.pedido_items.aggregate({
-          where: {
-            variante_id: {
-              in: variantesIds,
-            },
-          },
-          _sum: {
-            cantidad: true,
-          },
-        });
-
-        return {
-          ...producto,
-          vendidos: Number(totalVendido._sum.cantidad ?? 0),
-        };
-      }),
-    );
-
-    return productosConVendidos;
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error enviando correo de pedido creado para ${data.folio}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 
-  async findBySlug(slug: string) {
-    return this.prisma.productos.findUnique({
-      where: { slug },
-      include: {
-        producto_imagenes: {
-          orderBy: { orden: 'asc' },
-        },
-        categorias: true,
-        tipos_producto: true,
-        producto_variantes: {
-          include: {
-            tallas: true,
-            colores: true,
-          },
-        },
-      },
-    });
+  private async enviarCorreoPedidoEnviadoSiAplica(data: {
+    pedido: any;
+    envio: any;
+    estadoAnterior: string;
+    estadoNuevo: string;
+  }) {
+    if (data.estadoAnterior === 'enviado' || data.estadoNuevo !== 'enviado') {
+      return;
+    }
+
+    const numeroGuia = data.envio?.numero_guia;
+    const paqueteria = data.envio?.paqueterias?.nombre;
+
+    if (!numeroGuia || !paqueteria) {
+      this.logger.warn(
+        `No se envió correo de envío para ${data.pedido.folio} porque falta guía o paquetería.`,
+      );
+      return;
+    }
+
+    const cliente = await this.obtenerDatosClienteParaCorreo(data.pedido);
+
+    if (!cliente.correo) {
+      this.logger.warn(
+        `No se envió correo de envío para ${data.pedido.folio} porque no se encontró correo del cliente.`,
+      );
+      return;
+    }
+
+    try {
+      const resultado = await this.correosService.enviarCorreoPedidoEnviado({
+        nombre: cliente.nombre,
+        correo: cliente.correo,
+        pedidoId: data.pedido.folio,
+        paqueteria,
+        numeroGuia,
+      });
+
+      if (!resultado?.enviado) {
+        this.logger.warn(
+          `No se pudo enviar correo de pedido enviado para ${data.pedido.folio}: ${JSON.stringify(
+            resultado,
+          )}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error enviando correo de pedido enviado para ${data.pedido.folio}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 
-  async findOne(id: string) {
-    return this.prisma.productos.findUnique({
-      where: { id },
-      include: {
-        producto_imagenes: {
-          orderBy: { orden: 'asc' },
+  async create(data: any, usuarioId?: string | null) {
+    console.log('===== PEDIDO RECIBIDO =====');
+    console.log(JSON.stringify(data, null, 2));
+
+    if (!data.items || !Array.isArray(data.items) || data.items.length === 0) {
+      throw new BadRequestException('El carrito está vacío');
+    }
+
+    for (const item of data.items) {
+      const cantidad = Number(item.cantidad);
+
+      if (!item.producto_id) {
+        throw new BadRequestException('Producto inválido');
+      }
+
+      if (!item.variante_id) {
+        throw new BadRequestException(
+          `Selecciona una variante para ${item.nombre}`,
+        );
+      }
+
+      if (!cantidad || cantidad <= 0) {
+        throw new BadRequestException(`Cantidad inválida para ${item.nombre}`);
+      }
+
+      const variante = await this.prisma.producto_variantes.findUnique({
+        where: {
+          id: item.variante_id,
         },
-        categorias: true,
-        tipos_producto: true,
-        producto_variantes: {
-          include: {
-            tallas: true,
-            colores: true,
-          },
+        include: {
+          productos: true,
+          tallas: true,
         },
-      },
-    });
-  }
+      });
 
-  async create(data: any) {
-    const slugBase = this.generarSlug(data.nombre);
+      if (!variante) {
+        throw new BadRequestException(
+          `La variante seleccionada para ${item.nombre} ya no existe`,
+        );
+      }
 
-    const codigoGenerado = await this.generarCodigoProducto(
-      data.nombre,
-      data.categoria_id,
-    );
+      if (!variante.activo) {
+        throw new BadRequestException(`${item.nombre} ya no está disponible`);
+      }
 
-    const tipoProductoId = await this.obtenerTipoProductoId(data.nombre);
+      if (!variante.productos || !variante.productos.activo) {
+        throw new BadRequestException(`${item.nombre} ya no está disponible`);
+      }
 
-    const producto = await this.prisma.productos.create({
-      data: {
-        categoria_id: data.categoria_id,
-        tipo_producto_id: tipoProductoId,
-        nombre: data.nombre,
-        slug: `${slugBase}-${Date.now()}`,
-        codigo: codigoGenerado,
-        descripcion: data.descripcion,
-        precio: String(data.precio),
-        costo: String(data.costo ?? 0),
-        activo: data.estado === 'Activo',
-        destacado: false,
-      },
-    });
+      if (variante.producto_id !== item.producto_id) {
+        throw new BadRequestException(
+          `La variante no corresponde al producto ${item.nombre}`,
+        );
+      }
 
-    if (Array.isArray(data.variantes)) {
-      for (const variante of data.variantes) {
-        const talla = await this.prisma.tallas.findUnique({
-          where: { id: variante.talla_id },
-        });
+      const stockDisponible = variante.stock ?? 0;
 
-        if (talla) {
-          await this.prisma.producto_variantes.create({
-            data: {
-              producto_id: producto.id,
-              talla_id: variante.talla_id,
-              color_id: variante.color_id ?? null,
-              sku: `${codigoGenerado}-${talla.nombre}`,
-              stock: Number(variante.stock ?? 0),
-              precio_extra: String(variante.precio_extra ?? 0),
-              activo: true,
-              peso_kg: String(variante.peso_kg ?? 1),
-              largo_cm: String(variante.largo_cm ?? 30),
-              ancho_cm: String(variante.ancho_cm ?? 20),
-              alto_cm: String(variante.alto_cm ?? 10),
-            },
-          });
-        }
+      if (stockDisponible < cantidad) {
+        throw new BadRequestException(
+          `Stock insuficiente para ${item.nombre}. Disponible: ${stockDisponible}`,
+        );
       }
     }
 
-    return this.findOne(producto.id);
+    const subtotal = data.items.reduce(
+      (total: number, item: any) =>
+        total + Number(item.precio) * Number(item.cantidad),
+      0,
+    );
+
+    let direccionCreada: any = null;
+
+    if (data.tipoEntrega === 'domicilio' && data.direccion) {
+      direccionCreada = await this.prisma.direcciones.create({
+        data: {
+          nombre_recibe: data.cliente?.nombre ?? 'Cliente invitado',
+          telefono: data.cliente?.telefono ?? null,
+          calle: data.direccion.calle,
+          numero: data.direccion.numeroExterior,
+          colonia: data.direccion.colonia,
+          ciudad: data.direccion.ciudad,
+          estado: data.direccion.estado,
+          codigo_postal: data.direccion.codigoPostal,
+          referencias: data.direccion.referencias ?? null,
+        },
+      });
+    }
+
+    const envioCalculado = Number(data.envio ?? 0);
+    const totalCalculado = subtotal + envioCalculado;
+    const tarifaEnvio = data.tarifaEnvio ?? null;
+
+    const envioGratis = envioCalculado === 0;
+
+    if (data.tipoEntrega === 'domicilio' && !envioGratis && !tarifaEnvio) {
+      throw new BadRequestException(
+        'Debes seleccionar una paquetería antes de finalizar la compra',
+      );
+    }
+
+    let pedido: any = null;
+
+    for (let intento = 1; intento <= 5; intento++) {
+      const folioIntento = await this.generarSiguienteFolio();
+
+      try {
+        pedido = await this.prisma.pedidos.create({
+          data: {
+            folio: folioIntento,
+            usuario_id: usuarioId ?? null,
+            subtotal,
+            envio: envioCalculado,
+            total: totalCalculado,
+            estado: 'pendiente',
+            metodo_pago: 'mercado_pago',
+            tipo_entrega: data.tipoEntrega ?? 'domicilio',
+            direccion_id: direccionCreada?.id ?? null,
+            notas:
+              data.tipoEntrega === 'tienda'
+                ? `Recolección en tienda. Cliente: ${data.cliente?.nombre ?? ''}, Tel: ${data.cliente?.telefono ?? ''}, Correo: ${data.cliente?.correo ?? ''}`
+                : `Cliente: ${data.cliente?.nombre ?? ''}, Tel: ${data.cliente?.telefono ?? ''}, Correo: ${data.cliente?.correo ?? ''}`,
+          },
+        });
+
+        break;
+      } catch (error: any) {
+        if (error?.code === 'P2002' && intento < 5) {
+          continue;
+        }
+
+        throw error;
+      }
+    }
+
+    if (!pedido) {
+      throw new BadRequestException('No se pudo generar el pedido');
+    }
+
+    if (data.tipoEntrega === 'domicilio') {
+      let paqueteriaId: string | null = null;
+
+      if (tarifaEnvio?.paqueteria) {
+        const paqueteria = await this.prisma.paqueterias.findFirst({
+          where: {
+            nombre: {
+              equals: String(tarifaEnvio.paqueteria).trim(),
+              mode: 'insensitive',
+            },
+            activa: true,
+          },
+        });
+
+        if (paqueteria) {
+          paqueteriaId = paqueteria.id;
+        }
+      }
+
+      await this.prisma.envios.create({
+        data: {
+          pedido_id: pedido.id,
+          paqueteria_id: paqueteriaId,
+          estado: 'pendiente',
+          servicio: tarifaEnvio?.servicio ?? null,
+          costo: Number(envioCalculado),
+          dias_estimados: tarifaEnvio?.dias ?? null,
+          skydropx_rate_id: tarifaEnvio?.id ?? null,
+          skydropx_quotation_id: data.skydropxQuotationId ?? null,
+        },
+      });
+    }
+
+    for (const item of data.items) {
+      const cantidad = Number(item.cantidad);
+      const precio = Number(item.precio);
+
+      await this.prisma.pedido_items.create({
+        data: {
+          pedido_id: pedido.id,
+          producto_id: item.producto_id,
+          variante_id: item.variante_id,
+          nombre_producto: item.nombre,
+          sku: item.codigo ?? null,
+          talla: item.talla ?? null,
+          cantidad,
+          precio_unitario: precio,
+          subtotal: precio * cantidad,
+        },
+      });
+    }
+
+    await this.enviarConfirmacionPedidoCreado({
+      nombre: data.cliente?.nombre ?? 'Cliente',
+      correo: data.cliente?.correo ?? null,
+      folio: pedido.folio,
+      total: totalCalculado,
+    });
+
+    return await this.findOne(pedido.id);
   }
 
-  async update(id: string, data: any) {
-    const tipoProductoId = await this.obtenerTipoProductoId(data.nombre);
+  async actualizarGuia(
+    id: string,
+    data: {
+      numero_guia?: string;
+      paqueteria_id?: string;
+      paqueteria_nombre?: string;
+      servicio?: string;
+    },
+  ) {
+    const numeroGuia = String(data.numero_guia ?? '').trim();
 
-    await this.prisma.productos.update({
+    if (!numeroGuia) {
+      throw new BadRequestException('El número de guía es obligatorio');
+    }
+
+    const pedido = await this.prisma.pedidos.findUnique({
       where: { id },
-      data: {
-        nombre: data.nombre,
-        codigo: data.codigo,
-        descripcion: data.descripcion,
-        precio: String(data.precio),
-        costo: String(data.costo ?? 0),
-        categoria_id: data.categoria_id,
-        tipo_producto_id: tipoProductoId,
-        activo: data.estado === 'Activo',
-        updated_at: new Date(),
+      include: {
+        envios: true,
       },
     });
 
-    if (Array.isArray(data.variantes)) {
-      for (const variante of data.variantes) {
-        await this.prisma.producto_variantes.update({
-          where: { id: variante.id },
-          data: {
-            stock: Number(variante.stock),
-            peso_kg: String(variante.peso_kg ?? 1),
-            largo_cm: String(variante.largo_cm ?? 30),
-            ancho_cm: String(variante.ancho_cm ?? 20),
-            alto_cm: String(variante.alto_cm ?? 10),
+    if (!pedido) {
+      throw new BadRequestException('Pedido no encontrado');
+    }
+
+    let paqueteriaId = data.paqueteria_id ?? null;
+
+    if (!paqueteriaId && data.paqueteria_nombre) {
+      const paqueteria = await this.prisma.paqueterias.findFirst({
+        where: {
+          nombre: {
+            equals: String(data.paqueteria_nombre).trim(),
+            mode: 'insensitive',
           },
-        });
+          activa: true,
+        },
+      });
+
+      if (!paqueteria) {
+        throw new BadRequestException('La paquetería seleccionada no existe');
       }
+
+      paqueteriaId = paqueteria.id;
+    }
+
+    if (!paqueteriaId) {
+      throw new BadRequestException('Debes seleccionar una paquetería');
+    }
+
+    const envioActual = pedido.envios?.[0];
+
+    if (envioActual) {
+      await this.prisma.envios.update({
+        where: {
+          id: envioActual.id,
+        },
+        data: {
+          numero_guia: numeroGuia,
+          paqueteria_id: paqueteriaId,
+          servicio: data.servicio ?? envioActual.servicio,
+          updated_at: new Date(),
+        },
+      });
+    } else {
+      await this.prisma.envios.create({
+        data: {
+          pedido_id: pedido.id,
+          paqueteria_id: paqueteriaId,
+          numero_guia: numeroGuia,
+          estado: 'pendiente',
+          servicio: data.servicio ?? null,
+          costo: Number(pedido.envio ?? 0),
+        },
+      });
     }
 
     return this.findOne(id);
   }
 
-  async uploadImage(id: string, file: any) {
-    const uploaded = await this.storageService.uploadProductImage(file);
-
-    const totalImagenes = await this.prisma.producto_imagenes.count({
-      where: {
-        producto_id: id,
-      },
-    });
-
-    const image = await this.prisma.producto_imagenes.create({
-      data: {
-        producto_id: id,
-        imagen_url: uploaded.url,
-        principal: totalImagenes === 0,
-        orden: totalImagenes + 1,
-      },
-    });
-
-    return {
-      message: 'Imagen subida correctamente',
-      image,
-    };
-  }
-
-  async findRelacionados(id: string) {
-    const producto = await this.prisma.productos.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        categoria_id: true,
-        tipo_producto_id: true,
-      },
-    });
-
-    if (!producto || !producto.categoria_id) {
-      return [];
+  async findMisPedidos(usuarioId: string) {
+    if (!usuarioId) {
+      throw new BadRequestException('Usuario no válido');
     }
 
-    return this.prisma.productos.findMany({
+    return this.prisma.pedidos.findMany({
       where: {
-        categoria_id: producto.categoria_id,
-        id: {
-          not: producto.id,
-        },
-        activo: true,
+        usuario_id: usuarioId,
       },
       include: {
-        producto_imagenes: {
-          orderBy: { orden: 'asc' },
+        pedido_items: true,
+        direcciones: true,
+        pagos: true,
+        envios: {
+          include: {
+            paqueterias: true,
+          },
         },
-        categorias: true,
-        tipos_producto: true,
       },
-      take: 4,
       orderBy: {
         created_at: 'desc',
       },
     });
   }
 
-  async createVariante(productoId: string, data: any) {
-    const producto = await this.prisma.productos.findUnique({
-      where: { id: productoId },
-      select: {
-        codigo: true,
+  async findAll() {
+    return this.prisma.pedidos.findMany({
+      include: {
+        pedido_items: true,
+        direcciones: true,
+        pagos: true,
+        envios: {
+          include: {
+            paqueterias: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: 'desc',
       },
     });
+  }
 
-    const talla = await this.prisma.tallas.findUnique({
+  async findOne(id: string) {
+    return this.prisma.pedidos.findUnique({
       where: {
-        id: data.talla_id,
+        id,
+      },
+      include: {
+        pedido_items: true,
+        pagos: true,
+        envios: {
+          include: {
+            paqueterias: true,
+          },
+        },
+        direcciones: true,
       },
     });
+  }
 
-    if (!producto || !talla) {
-      throw new Error('Producto o talla no encontrados');
+  async actualizarEstadoEnvio(id: string, estado_envio: string) {
+    const estadosPermitidos = [
+      'pendiente',
+      'preparando',
+      'empacado',
+      'enviado',
+      'listo_recoger',
+      'entregado',
+      'cancelado',
+    ];
+
+    if (!estadosPermitidos.includes(estado_envio)) {
+      throw new BadRequestException('Estado de envío no válido');
     }
 
-    return this.prisma.producto_variantes.create({
-      data: {
-        producto_id: productoId,
-        talla_id: data.talla_id,
-        color_id: data.color_id ?? null,
-        sku: `${producto.codigo}-${talla.nombre}`,
-        stock: Number(data.stock ?? 0),
-        precio_extra: String(data.precio_extra ?? 0),
-        peso_kg: String(data.peso_kg ?? 1),
-        largo_cm: String(data.largo_cm ?? 30),
-        ancho_cm: String(data.ancho_cm ?? 20),
-        alto_cm: String(data.alto_cm ?? 10),
-        activo: true,
-      },
-    });
-  }
-
-  async updateStockVariante(varianteId: string, stock: number) {
-    return this.prisma.producto_variantes.update({
-      where: { id: varianteId },
-      data: {
-        stock: Number(stock),
-      },
-    });
-  }
-
-  async ocultar(id: string) {
-    return this.prisma.productos.update({
+    const pedidoActual: any = await this.prisma.pedidos.findUnique({
       where: { id },
-      data: {
-        activo: false,
-        updated_at: new Date(),
+      include: {
+        envios: {
+          include: {
+            paqueterias: true,
+          },
+        },
       },
     });
-  }
 
-  async setImagenPrincipal(imagenId: string) {
-    const imagen = await this.prisma.producto_imagenes.findUnique({
-      where: { id: imagenId },
-    });
-
-    if (!imagen) {
-      throw new Error('Imagen no encontrada');
+    if (!pedidoActual) {
+      throw new BadRequestException('Pedido no encontrado');
     }
 
-    await this.prisma.producto_imagenes.updateMany({
-      where: {
-        producto_id: imagen.producto_id,
-      },
-      data: {
-        principal: false,
-      },
-    });
+    const estadoActual = pedidoActual.estado_envio ?? 'pendiente';
 
-    return this.prisma.producto_imagenes.update({
-      where: { id: imagenId },
-      data: {
-        principal: true,
-      },
-    });
-  }
+    const esRecoleccionTienda =
+      pedidoActual.tipo_entrega === 'tienda' ||
+      String(pedidoActual.notas ?? '')
+        .toLowerCase()
+        .includes('recolección en tienda') ||
+      String(pedidoActual.notas ?? '')
+        .toLowerCase()
+        .includes('recoleccion en tienda');
 
-  async deleteImagen(imagenId: string) {
-    const imagen = await this.prisma.producto_imagenes.findUnique({
-      where: { id: imagenId },
-    });
+    if (esRecoleccionTienda) {
+      const estadosTienda = [
+        'pendiente',
+        'preparando',
+        'listo_recoger',
+        'entregado',
+        'cancelado',
+      ];
 
-    if (!imagen) {
-      throw new Error('Imagen no encontrada');
+      if (!estadosTienda.includes(estado_envio)) {
+        throw new BadRequestException(
+          'Este pedido es para recolección en tienda y no puede usar estados de envío a domicilio',
+        );
+      }
     }
 
-    await this.prisma.producto_imagenes.delete({
-      where: { id: imagenId },
-    });
+    if (!esRecoleccionTienda && estado_envio === 'listo_recoger') {
+      throw new BadRequestException(
+        'El estado listo para recoger solo aplica para recolección en tienda',
+      );
+    }
 
-    const imagenPrincipal = await this.prisma.producto_imagenes.findFirst({
-      where: {
-        producto_id: imagen.producto_id,
-        principal: true,
-      },
-    });
+    if (
+      estadoActual === 'enviado' &&
+      ['pendiente', 'preparando', 'empacado'].includes(estado_envio)
+    ) {
+      throw new BadRequestException(
+        'No puedes regresar un pedido enviado a pendiente, preparando o empacado',
+      );
+    }
 
-    if (!imagenPrincipal) {
-      const primeraImagen = await this.prisma.producto_imagenes.findFirst({
-        where: {
-          producto_id: imagen.producto_id,
-        },
-        orderBy: {
-          orden: 'asc',
-        },
-      });
+    if (estadoActual === 'entregado' && estado_envio !== 'entregado') {
+      throw new BadRequestException(
+        'No puedes cambiar el estado de un pedido que ya fue entregado',
+      );
+    }
 
-      if (primeraImagen) {
-        await this.prisma.producto_imagenes.update({
-          where: { id: primeraImagen.id },
-          data: { principal: true },
+    const envio = pedidoActual.envios?.[0];
+
+    if (!esRecoleccionTienda && estado_envio === 'enviado') {
+      if (!envio) {
+        throw new BadRequestException('Este pedido no tiene envío registrado');
+      }
+
+      if (!envio.numero_guia || !envio.paqueteria_id) {
+        throw new BadRequestException(
+          'Debes guardar la paquetería y el número de guía antes de marcar como enviado',
+        );
+      }
+    }
+
+    if (envio) {
+      if (estado_envio === 'enviado' && estadoActual !== 'enviado') {
+        await this.prisma.envios.update({
+          where: { id: envio.id },
+          data: {
+            estado: 'enviado',
+            fecha_envio: new Date(),
+            updated_at: new Date(),
+          },
+        });
+      }
+
+      if (estado_envio === 'entregado' && estadoActual !== 'entregado') {
+        await this.prisma.envios.update({
+          where: { id: envio.id },
+          data: {
+            estado: 'entregado',
+            fecha_entrega: new Date(),
+            updated_at: new Date(),
+          },
         });
       }
     }
 
-    return {
-      message: 'Imagen eliminada correctamente',
-    };
-  }
-
-  async updateOrdenImagen(imagenId: string, orden: number) {
-    return this.prisma.producto_imagenes.update({
-      where: { id: imagenId },
-      data: {
-        orden,
-      },
-    });
-  }
-
-  async reactivar(id: string) {
-    return this.prisma.productos.update({
+    const pedidoActualizado = await this.prisma.pedidos.update({
       where: { id },
       data: {
-        activo: true,
+        estado_envio,
         updated_at: new Date(),
       },
+      include: {
+        pedido_items: true,
+        direcciones: true,
+        pagos: true,
+        envios: {
+          include: {
+            paqueterias: true,
+          },
+        },
+      },
     });
+
+    const envioActualizado = pedidoActualizado.envios?.[0];
+
+    await this.enviarCorreoPedidoEnviadoSiAplica({
+      pedido: pedidoActualizado,
+      envio: envioActualizado,
+      estadoAnterior: estadoActual,
+      estadoNuevo: estado_envio,
+    });
+
+    return pedidoActualizado;
   }
 }
