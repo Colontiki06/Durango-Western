@@ -255,10 +255,24 @@
 
         <hr class="mb-6 md:mb-8">
 
+        <p class="mb-4 text-base md:text-lg">
+          Código:
+          <span class="font-bold uppercase">
+            {{ varianteSeleccionada?.codigo ?? varianteSeleccionada?.sku ?? productoVista.codigo ?? productoVista.sku ?? 'Sin código' }}
+          </span>
+        </p>
+
+        <p class="mb-4 text-base md:text-lg">
+          Disponibilidad:
+          <span class="font-bold">
+            {{ varianteSeleccionada?.stock ?? varianteSeleccionada?.cantidad ?? productoVista.stock ?? 0 }} piezas
+          </span>
+        </p>
+
         <p class="mb-4 md:mb-6 text-base md:text-lg">
           Color:
           <span class="font-bold uppercase">
-            {{ productoVista.producto_variantes?.[0]?.colores?.nombre ?? productoVista.color ?? 'Sin color' }}
+            {{ varianteSeleccionada?.colores?.nombre ?? productoVista.color ?? 'Sin color' }}
           </span>
         </p>
 
@@ -276,13 +290,13 @@
 
               <button
                 type="button"
-                (click)="seleccionarTalla(variante.tallas?.nombre ?? 'Única')"
+                (click)="seleccionarTalla(variante)"
                 class="w-full h-11 md:h-12 border rounded-md text-base font-medium transition-all duration-300"
-                [class.border-[#4b2e1f]]="tallaSeleccionada === (variante.tallas?.nombre ?? 'Única')"
-                [class.bg-[#4b2e1f]]="tallaSeleccionada === (variante.tallas?.nombre ?? 'Única')"
-                [class.text-[#f5d08a]]="tallaSeleccionada === (variante.tallas?.nombre ?? 'Única')"
-                [class.border-gray-300]="tallaSeleccionada !== (variante.tallas?.nombre ?? 'Única')"
-                [class.text-[#1f120c]]="tallaSeleccionada !== (variante.tallas?.nombre ?? 'Única')"
+                [class.border-[#4b2e1f]]="varianteSeleccionada?.id === variante.id"
+                [class.bg-[#4b2e1f]]="varianteSeleccionada?.id === variante.id"
+                [class.text-[#f5d08a]]="varianteSeleccionada?.id === variante.id"
+                [class.border-gray-300]="varianteSeleccionada?.id !== variante.id"
+                [class.text-[#1f120c]]="varianteSeleccionada?.id !== variante.id"
               >
                 {{ variante.tallas?.nombre ?? 'Única' }}
               </button>
@@ -306,7 +320,8 @@
         <button
           type="button"
           (click)="agregarProductoVista()"
-          class="bg-[#4b2e1f] text-[#f5d08a] py-4 font-semibold rounded-md hover:bg-[#6e432d] transition-all duration-300"
+          [disabled]="(varianteSeleccionada?.stock ?? varianteSeleccionada?.cantidad ?? productoVista.stock ?? 0) <= 0"
+          class="bg-[#4b2e1f] text-[#f5d08a] py-4 font-semibold rounded-md hover:bg-[#6e432d] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           AGREGAR AL CARRITO
         </button>

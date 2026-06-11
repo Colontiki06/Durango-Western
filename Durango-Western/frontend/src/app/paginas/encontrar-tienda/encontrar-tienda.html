@@ -64,10 +64,12 @@
       </p>
     </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-10">
+    <div class="grid grid-cols-1 lg:grid-cols-[420px_minmax(0,1fr)] gap-8 items-start">
 
       <!-- Resultados -->
-      <section class="space-y-5">
+      <section
+        class="tiendas-scroll space-y-5 lg:max-h-[700px] lg:overflow-y-auto pr-2 order-1 lg:order-1"
+      >
 
         <div
           *ngIf="tiendas.length === 0"
@@ -85,7 +87,7 @@
 
         <div
           *ngFor="let tienda of tiendas"
-          class="bg-[#fff8ec] p-5 border-l-4 transition cursor-pointer"
+          class="tienda-card bg-[#fff8ec] p-5 border-l-4 transition cursor-pointer shadow-sm"
           [class.border-[#8a542f]]="tiendaSeleccionada?.id === tienda.id"
           [class.border-transparent]="tiendaSeleccionada?.id !== tienda.id"
           [class.ring-2]="tiendaSeleccionada?.id === tienda.id"
@@ -122,7 +124,7 @@
           <div class="flex flex-col sm:flex-row gap-3 mt-4">
             <button
               type="button"
-              class="bg-[#8a542f] hover:bg-[#6b3f26] text-white px-5 py-2 text-sm"
+              class="bg-[#8a542f] hover:bg-[#6b3f26] text-white px-5 py-2 text-sm font-semibold transition"
               (click)="seleccionarTienda(tienda)"
             >
               Ver ubicación
@@ -130,7 +132,7 @@
 
             <button
               type="button"
-              class="bg-[#2f1b12] hover:bg-[#1f100a] text-white px-5 py-2 text-sm"
+              class="bg-[#2f1b12] hover:bg-[#1f100a] text-white px-5 py-2 text-sm font-semibold transition"
               (click)="abrirRuta(tienda)"
             >
               Cómo llegar
@@ -141,9 +143,12 @@
       </section>
 
       <!-- Mapa -->
-      <section class="bg-[#fff8ec] p-5">
+      <section
+        #mapSection
+        class="sticky-map bg-[#fff8ec] p-5 lg:sticky lg:top-5 shadow-sm order-2 lg:order-2 w-full min-w-0"
+      >
 
-        <div class="h-[520px] bg-[#e7dccb] overflow-hidden">
+        <div class="map-box bg-[#e7dccb] overflow-hidden w-full min-w-0">
 
           <ng-container *ngIf="mapaCargado; else cargandoMapa">
             <google-map
@@ -153,10 +158,12 @@
               [zoom]="zoom"
             >
               <map-marker
-                *ngFor="let tienda of tiendas"
-                [position]="{ lat: +tienda.lat, lng: +tienda.lng }"
-                [title]="tienda.name"
-                (mapClick)="seleccionarTienda(tienda)"
+                *ngIf="tiendaSeleccionada"
+                [position]="{
+                  lat: +tiendaSeleccionada.lat,
+                  lng: +tiendaSeleccionada.lng
+                }"
+                [title]="tiendaSeleccionada.name"
               ></map-marker>
             </google-map>
           </ng-container>

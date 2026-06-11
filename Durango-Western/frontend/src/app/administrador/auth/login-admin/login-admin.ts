@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../core/services/auth/supabase.service';
@@ -13,6 +13,7 @@ import { SupabaseService } from '../../../core/services/auth/supabase.service';
 export class LoginAdmin {
 
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   private supabaseService = inject(SupabaseService);
 
   email = '';
@@ -20,43 +21,68 @@ export class LoginAdmin {
   loading = false;
   error = '';
 
+  mostrarPassword = false;
+
+  togglePassword(): void {
+    this.mostrarPassword = !this.mostrarPassword;
+  }
+
   async login(): Promise<void> {
+    if (this.loading) return;
+
+    if (!this.email.trim() || !this.password.trim()) {
+      this.error = 'Ingresa correo y contraseña';
+      return;
+    }
+
     this.loading = true;
     this.error = '';
+    this.cdr.detectChanges();
 
-    const { data, error } = await this.supabaseService.signIn(
-      this.email,
-      this.password
-    );
+    try {
+      const { data, error } = await this.supabaseService.signIn(
+        this.email.trim(),
+        this.password
+      );
 
-    if (error || !data.user) {
-      this.error = 'Correo o contraseña incorrectos';
+      if (error || !data?.user) {
+        this.error = 'Correo o contraseña incorrectos';
+        return;
+      }
+
+      const { data: profile, error: profileError } =
+        await this.supabaseService.client
+          .from('profiles')
+          .select('rol, activo')
+          .eq('id', data.user.id)
+          .single();
+
+      if (profileError || !profile) {
+        await this.supabaseService.signOut();
+        this.error = 'Perfil no encontrado';
+        return;
+      }
+
+      if (profile.rol !== 'admin') {
+        await this.supabaseService.signOut();
+        this.error = 'No tienes permisos de administrador';
+        return;
+      }
+
+      if (!profile.activo) {
+        await this.supabaseService.signOut();
+        this.error = 'Tu cuenta está desactivada';
+        return;
+      }
+
+      await this.router.navigate(['/admin/dashboard']);
+
+    } catch (err) {
+      console.error('Error login:', err);
+      this.error = 'No se pudo iniciar sesión. Intenta nuevamente.';
+    } finally {
       this.loading = false;
-      return;
+      this.cdr.detectChanges();
     }
-
-    const { data: profile, error: profileError } =
-      await this.supabaseService.client
-        .from('profiles')
-        .select('rol, activo')
-        .eq('id', data.user.id)
-        .single();
-
-    if (profileError || !profile) {
-      await this.supabaseService.signOut();
-      this.error = 'Perfil no encontrado';
-      this.loading = false;
-      return;
-    }
-
-    if (profile.rol !== 'admin' || !profile.activo) {
-      await this.supabaseService.signOut();
-      this.error = 'No tienes permisos de administrador';
-      this.loading = false;
-      return;
-    }
-
-    this.loading = false;
-    this.router.navigate(['/admin/dashboard']);
   }
 }

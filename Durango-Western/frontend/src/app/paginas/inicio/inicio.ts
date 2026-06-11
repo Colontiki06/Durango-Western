@@ -29,6 +29,7 @@ export class Inicio implements OnInit, OnDestroy {
 
   tallaSeleccionada = 'Única';
   productoVista: any = null;
+  varianteSeleccionada: any = null;
 
   categorias: any[] = [];
   banners: any[] = [];
@@ -217,28 +218,41 @@ export class Inicio implements OnInit, OnDestroy {
 
   abrirVista(producto: any): void {
     this.productoVista = producto;
+    this.varianteSeleccionada = producto?.producto_variantes?.[0] ?? null;
 
     this.tallaSeleccionada =
-      producto?.producto_variantes?.[0]?.tallas?.nombre ?? 'Única';
+      this.varianteSeleccionada?.tallas?.nombre ?? 'Única';
   }
 
   cerrarVista(): void {
     this.productoVista = null;
+    this.varianteSeleccionada = null;
+    this.tallaSeleccionada = 'Única';
   }
 
-  seleccionarTalla(talla: string): void {
-    this.tallaSeleccionada = talla;
+  seleccionarTalla(variante: any): void {
+    this.varianteSeleccionada = variante;
+    this.tallaSeleccionada = variante?.tallas?.nombre ?? 'Única';
   }
 
   agregarProductoVista(): void {
     if (!this.productoVista) return;
 
+    const variante = this.varianteSeleccionada;
+
     this.cartService.addToCart({
       id: this.productoVista.id,
+      producto_id: String(this.productoVista.id),
+      variante_id: variante?.id ? String(variante.id) : null,
+
       nombre: this.productoVista.nombre,
+      codigo: variante?.codigo ?? variante?.sku ?? this.productoVista.codigo ?? this.productoVista.sku ?? '',
       precio: Number(this.productoVista.precio),
       cantidad: 1,
-      talla: this.tallaSeleccionada,
+
+      talla: variante?.tallas?.nombre ?? 'Única',
+      stock: Number(variante?.stock ?? variante?.cantidad ?? this.productoVista.stock ?? 0),
+
       imagen: this.imagenProducto(this.productoVista)
     });
 
@@ -246,12 +260,21 @@ export class Inicio implements OnInit, OnDestroy {
   }
 
   addToCart(product: any): void {
+    const variante = product?.producto_variantes?.[0] ?? null;
+
     this.cartService.addToCart({
       id: product.id,
+      producto_id: String(product.id),
+      variante_id: variante?.id ? String(variante.id) : null,
+
       nombre: product.nombre,
+      codigo: variante?.codigo ?? variante?.sku ?? product.codigo ?? product.sku ?? '',
       precio: Number(product.precio),
       cantidad: 1,
-      talla: 'Única',
+
+      talla: variante?.tallas?.nombre ?? 'Única',
+      stock: Number(variante?.stock ?? variante?.cantidad ?? product.stock ?? 0),
+
       imagen: this.imagenProducto(product)
     });
   }
