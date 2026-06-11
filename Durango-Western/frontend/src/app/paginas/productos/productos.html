@@ -12,12 +12,16 @@
         Inicio / {{ tituloCategoria }}
       </p>
 
-      <select class="bg-white border border-[#cbb89d] px-4 py-2 text-sm text-[#2f1b12]">
-        <option>Ordenar por</option>
-        <option>Más vendidos</option>
-        <option>Precio menor a mayor</option>
-        <option>Precio mayor a menor</option>
-        <option>Más recientes</option>
+      <select
+        [(ngModel)]="ordenSeleccionado"
+        (change)="ordenarProductos()"
+        class="bg-white border border-[#cbb89d] px-4 py-2 text-sm text-[#2f1b12]"
+      >
+        <option value="">Ordenar por</option>
+        <option value="masVendidos">Más vendidos</option>
+        <option value="precioAsc">Precio menor a mayor</option>
+        <option value="precioDesc">Precio mayor a menor</option>
+        <option value="recientes">Más recientes</option>
       </select>
 
     </div>

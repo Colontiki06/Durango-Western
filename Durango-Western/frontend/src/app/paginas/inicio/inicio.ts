@@ -7,7 +7,6 @@ import {
   ChangeDetectorRef,
   NgZone
 } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart/cart.service';
 import { ApiService } from '../../core/services/api/api.service';
@@ -28,11 +27,13 @@ export class Inicio implements OnInit, OnDestroy {
   bannerActual = 0;
   intervaloBanner: any;
 
-  tallaSeleccionada = '23';
+  tallaSeleccionada = 'Única';
   productoVista: any = null;
+  varianteSeleccionada: any = null;
 
   categorias: any[] = [];
   banners: any[] = [];
+  productosMasVendidos: any[] = [];
 
   constructor(
     private cartService: CartService,
@@ -42,13 +43,57 @@ export class Inicio implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-  this.cargarPersonalizacionInicio();
-}
+    this.cargarPersonalizacionInicio();
+    this.cargarProductosMasVendidos();
+  }
 
   ngOnDestroy(): void {
     if (this.intervaloBanner) {
       clearInterval(this.intervaloBanner);
     }
+  }
+
+  cargarProductosMasVendidos(): void {
+    this.api.get<any[]>('productos').subscribe({
+      next: (productos) => {
+        this.productosMasVendidos = [...productos]
+          .sort((a, b) => {
+            const vendidosB = Number(b.vendidos ?? 0);
+            const vendidosA = Number(a.vendidos ?? 0);
+
+            if (vendidosB !== vendidosA) {
+              return vendidosB - vendidosA;
+            }
+
+            return new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime();
+          })
+          .slice(0, 3);
+
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error cargando productos más vendidos:', error);
+        this.productosMasVendidos = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  imagenProducto(producto: any): string {
+    const imagenPrincipal = producto?.producto_imagenes?.find(
+      (img: any) => img.principal
+    );
+
+    return (
+      imagenPrincipal?.imagen_url ||
+      producto?.producto_imagenes?.[0]?.imagen_url ||
+      producto?.imagen ||
+      '/img/Sombreros.png'
+    );
+  }
+
+  rutaProducto(producto: any): string {
+    return `/detalle-producto/${producto.slug}`;
   }
 
   cargarPersonalizacionInicio(): void {
@@ -173,46 +218,64 @@ export class Inicio implements OnInit, OnDestroy {
 
   abrirVista(producto: any): void {
     this.productoVista = producto;
-    this.tallaSeleccionada = '23';
+    this.varianteSeleccionada = producto?.producto_variantes?.[0] ?? null;
+
+    this.tallaSeleccionada =
+      this.varianteSeleccionada?.tallas?.nombre ?? 'Única';
   }
 
   cerrarVista(): void {
     this.productoVista = null;
+    this.varianteSeleccionada = null;
+    this.tallaSeleccionada = 'Única';
   }
 
-  seleccionarTalla(talla: string): void {
-    this.tallaSeleccionada = talla;
+  seleccionarTalla(variante: any): void {
+    this.varianteSeleccionada = variante;
+    this.tallaSeleccionada = variante?.tallas?.nombre ?? 'Única';
   }
 
   agregarProductoVista(): void {
     if (!this.productoVista) return;
 
+    const variante = this.varianteSeleccionada;
+
     this.cartService.addToCart({
       id: this.productoVista.id,
+      producto_id: String(this.productoVista.id),
+      variante_id: variante?.id ? String(variante.id) : null,
+
       nombre: this.productoVista.nombre,
-      precio: this.productoVista.precio,
+      codigo: variante?.codigo ?? variante?.sku ?? this.productoVista.codigo ?? this.productoVista.sku ?? '',
+      precio: Number(this.productoVista.precio),
       cantidad: 1,
-      talla: this.tallaSeleccionada,
-      imagen: this.productoVista.imagen
+
+      talla: variante?.tallas?.nombre ?? 'Única',
+      stock: Number(variante?.stock ?? variante?.cantidad ?? this.productoVista.stock ?? 0),
+
+      imagen: this.imagenProducto(this.productoVista)
     });
 
     this.cerrarVista();
   }
 
-  addToCart(product: {
-    id: string;
-    nombre: string;
-    precio: number;
-    imagen: string;
-  }): void {
+  addToCart(product: any): void {
+    const variante = product?.producto_variantes?.[0] ?? null;
+
     this.cartService.addToCart({
       id: product.id,
+      producto_id: String(product.id),
+      variante_id: variante?.id ? String(variante.id) : null,
+
       nombre: product.nombre,
-      precio: product.precio,
+      codigo: variante?.codigo ?? variante?.sku ?? product.codigo ?? product.sku ?? '',
+      precio: Number(product.precio),
       cantidad: 1,
-      talla: 'Única',
-      imagen: product.imagen
+
+      talla: variante?.tallas?.nombre ?? 'Única',
+      stock: Number(variante?.stock ?? variante?.cantidad ?? product.stock ?? 0),
+
+      imagen: this.imagenProducto(product)
     });
   }
-
 }

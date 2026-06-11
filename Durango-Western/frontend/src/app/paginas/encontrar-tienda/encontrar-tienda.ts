@@ -27,6 +27,7 @@ type TiendaConDistancia = Tienda & {
 })
 export class EncontrarTienda implements OnInit, AfterViewInit {
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('mapSection') mapSection?: ElementRef<HTMLElement>;
 
   todasLasTiendas: Tienda[] = [];
   tiendas: TiendaConDistancia[] = [];
@@ -60,22 +61,40 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     this.googleMapsLoader
       .load()
       .then(() => {
         this.ngZone.run(() => {
+          if (
+            typeof google === 'undefined' ||
+            !google.maps ||
+            !google.maps.places
+          ) {
+            this.mapaCargado = false;
+            this.mensajeBusqueda =
+              'Google Maps no terminó de cargar. Recarga la página.';
+            this.cdr.detectChanges();
+            return;
+          }
+
           this.mapaCargado = true;
           this.cdr.detectChanges();
 
           setTimeout(() => {
             this.inicializarAutocomplete();
-          }, 100);
+            window.dispatchEvent(new Event('resize'));
+          }, 300);
         });
       })
       .catch((error) => {
         console.error('Error cargando Google Maps:', error);
 
         this.ngZone.run(() => {
+          this.mapaCargado = false;
           this.mensajeBusqueda =
             'No se pudo cargar Google Maps. Revisa la API Key del backend.';
           this.cdr.detectChanges();
@@ -84,23 +103,39 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
   }
 
   cargarTiendas(): void {
-    this.tiendasService.getTiendas().subscribe({
-      next: (tiendas) => {
-        console.log('Tiendas cargadas:', tiendas);
+  this.tiendasService.getTiendas().subscribe({
+    next: (tiendas) => {
+      console.log('Tiendas cargadas:', tiendas);
 
-        this.todasLasTiendas = tiendas;
-        this.tiendas = [];
+      this.todasLasTiendas = tiendas ?? [];
+      this.tiendas = [...this.todasLasTiendas];
 
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error cargando tiendas:', error);
+      if (this.tiendas.length > 0) {
+        this.tiendaSeleccionada = this.tiendas[0];
 
-        this.mensajeBusqueda = 'No se pudieron cargar las tiendas.';
-        this.cdr.detectChanges();
-      },
-    });
-  }
+        this.center = {
+          lat: Number(this.tiendas[0].lat),
+          lng: Number(this.tiendas[0].lng),
+        };
+
+        this.zoom = 13;
+      }
+
+      this.cdr.detectChanges();
+
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('resize'));
+        }
+      }, 300);
+    },
+    error: (error) => {
+      console.error('Error cargando tiendas:', error);
+      this.mensajeBusqueda = 'No se pudieron cargar las tiendas.';
+      this.cdr.detectChanges();
+    },
+  });
+}
 
   inicializarAutocomplete(intentos = 0): void {
     if (!this.searchInput) {
@@ -177,6 +212,10 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
         this.mensajeBusqueda = `Mostrando tiendas cercanas a: ${this.busqueda}`;
 
         this.cdr.detectChanges();
+
+        setTimeout(() => {
+          window.dispatchEvent(new Event('resize'));
+        }, 300);
       });
     });
   }
@@ -249,6 +288,10 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
           this.mensajeBusqueda = `Mostrando tiendas cercanas a: ${textoBusqueda}`;
 
           this.cdr.detectChanges();
+
+          setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+          }, 300);
         });
       }
     );
@@ -298,6 +341,10 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
             'Mostrando tiendas cercanas a tu ubicación actual.';
 
           this.cdr.detectChanges();
+
+          setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+          }, 300);
         });
       },
       (error) => {
@@ -355,10 +402,13 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
       }))
       .sort((a, b) => (a.distanciaKm || 0) - (b.distanciaKm || 0));
 
-    this.tiendas = tiendasOrdenadas.slice(0, 3);
+    console.log('Tiendas encontradas:', tiendasOrdenadas.length);
+    console.log('Listado de tiendas:', tiendasOrdenadas);
+
+    this.tiendas = tiendasOrdenadas;
 
     if (this.tiendas.length > 0) {
-      this.seleccionarTienda(this.tiendas[0]);
+      this.seleccionarTienda(this.tiendas[0], false);
     } else {
       this.mensajeBusqueda = 'No se encontraron sucursales cercanas.';
     }
@@ -366,7 +416,7 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  seleccionarTienda(tienda: TiendaConDistancia): void {
+  seleccionarTienda(tienda: TiendaConDistancia, scrollMapa = true): void {
     this.tiendaSeleccionada = tienda;
 
     this.center = {
@@ -377,6 +427,19 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
     this.zoom = 16;
 
     this.cdr.detectChanges();
+
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('resize'));
+
+        if (scrollMapa) {
+          this.mapSection?.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+      }
+    }, 300);
   }
 
   abrirRuta(tienda: TiendaConDistancia): void {
@@ -413,6 +476,12 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
     this.zoom = 12;
 
     this.cdr.detectChanges();
+
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('resize'));
+      }
+    }, 300);
   }
 
   private calcularDistanciaKm(

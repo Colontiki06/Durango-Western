@@ -63,6 +63,18 @@ export class Navbar implements OnInit, OnDestroy {
       });
   }
 
+  cargarConfiguracionTienda(): void {
+    this.api.get<any>('configuraciones').subscribe({
+      next: (config) => {
+        this.envioGratisMinimo.set(Number(config?.envio_gratis_desde ?? 4000));
+      },
+      error: (error) => {
+        console.error('Error cargando configuración de tienda:', error);
+        this.envioGratisMinimo.set(4000);
+      },
+    });
+  }
+
   ngOnDestroy(): void {
     this.cartSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
