@@ -53,7 +53,7 @@ export class Inventario implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.api.get<any[]>('productos').subscribe({
+    this.api.get<any[]>('productos', { admin: true }).subscribe({
       next: (data) => {
         this.productos = data.map(producto => this.mapearProducto(producto));
         this.loading = false;
@@ -148,4 +148,34 @@ export class Inventario implements OnInit {
   get totalSinStock(): number {
     return this.productos.filter(producto => producto.stock === 0).length;
   }
+
+  ocultarProducto(producto: ProductoInventario): void {
+  const confirmar = confirm(`¿Ocultar "${producto.nombre}" del catálogo público?`);
+
+  if (!confirmar) return;
+
+  this.api.patch<any>(`productos/${producto.id}/ocultar`, {}).subscribe({
+    next: () => this.cargarProductos(),
+    error: (error) => {
+      console.error('Error ocultando producto:', error);
+      alert('No se pudo ocultar el producto');
+    }
+  });
+}
+
+reactivarProducto(producto: ProductoInventario): void {
+  const confirmar = confirm(`¿Reactivar "${producto.nombre}" en el catálogo público?`);
+
+  if (!confirmar) return;
+
+  this.api.patch<any>(`productos/${producto.id}/reactivar`, {}).subscribe({
+    next: () => this.cargarProductos(),
+    error: (error) => {
+      console.error('Error reactivando producto:', error);
+      alert('No se pudo reactivar el producto');
+    }
+  });
+}
+
+
 }

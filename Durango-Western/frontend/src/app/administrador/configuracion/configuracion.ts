@@ -33,6 +33,7 @@ export class Configuracion implements OnInit {
     this.loading = true;
     this.error = '';
     this.mensaje = '';
+    this.estadoSeleccionado = this.config.estadoTienda;
 
     this.api.get<any>('configuraciones').subscribe({
       next: (config) => {
@@ -40,6 +41,7 @@ export class Configuracion implements OnInit {
         console.log('CONFIG API:', config);
 
         this.config = {
+          
           nombreTienda: config?.nombre_tienda ?? 'Durango Western',
           correo: config?.correo_contacto ?? '',
           telefono: config?.telefono ?? '',
@@ -55,9 +57,10 @@ export class Configuracion implements OnInit {
           rol: 'Administrador principal',
           ultimoAcceso: 'Hoy'
         };
-
+        this.estadoSeleccionado = this.config.estadoTienda;
         this.loading = false;
         this.cdr.detectChanges();
+        
       },
 
       error: (error) => {
@@ -115,4 +118,41 @@ export class Configuracion implements OnInit {
       this.cdr.detectChanges();
     }, 2500);
   }
+
+estadoSeleccionado = 'Activa';
+estadoPendiente = '';
+mostrarConfirmacionMantenimiento = false;
+
+onCambioEstado(valor: string): void {
+  if (
+    valor === 'Modo mantenimiento' &&
+    this.config.estadoTienda !== 'Modo mantenimiento'
+  ) {
+    this.estadoPendiente = valor;
+    this.estadoSeleccionado = this.config.estadoTienda;
+    this.mostrarConfirmacionMantenimiento = true;
+    this.cdr.detectChanges();
+    return;
+  }
+
+  this.config.estadoTienda = valor;
+  this.estadoSeleccionado = valor;
+  this.cdr.detectChanges();
+}
+
+confirmarModoMantenimiento(): void {
+  this.config.estadoTienda = 'Modo mantenimiento';
+  this.estadoSeleccionado = 'Modo mantenimiento';
+  this.estadoPendiente = '';
+  this.mostrarConfirmacionMantenimiento = false;
+  this.cdr.detectChanges();
+}
+
+cancelarModoMantenimiento(): void {
+  this.estadoSeleccionado = this.config.estadoTienda;
+  this.estadoPendiente = '';
+  this.mostrarConfirmacionMantenimiento = false;
+  this.cdr.detectChanges();
+}
+
 }

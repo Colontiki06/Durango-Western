@@ -43,6 +43,11 @@ export class ProductosController {
     return this.productosService.createVariante(id, body);
   }
 
+  @Patch(':id/reactivar')
+reactivar(@Param('id') id: string) {
+  return this.productosService.reactivar(id);
+}
+
   @Patch(':id/ocultar')
   ocultar(@Param('id') id: string) {
     return this.productosService.ocultar(id);

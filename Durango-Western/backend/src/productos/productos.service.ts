@@ -79,125 +79,211 @@ export class ProductosService {
   }
 
   async findAll(filtros: any = {}) {
-    const where: any = {
-      activo: true,
-    };
+  const esAdmin = filtros?.admin === true || filtros?.admin === 'true';
 
-    if (filtros.genero) {
-      where.categorias = {
-        is: {
-          slug: filtros.genero,
+const where: any = {};
+
+if (!esAdmin) {
+  where.activo = true;
+}
+
+  const config = await (this.prisma as any).configuracion_tienda.findFirst();
+
+  const mostrarAgotados =
+    config?.mostrar_productos_agotados ?? false;
+
+  const esCatalogoPublico =
+    filtros.publico === true ||
+    filtros.publico === 'true';
+
+  if (esCatalogoPublico && !mostrarAgotados) {
+    where.producto_variantes = {
+      some: {
+        activo: true,
+        stock: {
+          gt: 0,
         },
-      };
-    }
+      },
+    };
+  }
 
-    if (filtros.tipo) {
+  if (filtros.genero) {
+    where.categorias = {
+      is: {
+        slug: filtros.genero,
+      },
+    };
+  }
+
+  if (filtros.tipo) {
+    where.tipos_producto = {
+      is: {
+        slug: filtros.tipo,
+      },
+    };
+  }
+
+  if (filtros.categoria && filtros.categoria !== 'todos') {
+    const tiposProducto = [
+      'botas',
+      'sombreros',
+      'camisas',
+      'pantalones',
+      'cintos',
+      'bolsos',
+    ];
+
+    const categorias = [
+      'caballero',
+      'dama',
+      'ninos',
+      'niños',
+      'accesorios',
+    ];
+
+    if (tiposProducto.includes(filtros.categoria)) {
       where.tipos_producto = {
         is: {
-          slug: filtros.tipo,
+          slug: filtros.categoria,
         },
       };
     }
 
-    if (filtros.categoria && filtros.categoria !== 'todos') {
-      const tiposProducto = [
-        'botas',
-        'sombreros',
-        'camisas',
-        'pantalones',
-        'cintos',
-        'bolsos',
-      ];
-
-      const categorias = [
-        'caballero',
-        'dama',
-        'ninos',
-        'niños',
-        'accesorios',
-      ];
-
-      if (tiposProducto.includes(filtros.categoria)) {
-        where.tipos_producto = {
-          is: {
-            slug: filtros.categoria,
-          },
-        };
-      }
-
-      if (categorias.includes(filtros.categoria)) {
-        where.categorias = {
-          is: {
-            slug: filtros.categoria,
-          },
-        };
-      }
-    }
-
-    if (filtros.talla) {
-      where.producto_variantes = {
-        some: {
-          activo: true,
-          stock: {
-            gt: 0,
-          },
-          tallas: {
-            is: {
-              nombre: filtros.talla,
-            },
-          },
+    if (categorias.includes(filtros.categoria)) {
+      where.categorias = {
+        is: {
+          slug: filtros.categoria,
         },
       };
     }
+  }
 
-    if (
-      filtros.precioMin !== undefined &&
-      filtros.precioMin !== ''
-    ) {
-      where.precio = {
-        ...where.precio,
-        gte: String(filtros.precioMin),
-      };
-    }
+  if (filtros.talla) {
+    where.producto_variantes = {
+      some: {
+        activo: true,
+        stock: {
+          gt: 0,
+        },
+        tallas: {
+          is: {
+            nombre: filtros.talla,
+          },
+        },
+      },
+    };
+  }
 
-    if (
-      filtros.precioMax !== undefined &&
-      filtros.precioMax !== ''
-    ) {
-      where.precio = {
-        ...where.precio,
-        lte: String(filtros.precioMax),
-      };
-    }
+  if (
+    filtros.precioMin !== undefined &&
+    filtros.precioMin !== ''
+  ) {
+    where.precio = {
+      ...where.precio,
+      gte: String(filtros.precioMin),
+    };
+  }
 
-    if (filtros.destacado) {
-      where.destacado = true;
-    }
+  if (
+    filtros.precioMax !== undefined &&
+    filtros.precioMax !== ''
+  ) {
+    where.precio = {
+      ...where.precio,
+      lte: String(filtros.precioMax),
+    };
+  }
 
+  if (filtros.destacado) {
+    where.destacado = true;
+  }
+
+  if (filtros.buscar) {
+  const palabras = String(filtros.buscar)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  where.AND = [
+    ...(where.AND ?? []),
+    ...palabras.map((palabra) => ({
+      OR: [
+        {
+          nombre: {
+            contains: palabra,
+            mode: 'insensitive',
+          },
     const productos = await this.prisma.productos.findMany({
       where,
       include: {
         producto_imagenes: {
           orderBy: { orden: 'asc' },
         },
-        categorias: true,
-        tipos_producto: true,
-        producto_variantes: {
-          where: {
-            activo: true,
-            stock: {
-              gt: 0,
-            },
-          },
-          include: {
-            tallas: true,
-            colores: true,
+        {
+          descripcion: {
+            contains: palabra,
+            mode: 'insensitive',
           },
         },
+        {
+          codigo: {
+            contains: palabra,
+            mode: 'insensitive',
+          },
+        },
+        {
+          categorias: {
+            is: {
+              nombre: {
+                contains: palabra,
+                mode: 'insensitive',
+              },
+            },
+          },
+        },
+        {
+          tipos_producto: {
+            is: {
+              nombre: {
+                contains: palabra,
+                mode: 'insensitive',
+              },
+            },
+          },
+        },
+      ],
+    })),
+  ];
+}
+
+
+  return this.prisma.productos.findMany({
+    where,
+    include: {
+      producto_imagenes: {
+        orderBy: { orden: 'asc' },
       },
-      orderBy: {
-        created_at: 'desc',
+      categorias: true,
+      tipos_producto: true,
+      producto_variantes: {
+        where: {
+          activo: true,
+        },
+        include: {
+          tallas: true,
+          colores: true,
+        },
       },
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+  });
+
+ 
+
+
+}
     });
 
     const productosConVendidos = await Promise.all(
@@ -466,15 +552,15 @@ export class ProductosService {
     });
   }
 
-  async ocultar(id: string) {
-    return this.prisma.productos.update({
-      where: { id },
-      data: {
-        activo: false,
-        updated_at: new Date(),
-      },
-    });
-  }
+ async ocultar(id: string) {
+  return this.prisma.productos.update({
+    where: { id },
+    data: {
+      activo: false,
+      updated_at: new Date(),
+    },
+  });
+}
 
   async setImagenPrincipal(imagenId: string) {
     const imagen = await this.prisma.producto_imagenes.findUnique({
@@ -553,4 +639,15 @@ export class ProductosService {
       },
     });
   }
+
+  async reactivar(id: string) {
+  return this.prisma.productos.update({
+    where: { id },
+    data: {
+      activo: true,
+      updated_at: new Date(),
+    },
+  });
+}
+
 }
