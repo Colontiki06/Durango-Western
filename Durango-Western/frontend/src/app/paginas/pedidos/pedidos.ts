@@ -1,7 +1,13 @@
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, CurrencyPipe, DatePipe, isPlatformBrowser } from '@angular/common';
+import {
+  Component,
+  Inject,
+  OnInit,
+  PLATFORM_ID,
+  ChangeDetectorRef,
+  inject,
+} from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
@@ -78,6 +84,8 @@ export class Pedidos implements OnInit {
   pedidos: PedidoUsuario[] = [];
   pedidoSeleccionado: PedidoUsuario | null = null;
 
+  private cdr = inject(ChangeDetectorRef);
+
   modalDetalle = false;
   modalRastreo = false;
 
@@ -126,6 +134,7 @@ export class Pedidos implements OnInit {
 
     this.loading = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
 
     this.http
       .get<PedidoUsuario[]>(`${environment.apiUrl}/pedidos/mis-pedidos`, {
@@ -135,6 +144,7 @@ export class Pedidos implements OnInit {
         next: (pedidos) => {
           this.pedidos = pedidos || [];
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: (error) => {
           this.loading = false;
@@ -146,15 +156,19 @@ export class Pedidos implements OnInit {
                 redirect: '/pedidos',
               },
             });
+            this.cdr.detectChanges();
             return;
           }
 
           if (error.status === 0) {
             this.errorMessage = 'No se pudo conectar con el servidor.';
+            this.cdr.detectChanges();
             return;
           }
 
-          this.errorMessage = 'No se pudieron cargar tus compras. Intenta nuevamente.';
+          this.errorMessage =
+            'No se pudieron cargar tus compras. Intenta nuevamente.';
+          this.cdr.detectChanges();
         },
       });
   }
@@ -163,18 +177,21 @@ export class Pedidos implements OnInit {
     this.pedidoSeleccionado = pedido;
     this.modalDetalle = true;
     this.modalRastreo = false;
+    this.cdr.detectChanges();
   }
 
   abrirRastreo(pedido: PedidoUsuario): void {
     this.pedidoSeleccionado = pedido;
     this.modalRastreo = true;
     this.modalDetalle = false;
+    this.cdr.detectChanges();
   }
 
   cerrarModal(): void {
     this.pedidoSeleccionado = null;
     this.modalDetalle = false;
     this.modalRastreo = false;
+    this.cdr.detectChanges();
   }
 
   obtenerItems(pedido: PedidoUsuario): PedidoItem[] {
@@ -211,7 +228,8 @@ export class Pedidos implements OnInit {
   }
 
   obtenerEstadoEnvio(pedido: PedidoUsuario): string {
-    const estado = pedido.estado_envio || this.obtenerEnvio(pedido)?.estado || 'pendiente';
+    const estado =
+      pedido.estado_envio || this.obtenerEnvio(pedido)?.estado || 'pendiente';
 
     const estados: Record<string, string> = {
       pendiente: 'Pendiente',
@@ -242,7 +260,8 @@ export class Pedidos implements OnInit {
   }
 
   obtenerClaseEstadoEnvio(pedido: PedidoUsuario): string {
-    const estado = pedido.estado_envio || this.obtenerEnvio(pedido)?.estado || 'pendiente';
+    const estado =
+      pedido.estado_envio || this.obtenerEnvio(pedido)?.estado || 'pendiente';
 
     if (estado === 'entregado') {
       return 'bg-green-100 text-green-700 border-green-300';

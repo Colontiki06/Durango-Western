@@ -5,13 +5,11 @@
 
 <nav class="navbar">
   <div class="navbar-container">
-
     <a routerLink="/" class="logo-link" aria-label="Durango Western inicio">
       <img src="/img/logo-durango.png" alt="Durango Western" class="logo-img" />
     </a>
 
     <div class="navbar-icons">
-
       <button
         type="button"
         class="icon-button"
@@ -21,7 +19,6 @@
         <img src="/icons/lupa.svg" alt="Buscar" />
       </button>
 
-      <!-- USUARIO -->
       <div class="user-menu-wrapper">
         <button
           type="button"
@@ -32,10 +29,9 @@
           <img src="/icons/usuario.svg" alt="Usuario" />
         </button>
 
-        @if(userMenuOpen) {
+        @if (userMenuOpen) {
           <div class="user-dropdown">
-
-            @if(isLoggedIn()) {
+            @if (isLoggedIn()) {
               <div class="px-3 py-3 text-left">
                 <p class="text-[#2f1b12] font-bold mb-1">
                   Hola, {{ obtenerNombreUsuario() }}
@@ -45,35 +41,12 @@
                   Administra tu perfil, pedidos y direcciones.
                 </p>
 
-                <button
-                  type="button"
-                  (click)="goTo('/perfil')"
-                >
+                <button type="button" (click)="goTo('/perfil')">
                   Mi perfil
                 </button>
 
-                <button
-                  type="button"
-                  (click)="goTo('/pedidos')"
-                >
-                  Mis compras
-                </button>
-
-                <button
-                  type="button"
-                  (click)="logout()"
-                >
-                  Cerrar sesión
-                </button>
-              </div>
-            }
-
                 <button type="button" (click)="goTo('/pedidos')">
                   Mis compras
-                </button>
-
-                <button type="button" (click)="goTo('/metodos-pago')">
-                  Métodos de pago
                 </button>
 
                 <button type="button" (click)="logout()">
@@ -99,7 +72,6 @@
                 </button>
               </div>
             }
-
           </div>
         }
       </div>
@@ -116,16 +88,13 @@
           {{ cartCount }}
         </span>
       </button>
-
     </div>
-
   </div>
 </nav>
 
-@if(searchOpen) {
+@if (searchOpen) {
   <div class="search-dropdown">
     <div class="search-container">
-
       <input
         type="text"
         name="busqueda-navbar"
@@ -137,38 +106,33 @@
         class="search-input"
       />
 
-      <button
-        type="button"
-        class="search-btn"
-        (click)="buscarProductos()"
-      >
+      <button type="button" class="search-btn" (click)="buscarProductos()">
         Buscar
       </button>
 
-      @if(
+      @if (
         sugerenciasBusqueda.length > 0 ||
         buscandoSugerencias ||
         busquedaSinResultados ||
         terminoBusqueda.trim().length >= 2
       ) {
         <div class="suggestions-box">
-
-          @if(buscandoSugerencias) {
+          @if (buscandoSugerencias) {
             <div class="suggestion-message">
               Buscando productos...
             </div>
           }
 
-          @for(producto of sugerenciasBusqueda; track producto.id) {
+          @for (producto of sugerenciasBusqueda; track producto.id) {
             <button
               type="button"
               class="suggestion-item"
-              (mousedown)="irAProducto(producto)"
+              (click)="irAProducto(producto)"
             >
               <img
                 [src]="producto.producto_imagenes?.[0]?.imagen_url || 'https://placehold.co/80x80'"
                 [alt]="producto.nombre"
-              >
+              />
 
               <div>
                 <p>{{ producto.nombre }}</p>
@@ -179,7 +143,7 @@
             </button>
           }
 
-          @if(busquedaSinResultados && !buscandoSugerencias) {
+          @if (busquedaSinResultados && !buscandoSugerencias) {
             <div class="suggestion-message">
               No encontramos productos para "{{ terminoBusqueda }}".
             </div>
@@ -192,24 +156,24 @@
           >
             Ver todos los resultados para "{{ terminoBusqueda }}"
           </button>
-
         </div>
       }
-
     </div>
   </div>
 }
 
 <div class="menu-bar">
-
   <div class="mega-item">
-    <a routerLink="/productos" [queryParams]="{ genero: 'caballero' }" class="menu-link">
+    <a
+      routerLink="/productos"
+      [queryParams]="{ genero: 'caballero' }"
+      class="menu-link"
+    >
       Caballero
     </a>
 
     <div class="mega-menu">
       <div class="mega-content">
-
         <div>
           <h3>Caballero</h3>
 
@@ -232,19 +196,21 @@
           <img src="/img/BotasCaballero.PNG" alt="Caballero" />
           <p>Estilo western para caballero</p>
         </div>
-
       </div>
     </div>
   </div>
 
   <div class="mega-item">
-    <a routerLink="/productos" [queryParams]="{ genero: 'dama' }" class="menu-link">
+    <a
+      routerLink="/productos"
+      [queryParams]="{ genero: 'dama' }"
+      class="menu-link"
+    >
       Dama
     </a>
 
     <div class="mega-menu">
       <div class="mega-content">
-
         <div>
           <h3>Dama</h3>
 
@@ -266,19 +232,21 @@
           <img src="/img/BotasDama.png" alt="Dama" />
           <p>Moda western para dama</p>
         </div>
-
       </div>
     </div>
   </div>
 
   <div class="mega-item">
-    <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }" class="menu-link">
+    <a
+      routerLink="/productos"
+      [queryParams]="{ genero: 'ninos' }"
+      class="menu-link"
+    >
       Niños
     </a>
 
     <div class="mega-menu">
       <div class="mega-content">
-
         <div>
           <h3>Niños</h3>
 
@@ -292,24 +260,13 @@
           <h3>Destacado</h3>
 
           <a routerLink="/productos" [queryParams]="{ genero: 'ninos' }">Colección infantil</a>
-          <!--
-          <a routerLink="/productos" [queryParams]="{ oferta: true }">Promociones</a>
-          -->
         </div>
 
         <div class="mega-promo">
           <img src="/img/Gorras.PNG" alt="Niños" />
           <p>Estilo western para los pequeños</p>
         </div>
-
       </div>
     </div>
   </div>
-
-  <!--
-  <a routerLink="/productos" [queryParams]="{ oferta: true }" class="menu-link">
-    Ofertas
-  </a>
-  -->
-
 </div>
