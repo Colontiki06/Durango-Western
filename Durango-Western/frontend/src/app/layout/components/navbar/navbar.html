@@ -1,6 +1,6 @@
 <div class="top-bar">
   Envíos gratis en compras mínimas de
-{{ envioGratisMinimo() | currency:'MXN':'symbol':'1.0-0' }}
+  {{ envioGratisMinimo() | currency:'MXN':'symbol':'1.0-0' }}
 </div>
 
 <nav class="navbar">
@@ -12,12 +12,22 @@
 
     <div class="navbar-icons">
 
-      <button type="button" class="icon-button" aria-label="Buscar" (click)="toggleSearch()">
+      <button
+        type="button"
+        class="icon-button"
+        aria-label="Buscar"
+        (click)="toggleSearch()"
+      >
         <img src="/icons/lupa.svg" alt="Buscar" />
       </button>
 
       <div class="user-menu-wrapper">
-        <button type="button" class="icon-button" aria-label="Área de usuario" (click)="toggleUserMenu()">
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Área de usuario"
+          (click)="toggleUserMenu()"
+        >
           <img src="/icons/usuario.svg" alt="Usuario" />
         </button>
 
@@ -34,10 +44,26 @@
                   Administra tu perfil, pedidos y direcciones.
                 </p>
 
-                <button type="button" (click)="goTo('/perfil')">Mi perfil</button>
-                <button type="button" (click)="goTo('/pedidos')">Mis compras</button>
-                <button type="button" (click)="goTo('/metodos-pago')">Métodos de pago</button>
-                <button type="button" (click)="logout()">Cerrar sesión</button>
+                <button
+                  type="button"
+                  (click)="goTo('/perfil')"
+                >
+                  Mi perfil
+                </button>
+
+                <button
+                  type="button"
+                  (click)="goTo('/pedidos')"
+                >
+                  Mis compras
+                </button>
+
+                <button
+                  type="button"
+                  (click)="logout()"
+                >
+                  Cerrar sesión
+                </button>
               </div>
             }
 
@@ -48,7 +74,7 @@
                 </p>
 
                 <p class="text-[#8a542f] text-sm mb-3">
-                  Inicia sesión para ver tu perfil, pedidos y métodos de pago.
+                  Inicia sesión para ver tu perfil, pedidos y direcciones.
                 </p>
 
                 <button
@@ -65,7 +91,12 @@
         }
       </div>
 
-      <button type="button" class="icon-button cart-button" routerLink="/carrito" aria-label="Carrito">
+      <button
+        type="button"
+        class="icon-button cart-button"
+        routerLink="/carrito"
+        aria-label="Carrito"
+      >
         <img src="/icons/bolso.svg" alt="Carrito" />
 
         <span *ngIf="cartCount > 0" class="cart-badge">
@@ -85,7 +116,7 @@
         type="text"
         placeholder="Buscar botas, sombreros, camisas..."
         class="search-input"
-      >
+      />
 
       <button type="button" class="search-btn">
         Buscar
@@ -123,7 +154,7 @@
         </div>
 
         <div class="mega-promo">
-          <img src="/img/BotasCaballero.PNG" alt="Caballero">
+          <img src="/img/BotasCaballero.PNG" alt="Caballero" />
           <p>Estilo western para caballero</p>
         </div>
 
@@ -157,7 +188,7 @@
         </div>
 
         <div class="mega-promo">
-          <img src="/img/BotasDama.png" alt="Dama">
+          <img src="/img/BotasDama.png" alt="Dama" />
           <p>Moda western para dama</p>
         </div>
 
@@ -190,7 +221,7 @@
         </div>
 
         <div class="mega-promo">
-          <img src="/img/Gorras.PNG" alt="Niños">
+          <img src="/img/Gorras.PNG" alt="Niños" />
           <p>Estilo western para los pequeños</p>
         </div>
 

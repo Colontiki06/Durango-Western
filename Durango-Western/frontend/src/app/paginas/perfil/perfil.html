@@ -9,7 +9,7 @@
         </h1>
 
         <p class="text-[#6b3f26] mt-3 text-lg">
-          Administra tu información personal y direcciones de entrega.
+          Administra tu información personal, direcciones de entrega y pedidos.
         </p>
       </div>
 
@@ -58,6 +58,7 @@
 
       <div class="space-y-8">
 
+        <!-- INFORMACIÓN PERSONAL -->
         <div class="bg-white rounded-2xl shadow-md border border-[#e0d2bd] p-6 md:p-8">
 
           <div class="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
@@ -204,6 +205,7 @@
 
         </div>
 
+        <!-- DIRECCIONES -->
         <div class="bg-white rounded-2xl shadow-md border border-[#e0d2bd] p-6 md:p-8">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
@@ -556,9 +558,148 @@
 
         </div>
 
+        <!-- MIS PEDIDOS -->
+        <div
+          id="mis-pedidos"
+          class="bg-white rounded-2xl shadow-md border border-[#e0d2bd] p-6 md:p-8"
+        >
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-[#2b1a10]">
+                Mis pedidos
+              </h2>
+
+              <p class="text-[#6b3f26] mt-2">
+                Consulta el historial de compras realizadas con tu cuenta.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              (click)="cargarMisPedidos()"
+              [disabled]="cargandoPedidos"
+              class="bg-[#8b542f] hover:bg-[#6f4022] text-white px-6 py-3 rounded-lg font-bold transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {{ cargandoPedidos ? 'Actualizando...' : 'Actualizar pedidos' }}
+            </button>
+          </div>
+
+          <div
+            *ngIf="cargandoPedidos"
+            class="bg-[#f5ede1] border border-[#d8c4a8] rounded-xl p-6 text-center"
+          >
+            <p class="text-[#6b3f26] font-semibold">
+              Cargando tus pedidos...
+            </p>
+          </div>
+
+          <div
+            *ngIf="!cargandoPedidos && errorPedidos"
+            class="bg-red-100 border border-red-300 text-red-700 px-5 py-4 rounded-xl font-semibold"
+          >
+            {{ errorPedidos }}
+          </div>
+
+          <div
+            *ngIf="!cargandoPedidos && !errorPedidos && pedidos.length === 0"
+            class="bg-[#f5ede1] border border-dashed border-[#b89c7a] rounded-xl p-6 text-center"
+          >
+            <p class="text-[#6b3f26]">
+              Aún no tienes pedidos registrados con esta cuenta.
+            </p>
+          </div>
+
+          <div
+            *ngIf="!cargandoPedidos && pedidos.length > 0"
+            class="space-y-5"
+          >
+            <div
+              *ngFor="let pedido of pedidos"
+              class="bg-[#f5ede1] border border-[#d8c4a8] rounded-xl p-5"
+            >
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+
+                <div>
+                  <h3 class="text-xl font-bold text-[#2b1a10]">
+                    Pedido {{ pedido.folio || ('#' + pedido.id) }}
+                  </h3>
+
+                  <p class="text-sm text-[#6b3f26] mt-1" *ngIf="pedido.created_at">
+                    Realizado el {{ pedido.created_at | date:'dd/MM/yyyy, h:mm a' }}
+                  </p>
+
+                  <p class="text-sm text-[#6b3f26] mt-1">
+                    {{ obtenerTotalProductosPedido(pedido) }} producto(s)
+                  </p>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    class="inline-flex items-center border px-3 py-1 rounded-full text-xs font-bold"
+                    [ngClass]="obtenerClaseEstadoPedido(pedido)"
+                  >
+                    Pago: {{ obtenerEstadoPedido(pedido) }}
+                  </span>
+
+                  <span
+                    class="inline-flex items-center border px-3 py-1 rounded-full text-xs font-bold"
+                    [ngClass]="obtenerClaseEstadoEnvio(pedido)"
+                  >
+                    Envío: {{ obtenerEstadoEnvio(pedido) }}
+                  </span>
+                </div>
+
+              </div>
+
+              <div class="space-y-3 mb-4">
+                <div
+                  *ngFor="let item of pedido.pedido_items"
+                  class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-t border-[#d8c4a8] pt-3"
+                >
+                  <div>
+                    <p class="font-bold text-[#2b1a10]">
+                      {{ item.nombre_producto }}
+                    </p>
+
+                    <p class="text-sm text-[#6b3f26]">
+                      Cantidad: {{ item.cantidad }}
+                      <span *ngIf="item.talla">
+                        · Talla: {{ item.talla }}
+                      </span>
+                    </p>
+                  </div>
+
+                  <p class="font-bold text-[#2b1a10]">
+                    {{ item.subtotal | currency:'MXN':'symbol':'1.0-0' }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="border-t border-[#d8c4a8] pt-4 space-y-2">
+                <div class="flex justify-between text-sm text-[#6b3f26]">
+                  <span>Subtotal</span>
+                  <span>{{ pedido.subtotal | currency:'MXN':'symbol':'1.0-0' }}</span>
+                </div>
+
+                <div class="flex justify-between text-sm text-[#6b3f26]">
+                  <span>Envío</span>
+                  <span>{{ pedido.envio | currency:'MXN':'symbol':'1.0-0' }}</span>
+                </div>
+
+                <div class="flex justify-between text-lg font-bold text-[#2b1a10]">
+                  <span>Total</span>
+                  <span>{{ pedido.total | currency:'MXN':'symbol':'1.0-0' }}</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <aside class="bg-white rounded-2xl shadow-md border border-[#e0d2bd] p-6 md:p-8 h-fit">
+      <!-- ACCESOS RÁPIDOS -->
+      <aside class="bg-white rounded-2xl shadow-md border border-[#e0d2bd] p-6 md:p-8 h-fit lg:sticky lg:top-24">
         <h2 class="text-2xl font-bold text-[#2b1a10] mb-6">
           Accesos rápidos
         </h2>

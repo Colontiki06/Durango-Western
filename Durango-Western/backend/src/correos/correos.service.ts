@@ -35,10 +35,7 @@ export class CorreosService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async enviarCorreoBienvenida(data: {
-    nombre: string;
-    correo: string;
-  }) {
+  async enviarCorreoBienvenida(data: { nombre: string; correo: string }) {
     const asunto = 'Bienvenido a Durango Western';
 
     const html = `
@@ -110,6 +107,62 @@ export class CorreosService {
               <strong>Total:</strong> ${totalTexto}
             </p>
           </div>
+
+          <p style="color:#8a542f; font-size:14px;">
+            Este correo es automático, por favor no respondas a este mensaje.
+          </p>
+        </div>
+      </div>
+    `;
+
+    return this.enviarCorreo({
+      para: data.correo,
+      nombre: data.nombre,
+      asunto,
+      html,
+    });
+  }
+
+  async enviarCorreoPedidoEnviado(data: {
+    nombre: string;
+    correo: string;
+    pedidoId: string;
+    paqueteria: string;
+    numeroGuia: string;
+  }) {
+    const asunto = `Tu pedido ${data.pedidoId} fue enviado - Durango Western`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; background:#f5ede1; padding:24px;">
+        <div style="max-width:600px; margin:0 auto; background:#fff8ec; border-radius:14px; padding:28px; border:1px solid #e0d2bd;">
+          <h1 style="color:#2f1b12; margin:0 0 12px;">Tu pedido fue enviado</h1>
+
+          <p style="color:#4b2e1f; font-size:16px;">
+            Hola <strong>${this.escapeHtml(data.nombre)}</strong>,
+          </p>
+
+          <p style="color:#4b2e1f; font-size:16px; line-height:1.5;">
+            Tu pedido ya fue preparado y entregado a la paquetería.
+          </p>
+
+          <div style="margin:22px 0; padding:16px; background:#f3e3cc; border-radius:10px;">
+            <p style="margin:0 0 8px; color:#2f1b12;">
+              <strong>Pedido:</strong> ${this.escapeHtml(data.pedidoId)}
+            </p>
+
+            <p style="margin:0 0 8px; color:#2f1b12;">
+              <strong>Paquetería:</strong> ${this.escapeHtml(data.paqueteria)}
+            </p>
+
+            <p style="margin:0; color:#2f1b12;">
+              <strong>Número de guía:</strong> ${this.escapeHtml(data.numeroGuia)}
+            </p>
+          </div>
+
+          <p style="color:#4b2e1f; font-size:16px; line-height:1.5;">
+            Puedes usar este número de guía para dar seguimiento directamente
+            en el sitio oficial de la paquetería.
+          </p>
 
           <p style="color:#8a542f; font-size:14px;">
             Este correo es automático, por favor no respondas a este mensaje.
@@ -243,10 +296,7 @@ export class CorreosService {
     });
   }
 
-  async enviarCorreoPrueba(data: {
-    correo: string;
-    nombre?: string;
-  }) {
+  async enviarCorreoPrueba(data: { correo: string; nombre?: string }) {
     return this.enviarCorreo({
       para: data.correo,
       nombre: data.nombre || 'Cliente',
@@ -374,7 +424,8 @@ export class CorreosService {
       );
     }
 
-    const textoCompleto = `${nombre} ${correo} ${asunto} ${mensaje}`.toLowerCase();
+    const textoCompleto =
+      `${nombre} ${correo} ${asunto} ${mensaje}`.toLowerCase();
 
     if (this.contieneHtmlOScript(textoCompleto)) {
       throw new BadRequestException(
@@ -383,9 +434,7 @@ export class CorreosService {
     }
 
     if (this.tieneDemasiadosLinks(textoCompleto)) {
-      throw new BadRequestException(
-        'El mensaje contiene demasiados enlaces.',
-      );
+      throw new BadRequestException('El mensaje contiene demasiados enlaces.');
     }
 
     if (this.esTextoRepetitivo(mensaje)) {
