@@ -32,7 +32,8 @@
             </p>
 
             <a
-              [routerLink]="banner.enlaceBoton || '/productos'"
+              [routerLink]="rutaBanner(banner.enlaceBoton)"
+              [queryParams]="queryBanner(banner.enlaceBoton)"
               class="inline-block bg-[#8a542f] hover:bg-[#6b3f26] text-white px-5 sm:px-6 md:px-8 py-3 text-sm md:text-base font-semibold transition"
             >
               {{ banner.textoBoton || banner.boton }}

@@ -200,7 +200,7 @@ export class Productos implements OnInit {
       camisas: ['S', 'M', 'L', 'XL'],
       pantalones: ['28', '30', '32', '34', '36', '38'],
       cintos: ['36', '38', '40', '42'],
-      bolsos: ['Unitalla']
+      accesorios: ['Unitalla']
     };
 
     return tallasPorTipo[this.tipo] ?? ['25', '26', '27', '28', '29', '30'];
@@ -241,7 +241,6 @@ export class Productos implements OnInit {
       camisas: 'Camisas',
       pantalones: 'Pantalones',
       cintos: 'Cintos',
-      bolsos: 'Bolsos',
       accesorios: 'Accesorios',
       caballero: 'Caballero',
       dama: 'Dama',

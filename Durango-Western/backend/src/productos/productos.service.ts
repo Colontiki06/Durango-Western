@@ -24,8 +24,18 @@ export class ProductosService {
     if (texto.includes('bota')) return 'BOTA';
     if (texto.includes('sombrero') || texto.includes('tejana')) return 'SOMB';
     if (texto.includes('camisa')) return 'CAM';
-    if (texto.includes('pantalon') || texto.includes('pantalón') || texto.includes('tejano')) return 'PANT';
-    if (texto.includes('cinto') || texto.includes('cinturon') || texto.includes('cinturón')) return 'CINTO';
+    if (
+      texto.includes('pantalon') ||
+      texto.includes('pantalón') ||
+      texto.includes('tejano')
+    )
+      return 'PANT';
+    if (
+      texto.includes('cinto') ||
+      texto.includes('cinturon') ||
+      texto.includes('cinturón')
+    )
+      return 'CINTO';
     if (texto.includes('bolso') || texto.includes('mochila')) return 'BOLSO';
 
     return 'PROD';
@@ -37,8 +47,18 @@ export class ProductosService {
     if (texto.includes('bota')) return 'botas';
     if (texto.includes('sombrero') || texto.includes('tejana')) return 'sombreros';
     if (texto.includes('camisa')) return 'camisas';
-    if (texto.includes('pantalon') || texto.includes('pantalón') || texto.includes('tejano')) return 'pantalones';
-    if (texto.includes('cinto') || texto.includes('cinturon') || texto.includes('cinturón')) return 'cintos';
+    if (
+      texto.includes('pantalon') ||
+      texto.includes('pantalón') ||
+      texto.includes('tejano')
+    )
+      return 'pantalones';
+    if (
+      texto.includes('cinto') ||
+      texto.includes('cinturon') ||
+      texto.includes('cinturón')
+    )
+      return 'cintos';
     if (texto.includes('bolso') || texto.includes('mochila')) return 'bolsos';
 
     return null;
@@ -64,7 +84,10 @@ export class ProductosService {
     return 'GEN';
   }
 
-  async generarCodigoProducto(nombre: string, categoriaId: string): Promise<string> {
+  async generarCodigoProducto(
+    nombre: string,
+    categoriaId: string,
+  ): Promise<string> {
     const categoria = await this.prisma.categorias.findUnique({
       where: { id: categoriaId },
     });
@@ -79,226 +102,226 @@ export class ProductosService {
   }
 
   async findAll(filtros: any = {}) {
-  const esAdmin = filtros?.admin === true || filtros?.admin === 'true';
+    const esAdmin = filtros?.admin === true || filtros?.admin === 'true';
 
-  const where: any = {};
+    const where: any = {};
 
-  if (!esAdmin) {
-    where.activo = true;
-  }
+    if (!esAdmin) {
+      where.activo = true;
+    }
 
-  const config = await (this.prisma as any).configuracion_tienda.findFirst();
+    const config = await (this.prisma as any).configuracion_tienda.findFirst();
 
-  const mostrarAgotados = config?.mostrar_productos_agotados ?? false;
+    const mostrarAgotados = config?.mostrar_productos_agotados ?? false;
 
-  const esCatalogoPublico =
-    filtros.publico === true || filtros.publico === 'true';
+    const esCatalogoPublico =
+      filtros.publico === true || filtros.publico === 'true';
 
-  if (esCatalogoPublico && !mostrarAgotados) {
-    where.producto_variantes = {
-      some: {
-        activo: true,
-        stock: {
-          gt: 0,
-        },
-      },
-    };
-  }
-
-  if (filtros.genero) {
-    where.categorias = {
-      is: {
-        slug: filtros.genero,
-      },
-    };
-  }
-
-  if (filtros.tipo) {
-    where.tipos_producto = {
-      is: {
-        slug: filtros.tipo,
-      },
-    };
-  }
-
-  if (filtros.categoria && filtros.categoria !== 'todos') {
-    const tiposProducto = [
-      'botas',
-      'sombreros',
-      'camisas',
-      'pantalones',
-      'cintos',
-      'bolsos',
-    ];
-
-    const categorias = [
-      'caballero',
-      'dama',
-      'ninos',
-      'niños',
-      'accesorios',
-    ];
-
-    if (tiposProducto.includes(filtros.categoria)) {
-      where.tipos_producto = {
-        is: {
-          slug: filtros.categoria,
+    if (esCatalogoPublico && !mostrarAgotados) {
+      where.producto_variantes = {
+        some: {
+          activo: true,
+          stock: {
+            gt: 0,
+          },
         },
       };
     }
 
-    if (categorias.includes(filtros.categoria)) {
+    if (filtros.genero) {
       where.categorias = {
         is: {
-          slug: filtros.categoria,
+          slug: filtros.genero,
         },
       };
     }
-  }
 
-  if (filtros.talla) {
-    where.producto_variantes = {
-      some: {
-        activo: true,
-        stock: {
-          gt: 0,
+    if (filtros.tipo) {
+      where.tipos_producto = {
+        is: {
+          slug: filtros.tipo,
         },
-        tallas: {
+      };
+    }
+
+    if (filtros.categoria && filtros.categoria !== 'todos') {
+      const tiposProducto = [
+        'botas',
+        'sombreros',
+        'camisas',
+        'pantalones',
+        'cintos',
+        'bolsos',
+      ];
+
+      const categorias = [
+        'caballero',
+        'dama',
+        'ninos',
+        'niños',
+        'accesorios',
+      ];
+
+      if (tiposProducto.includes(filtros.categoria)) {
+        where.tipos_producto = {
           is: {
-            nombre: filtros.talla,
+            slug: filtros.categoria,
           },
-        },
-      },
-    };
-  }
-
-  if (filtros.precioMin !== undefined && filtros.precioMin !== '') {
-    where.precio = {
-      ...where.precio,
-      gte: String(filtros.precioMin),
-    };
-  }
-
-  if (filtros.precioMax !== undefined && filtros.precioMax !== '') {
-    where.precio = {
-      ...where.precio,
-      lte: String(filtros.precioMax),
-    };
-  }
-
-  if (filtros.destacado) {
-    where.destacado = true;
-  }
-
-  if (filtros.buscar) {
-    const palabras = String(filtros.buscar)
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean);
-
-    where.AND = [
-      ...(where.AND ?? []),
-      ...palabras.map((palabra) => ({
-        OR: [
-          {
-            nombre: {
-              contains: palabra,
-              mode: 'insensitive',
-            },
-          },
-          {
-            descripcion: {
-              contains: palabra,
-              mode: 'insensitive',
-            },
-          },
-          {
-            codigo: {
-              contains: palabra,
-              mode: 'insensitive',
-            },
-          },
-          {
-            categorias: {
-              is: {
-                nombre: {
-                  contains: palabra,
-                  mode: 'insensitive',
-                },
-              },
-            },
-          },
-          {
-            tipos_producto: {
-              is: {
-                nombre: {
-                  contains: palabra,
-                  mode: 'insensitive',
-                },
-              },
-            },
-          },
-        ],
-      })),
-    ];
-  }
-
-  const productos = await this.prisma.productos.findMany({
-    where,
-    include: {
-      producto_imagenes: {
-        orderBy: { orden: 'asc' },
-      },
-      categorias: true,
-      tipos_producto: true,
-      producto_variantes: {
-        where: {
-          activo: true,
-        },
-        include: {
-          tallas: true,
-          colores: true,
-        },
-      },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-
-  const productosConVendidos = await Promise.all(
-    productos.map(async (producto) => {
-      const variantesIds = producto.producto_variantes.map(
-        (variante) => variante.id
-      );
-
-      if (variantesIds.length === 0) {
-        return {
-          ...producto,
-          vendidos: 0,
         };
       }
 
-      const totalVendido = await this.prisma.pedido_items.aggregate({
-        where: {
-          variante_id: {
-            in: variantesIds,
+      if (categorias.includes(filtros.categoria)) {
+        where.categorias = {
+          is: {
+            slug: filtros.categoria,
+          },
+        };
+      }
+    }
+
+    if (filtros.talla) {
+      where.producto_variantes = {
+        some: {
+          activo: true,
+          stock: {
+            gt: 0,
+          },
+          tallas: {
+            is: {
+              nombre: filtros.talla,
+            },
           },
         },
-        _sum: {
-          cantidad: true,
-        },
-      });
-
-      return {
-        ...producto,
-        vendidos: Number(totalVendido._sum.cantidad ?? 0),
       };
-    })
-  );
+    }
 
-  return productosConVendidos;
-}
+    if (filtros.precioMin !== undefined && filtros.precioMin !== '') {
+      where.precio = {
+        ...where.precio,
+        gte: String(filtros.precioMin),
+      };
+    }
+
+    if (filtros.precioMax !== undefined && filtros.precioMax !== '') {
+      where.precio = {
+        ...where.precio,
+        lte: String(filtros.precioMax),
+      };
+    }
+
+    if (filtros.destacado) {
+      where.destacado = true;
+    }
+
+    if (filtros.buscar) {
+      const palabras = String(filtros.buscar)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+      where.AND = [
+        ...(where.AND ?? []),
+        ...palabras.map((palabra) => ({
+          OR: [
+            {
+              nombre: {
+                contains: palabra,
+                mode: 'insensitive',
+              },
+            },
+            {
+              descripcion: {
+                contains: palabra,
+                mode: 'insensitive',
+              },
+            },
+            {
+              codigo: {
+                contains: palabra,
+                mode: 'insensitive',
+              },
+            },
+            {
+              categorias: {
+                is: {
+                  nombre: {
+                    contains: palabra,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            },
+            {
+              tipos_producto: {
+                is: {
+                  nombre: {
+                    contains: palabra,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            },
+          ],
+        })),
+      ];
+    }
+
+    const productos = await this.prisma.productos.findMany({
+      where,
+      include: {
+        producto_imagenes: {
+          orderBy: { orden: 'asc' },
+        },
+        categorias: true,
+        tipos_producto: true,
+        producto_variantes: {
+          where: {
+            activo: true,
+          },
+          include: {
+            tallas: true,
+            colores: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
+
+    const productosConVendidos = await Promise.all(
+      productos.map(async (producto) => {
+        const variantesIds = producto.producto_variantes.map(
+          (variante) => variante.id,
+        );
+
+        if (variantesIds.length === 0) {
+          return {
+            ...producto,
+            vendidos: 0,
+          };
+        }
+
+        const totalVendido = await this.prisma.pedido_items.aggregate({
+          where: {
+            variante_id: {
+              in: variantesIds,
+            },
+          },
+          _sum: {
+            cantidad: true,
+          },
+        });
+
+        return {
+          ...producto,
+          vendidos: Number(totalVendido._sum.cantidad ?? 0),
+        };
+      }),
+    );
+
+    return productosConVendidos;
+  }
 
   async findBySlug(slug: string) {
     return this.prisma.productos.findUnique({
@@ -416,10 +439,10 @@ export class ProductosService {
           where: { id: variante.id },
           data: {
             stock: Number(variante.stock),
-            peso_kg: Number(variante.peso_kg ?? 1),
-            largo_cm: Number(variante.largo_cm ?? 30),
-            ancho_cm: Number(variante.ancho_cm ?? 20),
-            alto_cm: Number(variante.alto_cm ?? 10),
+            peso_kg: String(variante.peso_kg ?? 1),
+            largo_cm: String(variante.largo_cm ?? 30),
+            ancho_cm: String(variante.ancho_cm ?? 20),
+            alto_cm: String(variante.alto_cm ?? 10),
           },
         });
       }
@@ -532,15 +555,15 @@ export class ProductosService {
     });
   }
 
- async ocultar(id: string) {
-  return this.prisma.productos.update({
-    where: { id },
-    data: {
-      activo: false,
-      updated_at: new Date(),
-    },
-  });
-}
+  async ocultar(id: string) {
+    return this.prisma.productos.update({
+      where: { id },
+      data: {
+        activo: false,
+        updated_at: new Date(),
+      },
+    });
+  }
 
   async setImagenPrincipal(imagenId: string) {
     const imagen = await this.prisma.producto_imagenes.findUnique({
@@ -621,13 +644,12 @@ export class ProductosService {
   }
 
   async reactivar(id: string) {
-  return this.prisma.productos.update({
-    where: { id },
-    data: {
-      activo: true,
-      updated_at: new Date(),
-    },
-  });
-}
-
+    return this.prisma.productos.update({
+      where: { id },
+      data: {
+        activo: true,
+        updated_at: new Date(),
+      },
+    });
+  }
 }
