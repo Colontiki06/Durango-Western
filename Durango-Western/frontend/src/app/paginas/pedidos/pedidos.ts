@@ -176,7 +176,6 @@ export class Pedidos implements OnInit {
 
           this.errorMessage =
             'No se pudieron cargar tus compras. Intenta nuevamente.';
-
           this.cdr.detectChanges();
         },
       });

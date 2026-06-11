@@ -28,16 +28,14 @@ export class ProductosService {
       texto.includes('pantalon') ||
       texto.includes('pantalón') ||
       texto.includes('tejano')
-    ) {
+    )
       return 'PANT';
-    }
     if (
       texto.includes('cinto') ||
       texto.includes('cinturon') ||
       texto.includes('cinturón')
-    ) {
+    )
       return 'CINTO';
-    }
     if (texto.includes('bolso') || texto.includes('mochila')) return 'BOLSO';
 
     return 'PROD';
@@ -47,24 +45,20 @@ export class ProductosService {
     const texto = nombre.toLowerCase();
 
     if (texto.includes('bota')) return 'botas';
-    if (texto.includes('sombrero') || texto.includes('tejana')) {
-      return 'sombreros';
-    }
+    if (texto.includes('sombrero') || texto.includes('tejana')) return 'sombreros';
     if (texto.includes('camisa')) return 'camisas';
     if (
       texto.includes('pantalon') ||
       texto.includes('pantalón') ||
       texto.includes('tejano')
-    ) {
+    )
       return 'pantalones';
-    }
     if (
       texto.includes('cinto') ||
       texto.includes('cinturon') ||
       texto.includes('cinturón')
-    ) {
+    )
       return 'cintos';
-    }
     if (texto.includes('bolso') || texto.includes('mochila')) return 'bolsos';
 
     return null;
@@ -73,9 +67,7 @@ export class ProductosService {
   private async obtenerTipoProductoId(nombre: string): Promise<string | null> {
     const slug = this.detectarSlugTipoProducto(nombre);
 
-    if (!slug) {
-      return null;
-    }
+    if (!slug) return null;
 
     const tipoProducto = await this.prisma.tipos_producto.findUnique({
       where: { slug },
@@ -162,7 +154,13 @@ export class ProductosService {
         'bolsos',
       ];
 
-      const categorias = ['caballero', 'dama', 'ninos', 'niños', 'accesorios'];
+      const categorias = [
+        'caballero',
+        'dama',
+        'ninos',
+        'niños',
+        'accesorios',
+      ];
 
       if (tiposProducto.includes(filtros.categoria)) {
         where.tipos_producto = {
@@ -216,55 +214,56 @@ export class ProductosService {
     }
 
     if (filtros.buscar) {
-      const palabras = String(filtros.buscar).trim().split(/\s+/).filter(Boolean);
+      const palabras = String(filtros.buscar)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
 
-      if (palabras.length > 0) {
-        where.AND = [
-          ...(where.AND ?? []),
-          ...palabras.map((palabra) => ({
-            OR: [
-              {
-                nombre: {
-                  contains: palabra,
-                  mode: 'insensitive',
-                },
+      where.AND = [
+        ...(where.AND ?? []),
+        ...palabras.map((palabra) => ({
+          OR: [
+            {
+              nombre: {
+                contains: palabra,
+                mode: 'insensitive',
               },
-              {
-                descripcion: {
-                  contains: palabra,
-                  mode: 'insensitive',
-                },
+            },
+            {
+              descripcion: {
+                contains: palabra,
+                mode: 'insensitive',
               },
-              {
-                codigo: {
-                  contains: palabra,
-                  mode: 'insensitive',
-                },
+            },
+            {
+              codigo: {
+                contains: palabra,
+                mode: 'insensitive',
               },
-              {
-                categorias: {
-                  is: {
-                    nombre: {
-                      contains: palabra,
-                      mode: 'insensitive',
-                    },
+            },
+            {
+              categorias: {
+                is: {
+                  nombre: {
+                    contains: palabra,
+                    mode: 'insensitive',
                   },
                 },
               },
-              {
-                tipos_producto: {
-                  is: {
-                    nombre: {
-                      contains: palabra,
-                      mode: 'insensitive',
-                    },
+            },
+            {
+              tipos_producto: {
+                is: {
+                  nombre: {
+                    contains: palabra,
+                    mode: 'insensitive',
                   },
                 },
               },
-            ],
-          })),
-        ];
-      }
+            },
+          ],
+        })),
+      ];
     }
 
     const productos = await this.prisma.productos.findMany({
@@ -276,11 +275,9 @@ export class ProductosService {
         categorias: true,
         tipos_producto: true,
         producto_variantes: {
-          where: esAdmin
-            ? undefined
-            : {
-                activo: true,
-              },
+          where: {
+            activo: true,
+          },
           include: {
             tallas: true,
             colores: true,

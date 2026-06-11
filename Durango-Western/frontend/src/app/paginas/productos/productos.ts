@@ -37,43 +37,56 @@ export class Productos implements OnInit {
   ordenSeleccionado = '';
 
   ngOnInit(): void {
-    this.route.queryParams
-    
-      .pipe(
-        switchMap(params => {
-          this.genero = params['genero'] ?? '';
-          this.tipo = params['tipo'] ?? '';
-          this.talla = params['talla'] ?? '';
-          this.buscar = params['buscar'] ?? '';
+  this.route.queryParams
+    .pipe(
+      switchMap(params => {
+        const slugRuta =
+          this.route.snapshot.paramMap.get('categoria') ??
+          this.route.snapshot.paramMap.get('tipo') ??
+          '';
 
-          this.precioMin = Number(params['precioMin'] ?? this.precioMinimo);
-          this.precioMax = Number(params['precioMax'] ?? this.precioMaximo);
-          
+        const generos = ['caballero', 'dama', 'ninos'];
 
-          const filtros = {
-  publico: true,
-  genero: this.genero,
-  tipo: this.tipo,
-  talla: this.talla,
-  precioMin: this.precioMin,
-  precioMax: this.precioMax,
-  buscar: this.buscar,
-};
+        this.genero = params['genero'] ?? '';
+        this.tipo = params['tipo'] ?? '';
+        this.talla = params['talla'] ?? '';
+        this.buscar = params['buscar'] ?? '';
 
-          return this.api.get<any[]>('productos', filtros);
-        })
-      )
-      .subscribe({
-        next: (data) => {
-          this.products = [...data];
-          this.ordenarProductos();
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error cargando productos', error);
+        if (slugRuta && !this.genero && !this.tipo) {
+          if (generos.includes(slugRuta)) {
+            this.genero = slugRuta;
+          } else {
+            this.tipo = slugRuta;
+          }
         }
-      });
-  }
+
+        this.precioMin = Number(params['precioMin'] ?? this.precioMinimo);
+        this.precioMax = Number(params['precioMax'] ?? this.precioMaximo);
+
+        const filtros = {
+          publico: true,
+          genero: this.genero,
+          tipo: this.tipo,
+          talla: this.talla,
+          precioMin: this.precioMin,
+          precioMax: this.precioMax,
+          buscar: this.buscar,
+        };
+
+        return this.api.get<any[]>('productos', filtros);
+      })
+    )
+    .subscribe({
+      next: (data) => {
+        this.products = [...data];
+        this.ordenarProductos();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error cargando productos', error);
+      }
+    });
+}
 
   ordenarProductos(): void {
     switch (this.ordenSeleccionado) {
@@ -187,7 +200,7 @@ export class Productos implements OnInit {
       camisas: ['S', 'M', 'L', 'XL'],
       pantalones: ['28', '30', '32', '34', '36', '38'],
       cintos: ['36', '38', '40', '42'],
-      bolsos: ['Unitalla']
+      accesorios: ['Unitalla']
     };
 
     return tallasPorTipo[this.tipo] ?? ['25', '26', '27', '28', '29', '30'];
@@ -228,7 +241,6 @@ export class Productos implements OnInit {
       camisas: 'Camisas',
       pantalones: 'Pantalones',
       cintos: 'Cintos',
-      bolsos: 'Bolsos',
       accesorios: 'Accesorios',
       caballero: 'Caballero',
       dama: 'Dama',
