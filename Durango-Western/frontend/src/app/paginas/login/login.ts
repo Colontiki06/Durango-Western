@@ -1,12 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-  ApplicationRef,
-  ChangeDetectorRef,
-  Component,
-  NgZone,
-} from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { finalize, timeout } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth/auth.service';
 
@@ -25,45 +21,62 @@ export class Login {
 
   error = '';
   mensaje = '';
+
   loading = false;
   enviandoRecuperacion = false;
 
   modoRecuperacion = false;
+  mostrarPassword = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef,
-    private ngZone: NgZone,
-    private appRef: ApplicationRef
+    private cdr: ChangeDetectorRef
   ) {}
 
   login(): void {
+    if (this.loading) return;
+
     this.error = '';
     this.mensaje = '';
 
-    if (!this.email.trim()) {
+    const correo = this.email.trim().toLowerCase();
+    const password = this.password.trim();
+
+    if (!correo) {
       this.error = 'Ingresa tu correo electrónico.';
-      this.refrescarVista();
+      this.actualizarVista();
       return;
     }
 
-    if (!this.password.trim()) {
+    if (!this.emailValido(correo)) {
+      this.error = 'Ingresa un correo electrónico válido.';
+      this.actualizarVista();
+      return;
+    }
+
+    if (!password) {
       this.error = 'Ingresa tu contraseña.';
-      this.refrescarVista();
+      this.actualizarVista();
       return;
     }
 
+    this.email = correo;
     this.loading = true;
-    this.refrescarVista();
+    this.actualizarVista();
 
-    this.authService.login(this.email, this.password).subscribe({
-      next: () => {
-        this.ngZone.run(() => {
+    this.authService
+      .login(correo, password)
+      .pipe(
+        timeout(10000),
+        finalize(() => {
           this.loading = false;
-          this.refrescarVista();
-
+          this.actualizarVista();
+        })
+      )
+      .subscribe({
+        next: () => {
           const redirect = this.route.snapshot.queryParamMap.get('redirect');
 
           if (redirect) {
@@ -72,45 +85,61 @@ export class Login {
           }
 
           this.router.navigate(['/perfil']);
-        });
-      },
-      error: (error) => {
-        this.ngZone.run(() => {
-          this.loading = false;
+        },
 
-          if (error.status === 401) {
+        error: (error) => {
+          console.error('Error login:', error);
+
+          if (error?.status === 401) {
             this.error = 'Correo o contraseña incorrectos.';
-            this.refrescarVista();
+            this.actualizarVista();
             return;
           }
 
-          if (error.status === 400) {
-            this.error = 'Revisa los datos ingresados.';
-            this.refrescarVista();
+          if (error?.status === 400) {
+            this.error = 'El correo o la contraseña no tienen un formato válido.';
+            this.actualizarVista();
             return;
           }
 
-          if (error.status === 0) {
+          if (error?.status === 404) {
+            this.error = 'No existe una cuenta registrada con este correo.';
+            this.actualizarVista();
+            return;
+          }
+
+          if (error?.status === 0) {
             this.error = 'No se pudo conectar con el servidor.';
-            this.refrescarVista();
+            this.actualizarVista();
             return;
           }
 
-          this.error = 'No se pudo iniciar sesión. Intenta nuevamente.';
-          this.refrescarVista();
-        });
-      },
-    });
+          if (error?.name === 'TimeoutError') {
+            this.error = 'El servidor tardó demasiado en responder.';
+            this.actualizarVista();
+            return;
+          }
+
+          this.error =
+            error?.error?.message ||
+            error?.error?.error ||
+            'No se pudo iniciar sesión. Verifica tus datos e intenta nuevamente.';
+
+          this.actualizarVista();
+        },
+      });
   }
 
   abrirRecuperacion(): void {
+    if (this.loading) return;
+
     this.error = '';
     this.mensaje = '';
     this.modoRecuperacion = true;
     this.enviandoRecuperacion = false;
     this.emailRecuperacion = this.email.trim().toLowerCase();
 
-    this.refrescarVista();
+    this.actualizarVista();
   }
 
   cancelarRecuperacion(): void {
@@ -119,17 +148,22 @@ export class Login {
     this.modoRecuperacion = false;
     this.enviandoRecuperacion = false;
 
-    this.refrescarVista();
+    this.actualizarVista();
   }
 
   limpiarAlertas(): void {
     this.error = '';
     this.mensaje = '';
+  }
 
-    this.refrescarVista();
+  togglePassword(): void {
+    this.mostrarPassword = !this.mostrarPassword;
+    this.actualizarVista();
   }
 
   enviarCorreoRecuperacion(): void {
+    if (this.enviandoRecuperacion) return;
+
     this.error = '';
     this.mensaje = '';
 
@@ -137,92 +171,87 @@ export class Login {
 
     if (!correo) {
       this.error = 'Ingresa el correo de tu cuenta.';
-      this.refrescarVista();
+      this.actualizarVista();
       return;
     }
 
     if (!this.emailValido(correo)) {
       this.error = 'Ingresa un correo válido.';
-      this.refrescarVista();
+      this.actualizarVista();
       return;
     }
 
+    this.emailRecuperacion = correo;
     this.enviandoRecuperacion = true;
-    this.refrescarVista();
+    this.actualizarVista();
 
-    this.authService.forgotPassword(correo).subscribe({
-      next: (response) => {
-        this.ngZone.run(() => {
+    this.authService
+      .forgotPassword(correo)
+      .pipe(
+        timeout(10000),
+        finalize(() => {
           this.enviandoRecuperacion = false;
+          this.actualizarVista();
+        })
+      )
+      .subscribe({
+        next: (response) => {
           this.error = '';
           this.mensaje =
             response?.message ||
             'Si el correo está registrado, recibirás instrucciones para cambiar tu contraseña. Revisa tu bandeja de entrada o la carpeta de spam.';
 
-          this.refrescarVista();
-        });
-      },
-      error: (error) => {
-        this.ngZone.run(() => {
-          this.enviandoRecuperacion = false;
-          this.mensaje = '';
+          this.actualizarVista();
+        },
 
-          if (error.status === 0) {
+        error: (error) => {
+          console.error('Error recuperación:', error);
+
+          if (error?.status === 0) {
             this.error = 'No se pudo conectar con el servidor.';
-            this.refrescarVista();
+            this.actualizarVista();
+            return;
+          }
+
+          if (error?.name === 'TimeoutError') {
+            this.error = 'El servidor tardó demasiado en responder.';
+            this.actualizarVista();
             return;
           }
 
           this.error =
             error?.error?.message ||
+            error?.error?.error ||
             'No se pudo enviar el correo de recuperación. Intenta nuevamente.';
 
-          this.refrescarVista();
-        });
-      },
-    });
+          this.actualizarVista();
+        },
+      });
   }
 
   private emailValido(email: string): boolean {
     const correo = email.trim().toLowerCase();
-
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-    if (!regex.test(correo)) {
-      return false;
-    }
-
-    if (correo.includes('..')) {
-      return false;
-    }
+    if (!regex.test(correo)) return false;
+    if (correo.includes('..')) return false;
 
     const partes = correo.split('@');
 
-    if (partes.length !== 2) {
-      return false;
-    }
+    if (partes.length !== 2) return false;
 
     const [usuario, dominio] = partes;
 
-    if (!usuario || !dominio) {
-      return false;
-    }
-
-    if (usuario.length > 64 || dominio.length > 253) {
-      return false;
-    }
-
-    if (dominio.startsWith('.') || dominio.endsWith('.')) {
-      return false;
-    }
+    if (!usuario || !dominio) return false;
+    if (usuario.length > 64 || dominio.length > 253) return false;
+    if (dominio.startsWith('.') || dominio.endsWith('.')) return false;
 
     return true;
   }
 
-  private refrescarVista(): void {
+  private actualizarVista(): void {
     setTimeout(() => {
       this.cdr.detectChanges();
-      this.appRef.tick();
-    }, 0);
+    });
   }
 }

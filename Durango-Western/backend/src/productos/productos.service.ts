@@ -578,69 +578,116 @@ export class ProductosService {
   }
 
   async update(id: string, body: any) {
-    const productoActual = await this.db.productos.findUnique({
-      where: {
-        id,
-      },
-    });
+  const productoActual = await this.db.productos.findUnique({
+    where: { id },
+  });
 
-    if (!productoActual) {
-      throw new NotFoundException('Producto no encontrado');
-    }
-
-    const data: any = {};
-
-    if (body.nombre !== undefined) {
-      data.nombre = body.nombre;
-    }
-
-    if (body.descripcion !== undefined) {
-      data.descripcion = body.descripcion || null;
-    }
-
-    if (body.precio !== undefined) {
-      data.precio = Number(body.precio || 0);
-    }
-
-    if (body.codigo !== undefined) {
-      data.codigo = body.codigo || productoActual.codigo;
-    }
-
-    if (body.activo !== undefined) {
-      data.activo = Boolean(body.activo);
-    }
-
-    if (body.destacado !== undefined) {
-      data.destacado = Boolean(body.destacado);
-    }
-
-    if (body.categoria_id !== undefined || body.categoriaId !== undefined) {
-      data.categoria_id = body.categoria_id || body.categoriaId || null;
-    }
-
-    if (
-      body.tipo_producto_id !== undefined ||
-      body.tipoProductoId !== undefined
-    ) {
-      data.tipo_producto_id =
-        body.tipo_producto_id || body.tipoProductoId || null;
-    }
-
-    if (body.slug !== undefined) {
-      data.slug = await this.generarSlugUnico(body.slug || body.nombre, id);
-    } else if (body.nombre && body.nombre !== productoActual.nombre) {
-      data.slug = await this.generarSlugUnico(body.nombre, id);
-    }
-
-    await this.db.productos.update({
-      where: {
-        id,
-      },
-      data,
-    });
-
-    return this.findOne(id);
+  if (!productoActual) {
+    throw new NotFoundException('Producto no encontrado');
   }
+
+  const data: any = {};
+
+  if (body.nombre !== undefined) data.nombre = body.nombre;
+
+  if (body.descripcion !== undefined) {
+    data.descripcion = body.descripcion || null;
+  }
+
+  if (body.precio !== undefined) {
+    data.precio = Number(body.precio || 0);
+  }
+
+  if (body.costo !== undefined) {
+    data.costo = Number(body.costo || 0);
+  }
+
+  if (body.estado !== undefined) {
+    const estado = String(body.estado).toLowerCase();
+
+    data.activo =
+      estado === 'activo' ||
+      estado === 'true' ||
+      estado === '1';
+  }
+
+  if (body.activo !== undefined) {
+    data.activo =
+      body.activo === true ||
+      body.activo === 'true' ||
+      body.activo === 1 ||
+      body.activo === '1';
+  }
+
+  if (body.destacado !== undefined) {
+    data.destacado =
+      body.destacado === true ||
+      body.destacado === 'true' ||
+      body.destacado === 1 ||
+      body.destacado === '1';
+  }
+
+  if (body.codigo !== undefined) {
+    data.codigo = body.codigo || productoActual.codigo;
+  }
+
+  if (body.categoria_id !== undefined || body.categoriaId !== undefined) {
+    data.categoria_id = body.categoria_id || body.categoriaId || null;
+  }
+
+  if (body.tipo_producto_id !== undefined || body.tipoProductoId !== undefined) {
+    data.tipo_producto_id =
+      body.tipo_producto_id || body.tipoProductoId || null;
+  }
+
+  if (body.slug !== undefined) {
+    data.slug = await this.generarSlugUnico(body.slug || body.nombre, id);
+  } else if (body.nombre && body.nombre !== productoActual.nombre) {
+    data.slug = await this.generarSlugUnico(body.nombre, id);
+  }
+
+  await this.db.productos.update({
+    where: { id },
+    data,
+  });
+
+  if (Array.isArray(body.variantes)) {
+    for (const variante of body.variantes) {
+      const stock = Number(variante.stock);
+
+      if (!Number.isFinite(stock) || stock < 0) {
+        throw new BadRequestException(
+          'El stock de la variante debe ser un número válido mayor o igual a 0',
+        );
+      }
+
+      if (variante.id) {
+        await this.db.producto_variantes.update({
+          where: { id: variante.id },
+          data: {
+            stock,
+            precio_extra: Number(
+              variante.precio_extra || variante.precioExtra || 0,
+            ),
+            ...(variante.talla_id || variante.tallaId
+              ? { talla_id: variante.talla_id || variante.tallaId }
+              : {}),
+            ...(variante.color_id || variante.colorId
+              ? { color_id: variante.color_id || variante.colorId }
+              : {}),
+            ...(variante.sku !== undefined
+              ? { sku: variante.sku || null }
+              : {}),
+          },
+        });
+      } else {
+        await this.createVariante(id, variante);
+      }
+    }
+  }
+
+  return this.findOne(id);
+}
 
   async ocultar(id: string) {
     const producto = await this.db.productos.findUnique({
@@ -732,28 +779,32 @@ export class ProductosService {
   }
 
   async updateStockVariante(varianteId: string, stock: number) {
-    const variante = await this.db.producto_variantes.findUnique({
-      where: {
-        id: varianteId,
-      },
-    });
+  const nuevoStock = Number(stock);
 
-    if (!variante) {
-      throw new NotFoundException('Variante no encontrada');
-    }
-
-    return this.db.producto_variantes.update({
-      where: {
-        id: varianteId,
-      },
-      data: {
-        stock: Number(stock || 0),
-      },
-      include: {
-        tallas: true,
-      },
-    });
+  if (!Number.isFinite(nuevoStock) || nuevoStock < 0) {
+    throw new BadRequestException(
+      'El stock debe ser un número válido mayor o igual a 0',
+    );
   }
+
+  const variante = await this.db.producto_variantes.findUnique({
+    where: { id: varianteId },
+  });
+
+  if (!variante) {
+    throw new NotFoundException('Variante no encontrada');
+  }
+
+  return this.db.producto_variantes.update({
+    where: { id: varianteId },
+    data: {
+      stock: nuevoStock,
+    },
+    include: {
+      tallas: true,
+    },
+  });
+}
 
   async uploadImage(productoId: string, file: any) {
     const producto = await this.db.productos.findUnique({
