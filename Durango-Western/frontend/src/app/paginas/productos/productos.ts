@@ -12,8 +12,6 @@ import { ApiService } from '../../core/services/api/api.service';
   imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './productos.html',
   styleUrl: './productos.css'
-
-  
 })
 export class Productos implements OnInit {
 
@@ -28,84 +26,78 @@ export class Productos implements OnInit {
   buscar = '';
 
   precioMinimo = 0;
-  precioMaximo = 10000;
+  precioMaximo = 100000;
 
   precioMin = 0;
-  precioMax = 10000;
+  precioMax = 100000;
 
   products: any[] = [];
   ordenSeleccionado = '';
 
   ngOnInit(): void {
-  this.route.queryParams
-    .pipe(
-      switchMap(params => {
-        const slugRuta =
-          this.route.snapshot.paramMap.get('categoria') ??
-          this.route.snapshot.paramMap.get('tipo') ??
-          '';
+    this.route.queryParams
+      .pipe(
+        switchMap(params => {
+          const slugRuta =
+            this.route.snapshot.paramMap.get('categoria') ??
+            this.route.snapshot.paramMap.get('tipo') ??
+            '';
 
-        const generos = ['caballero', 'dama', 'ninos'];
+          const generos = ['caballero', 'dama', 'ninos'];
 
-        this.genero = params['genero'] ?? '';
-        this.tipo = params['tipo'] ?? '';
-        this.talla = params['talla'] ?? '';
-        this.buscar = params['buscar'] ?? '';
+          this.genero = params['genero'] ?? '';
+          this.tipo = params['tipo'] ?? '';
+          this.talla = params['talla'] ?? '';
+          this.buscar = params['buscar'] ?? '';
 
-        if (slugRuta && !this.genero && !this.tipo) {
-          if (generos.includes(slugRuta)) {
-            this.genero = slugRuta;
-          } else {
-            this.tipo = slugRuta;
+          if (slugRuta && !this.genero && !this.tipo) {
+            if (generos.includes(slugRuta)) {
+              this.genero = slugRuta;
+            } else {
+              this.tipo = slugRuta;
+            }
           }
+
+          this.precioMin = Number(params['precioMin'] ?? this.precioMinimo);
+          this.precioMax = Number(params['precioMax'] ?? this.precioMaximo);
+
+          const filtros = {
+            publico: true,
+            genero: this.genero,
+            tipo: this.tipo,
+            talla: this.talla,
+            precioMin: this.precioMin,
+            precioMax: this.precioMax,
+            buscar: this.buscar,
+          };
+
+          return this.api.get<any[]>('productos', filtros);
+        })
+      )
+      .subscribe({
+        next: (data) => {
+          this.products = [...data];
+          this.ordenarProductos();
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error cargando productos', error);
         }
-
-        this.precioMin = Number(params['precioMin'] ?? this.precioMinimo);
-        this.precioMax = Number(params['precioMax'] ?? this.precioMaximo);
-
-        const filtros = {
-          publico: true,
-          genero: this.genero,
-          tipo: this.tipo,
-          talla: this.talla,
-          precioMin: this.precioMin,
-          precioMax: this.precioMax,
-          buscar: this.buscar,
-        };
-
-        return this.api.get<any[]>('productos', filtros);
-      })
-    )
-    .subscribe({
-      next: (data) => {
-        this.products = [...data];
-        this.ordenarProductos();
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error cargando productos', error);
-      }
-    });
-}
+      });
+  }
 
   ordenarProductos(): void {
     switch (this.ordenSeleccionado) {
       case 'precioAsc':
-        this.products.sort(
-          (a, b) => Number(a.precio) - Number(b.precio)
-        );
+        this.products.sort((a, b) => Number(a.precio) - Number(b.precio));
         break;
 
       case 'precioDesc':
-        this.products.sort(
-          (a, b) => Number(b.precio) - Number(a.precio)
-        );
+        this.products.sort((a, b) => Number(b.precio) - Number(a.precio));
         break;
 
       case 'masVendidos':
-        this.products.sort(
-          (a, b) => Number(b.vendidos ?? 0) - Number(a.vendidos ?? 0)
-        );
+        this.products.sort((a, b) => Number(b.vendidos ?? 0) - Number(a.vendidos ?? 0));
         break;
 
       case 'recientes':
@@ -114,9 +106,6 @@ export class Productos implements OnInit {
             new Date(b.created_at ?? 0).getTime() -
             new Date(a.created_at ?? 0).getTime()
         );
-        break;
-
-      default:
         break;
     }
 
@@ -159,7 +148,6 @@ export class Productos implements OnInit {
 
     const queryParams: any = {
       ...this.route.snapshot.queryParams,
-      
       precioMin: this.precioMin,
       precioMax: this.precioMax
     };
@@ -251,15 +239,14 @@ export class Productos implements OnInit {
   }
 
   productoAgotado(producto: any): boolean {
-  const variantes = producto?.producto_variantes ?? [];
+    const variantes = producto?.producto_variantes ?? [];
 
-  if (variantes.length === 0) {
-    return true;
+    if (variantes.length === 0) {
+      return true;
+    }
+
+    return variantes.every((variante: any) =>
+      Number(variante.stock ?? 0) <= 0
+    );
   }
-
-  return variantes.every((variante: any) =>
-    Number(variante.stock ?? 0) <= 0
-  );
-}
-
 }
