@@ -103,39 +103,29 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
   }
 
   cargarTiendas(): void {
-  this.tiendasService.getTiendas().subscribe({
-    next: (tiendas) => {
-      console.log('Tiendas cargadas:', tiendas);
+    this.tiendasService.getTiendas().subscribe({
+      next: (tiendas) => {
+        console.log('Tiendas cargadas:', tiendas);
 
-      this.todasLasTiendas = tiendas ?? [];
-      this.tiendas = [...this.todasLasTiendas];
+        this.todasLasTiendas = tiendas ?? [];
+        this.tiendas = [];
+        this.tiendaSeleccionada = undefined;
 
-      if (this.tiendas.length > 0) {
-        this.tiendaSeleccionada = this.tiendas[0];
+        this.cdr.detectChanges();
 
-        this.center = {
-          lat: Number(this.tiendas[0].lat),
-          lng: Number(this.tiendas[0].lng),
-        };
-
-        this.zoom = 13;
-      }
-
-      this.cdr.detectChanges();
-
-      setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('resize'));
-        }
-      }, 300);
-    },
-    error: (error) => {
-      console.error('Error cargando tiendas:', error);
-      this.mensajeBusqueda = 'No se pudieron cargar las tiendas.';
-      this.cdr.detectChanges();
-    },
-  });
-}
+        setTimeout(() => {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('resize'));
+          }
+        }, 300);
+      },
+      error: (error) => {
+        console.error('Error cargando tiendas:', error);
+        this.mensajeBusqueda = 'No se pudieron cargar las tiendas.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
 
   inicializarAutocomplete(intentos = 0): void {
     if (!this.searchInput) {
@@ -207,7 +197,7 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
         this.center = puntoUsuario;
         this.zoom = 13;
 
-        this.mostrarTiendasCercanas(puntoUsuario);
+        this.mostrarTiendasCercanas(this.busqueda, puntoUsuario);
 
         this.mensajeBusqueda = `Mostrando tiendas cercanas a: ${this.busqueda}`;
 
@@ -274,16 +264,18 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
           }
 
           const location = results[0].geometry.location;
+          const direccionOrigen = results[0].formatted_address || textoBusqueda;
 
           const puntoUsuario: google.maps.LatLngLiteral = {
             lat: location.lat(),
             lng: location.lng(),
           };
 
+          this.origenBusqueda = direccionOrigen;
           this.center = puntoUsuario;
           this.zoom = 13;
 
-          this.mostrarTiendasCercanas(puntoUsuario);
+          this.mostrarTiendasCercanas(direccionOrigen, puntoUsuario);
 
           this.mensajeBusqueda = `Mostrando tiendas cercanas a: ${textoBusqueda}`;
 
@@ -298,99 +290,185 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
   }
 
   usarUbicacionActual(): void {
-    console.log('Intentando obtener ubicación actual...');
-
-    if (!navigator.geolocation) {
-      this.mensajeBusqueda =
-        'Tu navegador no permite obtener la ubicación actual.';
-      this.cdr.detectChanges();
-      return;
-    }
-
-    if (this.todasLasTiendas.length === 0) {
-      this.mensajeBusqueda = 'No hay sucursales registradas.';
-      this.cdr.detectChanges();
-      return;
-    }
-
-    this.cargandoUbicacion = true;
-    this.mensajeBusqueda = 'Obteniendo tu ubicación...';
-    this.tiendas = [];
-    this.tiendaSeleccionada = undefined;
+  if (!navigator.geolocation) {
+    this.mensajeBusqueda =
+      'Tu navegador no permite obtener la ubicación actual.';
     this.cdr.detectChanges();
+    return;
+  }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        this.ngZone.run(() => {
-          console.log('Ubicación obtenida:', position.coords);
+  if (this.todasLasTiendas.length === 0) {
+    this.mensajeBusqueda = 'No hay sucursales registradas.';
+    this.cdr.detectChanges();
+    return;
+  }
 
-          const puntoUsuario: google.maps.LatLngLiteral = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
+  this.cargandoUbicacion = true;
+  this.mensajeBusqueda = 'Obteniendo tu ubicación...';
+  this.tiendas = [];
+  this.tiendaSeleccionada = undefined;
+  this.cdr.detectChanges();
 
-          this.origenBusqueda = `${puntoUsuario.lat},${puntoUsuario.lng}`;
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      this.ngZone.run(() => {
+        const lat = Number(position.coords.latitude);
+        const lng = Number(position.coords.longitude);
+        const precisionMetros = Math.round(position.coords.accuracy ?? 0);
+
+        const puntoUsuario: google.maps.LatLngLiteral = { lat, lng };
+
+        this.origenBusqueda = `${lat},${lng}`;
+
+        if (typeof google !== 'undefined' && google.maps) {
+          const geocoder = new google.maps.Geocoder();
+
+          geocoder.geocode(
+            {
+              location: puntoUsuario,
+              region: 'mx',
+            },
+            (results, status) => {
+              this.ngZone.run(() => {
+                if (status === 'OK' && results && results.length > 0) {
+                  this.busqueda = results[0].formatted_address;
+                } else {
+                  this.busqueda = `${lat}, ${lng}`;
+                }
+
+                this.center = puntoUsuario;
+                this.zoom = 10;
+
+                this.mostrarTiendasCercanas(puntoUsuario, puntoUsuario);
+
+                this.cargandoUbicacion = false;
+                this.mensajeBusqueda =
+                  `Mostrando tiendas cercanas a tu ubicación actual. Precisión aproximada: ${precisionMetros} m.`;
+
+                this.cdr.detectChanges();
+
+                setTimeout(() => {
+                  window.dispatchEvent(new Event('resize'));
+                }, 300);
+              });
+            }
+          );
+        } else {
+          this.busqueda = `${lat}, ${lng}`;
 
           this.center = puntoUsuario;
-          this.zoom = 13;
+          this.zoom = 10;
 
-          this.mostrarTiendasCercanas(puntoUsuario);
+          this.mostrarTiendasCercanas(puntoUsuario, puntoUsuario);
 
           this.cargandoUbicacion = false;
           this.mensajeBusqueda =
-            'Mostrando tiendas cercanas a tu ubicación actual.';
+            `Mostrando tiendas cercanas a tu ubicación actual. Precisión aproximada: ${precisionMetros} m.`;
 
           this.cdr.detectChanges();
+        }
+      });
+    },
+    (error) => {
+      this.ngZone.run(() => {
+        console.error('Error obteniendo ubicación:', error);
 
-          setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-          }, 300);
-        });
-      },
-      (error) => {
-        this.ngZone.run(() => {
-          console.error('Error obteniendo ubicación:', error);
+        this.cargandoUbicacion = false;
+        this.mensajeBusqueda =
+          'No se pudo obtener tu ubicación. Intenta buscar por código postal.';
 
-          this.cargandoUbicacion = false;
+        this.cdr.detectChanges();
+      });
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 30000,
+      maximumAge: 0,
+    }
+  );
+}
 
-          if (error.code === error.PERMISSION_DENIED) {
-            this.mensajeBusqueda =
-              'El navegador tiene bloqueada la ubicación para este sitio.';
-            this.cdr.detectChanges();
-            return;
-          }
+  private mostrarTiendasCercanas(
+    origen: string | google.maps.LatLngLiteral,
+    puntoUsuario: google.maps.LatLngLiteral
+  ): void {
+    const tiendasValidas = this.todasLasTiendas.filter(
+      (tienda) => tienda.lat !== null && tienda.lng !== null
+    );
 
-          if (error.code === error.POSITION_UNAVAILABLE) {
-            this.mensajeBusqueda =
-              'No se pudo detectar tu ubicación. Intenta buscar por colonia o código postal.';
-            this.cdr.detectChanges();
-            return;
-          }
+    if (tiendasValidas.length === 0) {
+      this.tiendas = [];
+      this.tiendaSeleccionada = undefined;
+      this.mensajeBusqueda = 'No se encontraron sucursales cercanas.';
+      this.cdr.detectChanges();
+      return;
+    }
 
-          if (error.code === error.TIMEOUT) {
-            this.mensajeBusqueda =
-              'La ubicación tardó demasiado. Intenta de nuevo o busca por colonia.';
-            this.cdr.detectChanges();
-            return;
-          }
+    if (typeof google === 'undefined' || !google.maps) {
+      this.mostrarTiendasConDistanciaLineal(puntoUsuario, tiendasValidas);
+      return;
+    }
 
-          this.mensajeBusqueda = 'No se pudo obtener tu ubicación.';
-          this.cdr.detectChanges();
-        });
-      },
+    const service = new google.maps.DistanceMatrixService();
+
+    service.getDistanceMatrix(
       {
-        enableHighAccuracy: false,
-        timeout: 3000,
-        maximumAge: 600000,
+        origins: [origen],
+        destinations: tiendasValidas.map((tienda) => ({
+          lat: Number(tienda.lat),
+          lng: Number(tienda.lng),
+        })),
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+      },
+      (response, status) => {
+        this.ngZone.run(() => {
+          if (status !== 'OK' || !response?.rows?.[0]?.elements) {
+            this.mostrarTiendasConDistanciaLineal(puntoUsuario, tiendasValidas);
+            return;
+          }
+
+          this.tiendas = tiendasValidas
+            .map((tienda, index) => {
+              const element = response.rows[0].elements[index];
+
+              const distanciaKm =
+                element.status === 'OK' && element.distance
+                  ? Number((element.distance.value / 1000).toFixed(2))
+                  : this.calcularDistanciaKm(
+                      puntoUsuario.lat,
+                      puntoUsuario.lng,
+                      Number(tienda.lat),
+                      Number(tienda.lng)
+                    );
+
+              return {
+                ...tienda,
+                distanciaKm,
+              };
+            })
+            .sort(
+              (a, b) =>
+                Number(a.distanciaKm ?? 0) - Number(b.distanciaKm ?? 0)
+            );
+
+          if (this.tiendas.length > 0) {
+            this.seleccionarTienda(this.tiendas[0], false);
+          } else {
+            this.mensajeBusqueda = 'No se encontraron sucursales cercanas.';
+          }
+
+          this.cdr.detectChanges();
+        });
       }
     );
   }
 
-  private mostrarTiendasCercanas(
-    puntoUsuario: google.maps.LatLngLiteral
+  private mostrarTiendasConDistanciaLineal(
+    puntoUsuario: google.maps.LatLngLiteral,
+    tiendasValidas: Tienda[]
   ): void {
-    const tiendasOrdenadas = this.todasLasTiendas
-      .filter((tienda) => tienda.lat !== null && tienda.lng !== null)
+    this.tiendas = tiendasValidas
       .map((tienda) => ({
         ...tienda,
         distanciaKm: this.calcularDistanciaKm(
@@ -400,12 +478,7 @@ export class EncontrarTienda implements OnInit, AfterViewInit {
           Number(tienda.lng)
         ),
       }))
-      .sort((a, b) => (a.distanciaKm || 0) - (b.distanciaKm || 0));
-
-    console.log('Tiendas encontradas:', tiendasOrdenadas.length);
-    console.log('Listado de tiendas:', tiendasOrdenadas);
-
-    this.tiendas = tiendasOrdenadas;
+      .sort((a, b) => Number(a.distanciaKm ?? 0) - Number(b.distanciaKm ?? 0));
 
     if (this.tiendas.length > 0) {
       this.seleccionarTienda(this.tiendas[0], false);

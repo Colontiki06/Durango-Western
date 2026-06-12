@@ -1,0 +1,129 @@
+/* =========================
+   LOGIN DURANGO WESTERN
+========================= */
+
+/* Animación de entrada */
+
+.login-card {
+  animation: fadeLogin 0.35s ease;
+}
+
+@keyframes fadeLogin {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Inputs */
+
+input {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+input::placeholder {
+  color: #9b8b7d;
+}
+
+/* Error */
+
+.error-message {
+  animation: fadeError 0.2s ease;
+}
+
+@keyframes fadeError {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Botón ojito */
+
+.password-toggle {
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: #8b542f;
+  transform: scale(1.08);
+}
+
+/* Botones principales */
+
+.btn-primary {
+  transition:
+    background-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(91, 45, 22, 0.18);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Botones secundarios */
+
+.btn-secondary {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+/* Mensajes éxito */
+
+.success-box {
+  animation: fadeSuccess 0.25s ease;
+}
+
+@keyframes fadeSuccess {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive */
+
+@media (max-width: 640px) {
+
+  .login-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .login-card-mobile {
+    border-radius: 18px;
+  }
+
+}

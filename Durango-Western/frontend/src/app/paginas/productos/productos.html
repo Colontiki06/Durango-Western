@@ -77,15 +77,10 @@
               Cintos
             </label>
 
-           <label class="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="tipo"
-              [checked]="tipo === 'accesorios'"
-              (change)="filtrar('tipo', 'accesorios')"
-            >
-            Accesorios
-          </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="tipo" [checked]="tipo === 'accesorios'" (change)="filtrar('tipo', 'accesorios')">
+              Accesorios
+            </label>
 
           </div>
 
@@ -152,14 +147,16 @@
 
             <div class="mb-4">
 
-              <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center justify-between gap-3 mb-2">
 
                 <span class="text-xs uppercase tracking-widest text-[#8a6a52]">
                   Rango de precio
                 </span>
 
-                <span class="text-xs font-bold text-[#6b3f26]">
-                  ${{ precioMin }} - ${{ precioMax }}
+                <span class="text-xs font-bold text-[#6b3f26] whitespace-nowrap">
+                  {{ precioMin | currency:'MXN':'symbol':'1.0-0' }}
+                  -
+                  {{ precioMax | currency:'MXN':'symbol':'1.0-0' }}
                 </span>
 
               </div>
@@ -202,6 +199,11 @@
 
               </div>
 
+              <div class="flex justify-between text-[11px] font-bold text-[#8a6a52] mt-1">
+                <span>{{ precioMinimo | currency:'MXN':'symbol':'1.0-0' }}</span>
+                <span>{{ precioMaximo | currency:'MXN':'symbol':'1.0-0' }}</span>
+              </div>
+
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -220,6 +222,7 @@
                     class="w-full outline-none text-[#2f1b12] bg-transparent text-sm"
                     [min]="precioMinimo"
                     [max]="precioMaximo"
+                    step="100"
                   >
                 </div>
               </div>
@@ -238,6 +241,7 @@
                     class="w-full outline-none text-[#2f1b12] bg-transparent text-sm"
                     [min]="precioMinimo"
                     [max]="precioMaximo"
+                    step="100"
                   >
                 </div>
               </div>
@@ -292,7 +296,7 @@
                 </p>
 
                 <p class="text-[#2f1b12] font-bold mb-3">
-                  ${{ product.precio }} MXN
+                  {{ product.precio | currency:'MXN':'symbol':'1.0-0' }} MXN
                 </p>
 
                 @if(productoAgotado(product)) {
