@@ -829,84 +829,40 @@ export class ProductosService {
       },
     });
 
-    const imagen = await this.db.producto_imagenes.create({
-      data: {
-        producto_id: productoId,
-        url,
-        alt: producto.nombre,
-        principal: totalImagenes === 0,
-        orden: totalImagenes + 1,
-      },
-    });
-
+  const imagen = await this.db.producto_imagenes.create({
+  data: {
+    producto_id: productoId,
+    imagen_url: url,
+    principal: totalImagenes === 0,
+    orden: totalImagenes + 1,
+  },
+});
     return imagen;
   }
 
   private async subirImagenProducto(file: any): Promise<string> {
-    if (!this.storageService) {
-      if (file.location) {
-        return file.location;
-      }
-
-      if (file.url) {
-        return file.url;
-      }
-
-      if (file.path) {
-        return file.path;
-      }
-
-      throw new BadRequestException(
-        'StorageService no está disponible para subir imágenes',
-      );
-    }
-
-    const storage: any = this.storageService;
-
-    if (typeof storage.uploadFile === 'function') {
-      const resultado = await storage.uploadFile(file, 'productos');
-
-      if (typeof resultado === 'string') {
-        return resultado;
-      }
-
-      return resultado?.url || resultado?.publicUrl || resultado?.path;
-    }
-
-    if (typeof storage.uploadImage === 'function') {
-      const resultado = await storage.uploadImage(file, 'productos');
-
-      if (typeof resultado === 'string') {
-        return resultado;
-      }
-
-      return resultado?.url || resultado?.publicUrl || resultado?.path;
-    }
-
-    if (typeof storage.subirArchivo === 'function') {
-      const resultado = await storage.subirArchivo(file, 'productos');
-
-      if (typeof resultado === 'string') {
-        return resultado;
-      }
-
-      return resultado?.url || resultado?.publicUrl || resultado?.path;
-    }
-
-    if (typeof storage.subirImagen === 'function') {
-      const resultado = await storage.subirImagen(file, 'productos');
-
-      if (typeof resultado === 'string') {
-        return resultado;
-      }
-
-      return resultado?.url || resultado?.publicUrl || resultado?.path;
-    }
-
+  if (!this.storageService) {
     throw new BadRequestException(
-      'StorageService no tiene un método válido para subir imágenes',
+      'StorageService no está disponible para subir imágenes',
     );
   }
+
+  const storage: any = this.storageService;
+
+  if (typeof storage.uploadProductImage === 'function') {
+    const resultado = await storage.uploadProductImage(file);
+
+    if (typeof resultado === 'string') {
+      return resultado;
+    }
+
+    return resultado?.url || resultado?.publicUrl || resultado?.path;
+  }
+
+  throw new BadRequestException(
+    'StorageService no tiene un método válido para subir imágenes',
+  );
+}
 
   async setImagenPrincipal(imagenId: string) {
     const imagen = await this.db.producto_imagenes.findUnique({
