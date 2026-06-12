@@ -590,9 +590,9 @@ export class Checkout implements OnInit {
       calle: '',
       numeroExterior: '',
       numeroInterior: '',
-      colonia: 'Durango',
-      ciudad: 'Durango',
-      estado: 'Durango',
+      colonia: '',
+      ciudad: '',
+      estado: '',
       referencias: '',
     };
   }
