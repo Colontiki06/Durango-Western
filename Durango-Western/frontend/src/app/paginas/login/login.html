@@ -21,14 +21,12 @@
       (ngSubmit)="modoRecuperacion ? enviarCorreoRecuperacion() : login()"
     >
       <ng-container *ngIf="!modoRecuperacion">
-
         <p class="text-center text-sm text-[#3b2618] leading-6 mb-8">
           En caso de ya tener una cuenta existente, es necesario volver a registrar
           para poder ingresar en nuestro nuevo sitio web.
         </p>
 
         <div class="space-y-5">
-
           <div>
             <label class="block text-sm font-semibold text-[#3b2618] mb-2">
               Correo electrónico
@@ -70,7 +68,6 @@
                 class="absolute right-5 top-1/2 -translate-y-1/2 text-[#8b542f] hover:text-[#5b2d16] transition-colors disabled:opacity-50"
                 [attr.aria-label]="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
               >
-                <!-- OJO CERRADO (contraseña oculta) -->
                 <svg
                   *ngIf="!mostrarPassword"
                   xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +85,6 @@
                   <line x1="1" y1="1" x2="23" y2="23" />
                 </svg>
 
-                <!-- OJO ABIERTO (contraseña visible) -->
                 <svg
                   *ngIf="mostrarPassword"
                   xmlns="http://www.w3.org/2000/svg"
@@ -167,11 +163,67 @@
           >
             CREAR CUENTA
           </button>
-
         </div>
       </ng-container>
 
-      <!-- EL RESTO DE TU BLOQUE DE RECUPERACIÓN QUEDA EXACTAMENTE IGUAL -->
+      <ng-container *ngIf="modoRecuperacion">
+        <div class="space-y-5">
+          <div>
+            <label class="block text-sm font-semibold text-[#3b2618] mb-2">
+              Correo electrónico
+            </label>
+
+            <input
+              type="email"
+              name="emailRecuperacion"
+              [(ngModel)]="emailRecuperacion"
+              (input)="limpiarAlertas()"
+              placeholder="ejemplo@correo.com"
+              autocomplete="email"
+              [disabled]="enviandoRecuperacion"
+              class="w-full h-12 border border-[#b89c7a] bg-white px-4 text-[#2b1a10] outline-none rounded-lg focus:border-[#5b2d16] focus:ring-2 focus:ring-[#5b2d16]/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+          </div>
+
+          <div
+            *ngIf="error"
+            class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm rounded-lg text-center"
+          >
+            {{ error }}
+          </div>
+
+          <div
+            *ngIf="mensaje"
+            class="bg-green-100 border border-green-300 text-green-700 px-4 py-4 text-sm rounded-lg text-center"
+          >
+            {{ mensaje }}
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="enviandoRecuperacion"
+            class="w-full h-12 rounded-lg bg-[#8b542f] text-white text-sm font-bold tracking-wide hover:bg-[#6f4022] transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <span
+              *ngIf="enviandoRecuperacion"
+              class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
+            ></span>
+
+            <span>
+              {{ enviandoRecuperacion ? 'ENVIANDO...' : 'ENVIAR ENLACE' }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            (click)="cancelarRecuperacion()"
+            [disabled]="enviandoRecuperacion"
+            class="w-full h-12 rounded-lg border border-[#8b542f] bg-transparent text-[#5b2d16] text-sm font-bold tracking-wide hover:bg-[#f3e3cc] transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            VOLVER AL LOGIN
+          </button>
+        </div>
+      </ng-container>
     </form>
   </div>
 </section>
