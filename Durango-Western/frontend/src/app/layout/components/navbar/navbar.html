@@ -19,7 +19,7 @@
         <img src="/icons/lupa.svg" alt="Buscar" />
       </button>
 
-      <div class="user-menu-wrapper">
+      <div class="user-menu-wrapper relative">
         <button
           type="button"
           class="icon-button"
@@ -30,7 +30,7 @@
         </button>
 
         @if (userMenuOpen) {
-          <div class="user-dropdown">
+          <div class="user-dropdown user-dropdown-fixed">
             @if (isLoggedIn()) {
               <div class="px-3 py-3 text-left">
                 <p class="text-[#2f1b12] font-bold mb-1">
@@ -167,7 +167,7 @@
     <a
       routerLink="/productos"
       [queryParams]="{ genero: 'caballero' }"
-      class="menu-link"
+      class="menu-link menu-button"
     >
       Caballero
     </a>
@@ -204,7 +204,7 @@
     <a
       routerLink="/productos"
       [queryParams]="{ genero: 'dama' }"
-      class="menu-link"
+      class="menu-link menu-button"
     >
       Dama
     </a>
@@ -240,7 +240,7 @@
     <a
       routerLink="/productos"
       [queryParams]="{ genero: 'ninos' }"
-      class="menu-link"
+      class="menu-link menu-button"
     >
       Niños
     </a>
